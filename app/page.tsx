@@ -38,7 +38,7 @@ export default function HomePage() {
         <header className="mb-24 min-h-screen justify-center items-center flex flex-col md:pb-32 text-center">
           <div className="flex flex-col items-center justify-center">
             <h1 className="z-10 text-4xl duration-1000 text-slate-300 font-display sm:text-6xl md:text-9xl animate-pulse">
-              xhal
+              tomdeleon
             </h1>
             <p className="text-xs sm:text-xl md:text-2xl mb-5 leading-8 text-gray-400">
               Electronics Engineering Student | Frontend Web Developer |
