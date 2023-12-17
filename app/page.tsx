@@ -75,7 +75,7 @@ export default function HomePage() {
               <FaGithubSquare></FaGithubSquare>
             </Link>
             <Link
-              href="https://www.instagram.com/tomdeleon_/"
+              href="https://www.instagram.com/tommy.devtronics/"
               target="_blank"
               className="text-xl sm:text-3xl md:text-4xl text-slate-300 hover:text-indigo-700 ease-in-out duration-300"
             >
