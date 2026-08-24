@@ -1,64 +1,186 @@
-@tailwind base;
+@import "tailwindcss";
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--secondary) var(--primary);
+/*
+  Dual mode. Tailwind utilities point at --color-*, which point at the mode
+  variables below. Light is defined on bare :root so it is the fallback that
+  always exists; dark is layered on via prefers-color-scheme, and an explicit
+  [data-theme] wins over both so the toggle works in either direction.
+*/
+@theme {
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-sunken: var(--bg-sunken);
+  --color-hairline: var(--hairline);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-panel: 12px;
+  --radius-input: 8px;
 }
-
-/* Chrome, Edge, and Safari */
-*::-webkit-scrollbar {
-  width: 15px;
-}
-
-*::-webkit-scrollbar-track {
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-  border-radius: 5px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-  border-radius: 14px;
-  border: 3px solid
-    linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
-    rgb(var(--background-start-rgb));
-}
-
-@tailwind components;
-@tailwind utilities;
 
 :root {
-  /* --foreground-rgb: 30, 30, 30;
-  --background-start-rgb: 245, 245, 245;
-  --background-end-rgb: 225, 225, 225; */
-  --foreground-rgb: 225, 225, 225;
-  --background-start-rgb: 10, 10, 10;
-  --background-end-rgb: 30, 30, 30;
+  color-scheme: light;
+  --bg: #fafafb;
+  --bg-raised: #ffffff;
+  --bg-sunken: #f1f2f5;
+  --hairline: #e2e4e9;
+  --text: #14161a;
+  --text-muted: #545b66;
+  --text-faint: #6c7480;
+  /* Amber is darkened for light mode. #f5a524 on white is about 1.9:1 and
+     would fail AA everywhere it is used as text. This is 5.2:1. */
+  --accent: #a35700;
+  --on-accent: #ffffff;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 225, 225, 225;
-    --background-start-rgb: 10, 10, 10;
-    --background-end-rgb: 30, 30, 30;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0a0b0d;
+    --bg-raised: #121418;
+    --bg-sunken: #060709;
+    --hairline: #1e2128;
+    --text: #edeef0;
+    --text-muted: #9ba1ac;
+    --text-faint: #868d99;
+    --accent: #f5a524;
+    --on-accent: #0a0b0d;
   }
-} */
+}
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0b0d;
+  --bg-raised: #121418;
+  --bg-sunken: #060709;
+  --hairline: #1e2128;
+  --text: #edeef0;
+  --text-muted: #9ba1ac;
+  --text-faint: #868d99;
+  --accent: #f5a524;
+  --on-accent: #0a0b0d;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  /* Reveal targets start hidden only when motion will actually reveal them.
+     No JS, or reduced motion, means this never applies and nothing is hidden. */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Pairs with GSAP autoAlpha. visibility:hidden keeps not-yet-revealed
+       content out of the accessibility tree instead of leaving invisible text
+       announced to screen readers. */
+    .js-motion [data-reveal] {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+}
+
+@utility text-display {
+  font-size: clamp(2.75rem, 7vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+@utility text-h2 {
+  font-size: clamp(2rem, 4.2vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h3 {
+  font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+@utility text-body-lg {
+  font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+  line-height: 1.6;
+}
+
+@utility text-mono-sm {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+@utility section-y {
+  padding-block: clamp(6rem, 14vh, 11rem);
+}
+
+@utility shell {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 768px) {
+    padding-inline: 2.5rem;
+  }
+  @media (width >= 1024px) {
+    padding-inline: 4rem;
+  }
+}
+/* Theme toggle icon visibility, driven by the same signals as the palette. */
+.icon-when-dark {
+  display: none;
+}
+.icon-when-light {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .icon-when-dark {
+    display: block;
+  }
+  :root:not([data-theme="light"]) .icon-when-light {
+    display: none;
+  }
+}
+:root[data-theme="dark"] .icon-when-dark {
+  display: block;
+}
+:root[data-theme="dark"] .icon-when-light {
+  display: none;
+}
+:root[data-theme="light"] .icon-when-dark {
+  display: none;
+}
+:root[data-theme="light"] .icon-when-light {
+  display: block;
 }
