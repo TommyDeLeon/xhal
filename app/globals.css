@@ -167,30 +167,50 @@
   }
 }
 /*
-  Theme control state, driven by the same attribute as the palette.
-  System is the absence of data-theme, which is what keeps
-  prefers-color-scheme live without a listener.
+  Segmented colour mode control.
+
+  The selected option is decided here rather than in React so it is correct at
+  first paint: the inline script in layout.tsx writes data-theme before paint,
+  well before hydration. System is the absence of the attribute, which is also
+  what keeps prefers-color-scheme live without a listener.
+
+  No display property on .theme-switch on purpose. The component takes that
+  from its className so a caller can pass `hidden md:inline-flex` without
+  depending on which utility Tailwind happens to emit last.
 */
-.theme-icon-system,
-.theme-icon-light,
-.theme-icon-dark,
-.theme-label-system,
-.theme-label-light,
-.theme-label-dark {
-  display: none;
+.theme-switch {
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background-color: var(--bg);
 }
 
-:root:not([data-theme]) .theme-icon-system,
-:root[data-theme="light"] .theme-icon-light,
-:root[data-theme="dark"] .theme-icon-dark {
-  display: block;
+.theme-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Comfortably clears the 24px WCAG 2.2 AA target minimum. */
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  color: var(--text-faint);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
-/* sr-only sets position:absolute, so these need inline, not block. */
-:root:not([data-theme]) .theme-label-system,
-:root[data-theme="light"] .theme-label-light,
-:root[data-theme="dark"] .theme-label-dark {
-  display: inline;
+.theme-opt:hover {
+  color: var(--text);
+}
+
+:root:not([data-theme]) .theme-opt-system,
+:root[data-theme="light"] .theme-opt-light,
+:root[data-theme="dark"] .theme-opt-dark {
+  background-color: var(--bg-raised);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--hairline);
 }
 /*
   Mobile menu entrance. Transform and opacity only, and the whole block sits

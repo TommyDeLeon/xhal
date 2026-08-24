@@ -97,8 +97,11 @@ export default function Nav({ links }: { links: NavLink[] }) {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-1">
-          <ThemeToggle />
+        <div className="flex items-center gap-2">
+          {/* Three 34px options is roughly 110px. Alongside the wordmark and
+              the hamburger that does not fit a 320px header, so on small
+              screens the switch lives in the menu panel instead. */}
+          <ThemeToggle className="hidden md:inline-flex" />
 
           <button
             ref={toggleRef}
@@ -164,10 +167,20 @@ export default function Nav({ links }: { links: NavLink[] }) {
           </nav>
 
           <div className="shell shrink-0 pb-10">
+            <div
+              style={{ "--i": links.length } as React.CSSProperties}
+              className="menu-item mb-6 flex items-center justify-between"
+            >
+              <span className="text-mono-sm uppercase text-text-muted">
+                Appearance
+              </span>
+              <ThemeToggle />
+            </div>
+
             <a
               href={`mailto:${site.email}`}
               onClick={close}
-              style={{ "--i": links.length } as React.CSSProperties}
+              style={{ "--i": links.length + 1 } as React.CSSProperties}
               className="menu-item flex min-h-[52px] items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-on-accent"
             >
               {site.email}

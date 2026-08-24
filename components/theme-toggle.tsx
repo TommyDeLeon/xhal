@@ -1,75 +1,120 @@
 "use client";
 
+import { useRef, useSyncExternalStore } from "react";
 import { Desktop, Moon, Sun } from "@phosphor-icons/react";
 
-/**
- * Three-state colour mode control: System, Light, Dark.
- *
- * There is deliberately no React state. Which icon and which accessible label
- * are shown is decided by CSS from the same data-theme attribute the palette
- * reads, so the control cannot disagree with the theme and there is nothing to
- * mismatch during hydration.
- *
- * System is represented by the ABSENCE of data-theme, which is what lets the
- * prefers-color-scheme media query stay live: changing the OS setting
- * repaints immediately with no listener and no reload.
- */
 type Mode = "system" | "light" | "dark";
 
-const NEXT: Record<Mode, Mode> = {
-  system: "light",
-  light: "dark",
-  dark: "system",
-};
+const MODES: { value: Mode; label: string; Icon: typeof Sun }[] = [
+  { value: "light", label: "Light", Icon: Sun },
+  { value: "dark", label: "Dark", Icon: Moon },
+  { value: "system", label: "System", Icon: Desktop },
+];
 
-export default function ThemeToggle() {
-  function cycle() {
-    const root = document.documentElement;
-    const current = (root.dataset.theme as Mode) || "system";
-    const next = NEXT[current];
+/** The palette lives on <html data-theme>, so that attribute is the store. */
+function subscribe(onStoreChange: () => void) {
+  const observer = new MutationObserver(onStoreChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
 
-    if (next === "system") {
-      delete root.dataset.theme;
-    } else {
-      root.dataset.theme = next;
-    }
+function getSnapshot(): Mode {
+  const value = document.documentElement.dataset.theme;
+  return value === "light" || value === "dark" ? value : "system";
+}
 
-    try {
-      if (next === "system") localStorage.removeItem("theme");
-      else localStorage.setItem("theme", next);
-    } catch {
-      // Private mode can refuse storage. The control still works this visit.
-    }
+/**
+ * The server has no DOM and no stored preference, so it renders the default.
+ * useSyncExternalStore uses this during hydration and then re-renders with the
+ * real value, which is why this does not produce a hydration mismatch the way
+ * reading matchMedia during render would.
+ */
+function getServerSnapshot(): Mode {
+  return "system";
+}
+
+function apply(next: Mode) {
+  const root = document.documentElement;
+
+  // System is the ABSENCE of the attribute. That is what lets the
+  // prefers-color-scheme media query stay live, with no listener and no
+  // reload, when the OS setting changes.
+  if (next === "system") delete root.dataset.theme;
+  else root.dataset.theme = next;
+
+  try {
+    if (next === "system") localStorage.removeItem("theme");
+    else localStorage.setItem("theme", next);
+  } catch {
+    // Private mode can refuse storage. The choice still holds for this visit.
+  }
+}
+
+/**
+ * Segmented three-option colour mode control: Light, Dark, System.
+ *
+ * Two sources of truth on purpose, each solving a different timing problem:
+ *
+ * - The VISUAL selected state comes from CSS keyed on :root[data-theme], so it
+ *   is already correct at first paint. The inline script in layout.tsx sets
+ *   that attribute before paint, long before React hydrates, so a React-driven
+ *   highlight would show the wrong option until hydration finished.
+ * - The ARIA state (aria-checked, roving tabIndex) comes from React, because
+ *   CSS cannot set attributes. It is one render late at worst, which no
+ *   sighted user can perceive and no screen reader reaches sooner.
+ *
+ * `className` must supply the display value; .theme-switch deliberately does
+ * not set one, so a caller can pass `hidden md:inline-flex` without fighting
+ * stylesheet order.
+ */
+export default function ThemeToggle({
+  className = "inline-flex",
+}: {
+  className?: string;
+}) {
+  const mode = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const refs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  // Arrow keys move between options, which is what a radiogroup is expected to
+  // do. Combined with the roving tabIndex it keeps the group a single tab stop.
+  function onKeyDown(event: React.KeyboardEvent, index: number) {
+    const back = event.key === "ArrowLeft" || event.key === "ArrowUp";
+    const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+    if (!back && !forward) return;
+
+    event.preventDefault();
+    const next = (index + (forward ? 1 : -1) + MODES.length) % MODES.length;
+    apply(MODES[next].value);
+    refs.current[next]?.focus();
   }
 
   return (
-    <button
-      type="button"
-      onClick={cycle}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-text transition-colors hover:text-accent"
+    <div
+      role="radiogroup"
+      aria-label="Colour mode"
+      className={`theme-switch ${className}`}
     >
-      {/* All three labels are in the markup; CSS reveals the one that matches
-          the current setting. display:none removes the others from the
-          accessibility tree, so only the true state is announced. */}
-      <span className="sr-only theme-label-system">
-        Colour mode: system. Activate to switch to light.
-      </span>
-      <span className="sr-only theme-label-light">
-        Colour mode: light. Activate to switch to dark.
-      </span>
-      <span className="sr-only theme-label-dark">
-        Colour mode: dark. Activate to switch to system.
-      </span>
-
-      <span className="theme-icon-system">
-        <Desktop size={20} aria-hidden />
-      </span>
-      <span className="theme-icon-light">
-        <Sun size={20} aria-hidden />
-      </span>
-      <span className="theme-icon-dark">
-        <Moon size={20} aria-hidden />
-      </span>
-    </button>
+      {MODES.map(({ value, label, Icon }, index) => (
+        <button
+          key={value}
+          ref={(el) => {
+            refs.current[index] = el;
+          }}
+          type="button"
+          role="radio"
+          aria-checked={mode === value}
+          tabIndex={mode === value ? 0 : -1}
+          onClick={() => apply(value)}
+          onKeyDown={(event) => onKeyDown(event, index)}
+          className={`theme-opt theme-opt-${value}`}
+        >
+          <span className="sr-only">{label}</span>
+          <Icon size={17} aria-hidden />
+        </button>
+      ))}
+    </div>
   );
 }
