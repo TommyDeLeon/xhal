@@ -144,29 +144,69 @@ export default function MotionLayer() {
       const pin = document.querySelector<HTMLElement>("[data-pin]");
       if (!pin) return;
 
+      const q = gsap.utils.selector(pin);
+
+      // Short pin. The whole sequence resolves inside roughly half a screen of
+      // scroll, so the section reads as a beat rather than as a stall.
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pin,
           start: "top top",
-          end: "+=110%",
+          end: "+=55%",
           pin: true,
-          scrub: 1,
+          scrub: 0.4,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
 
-      const rule = pin.querySelector("[data-pin-rule]");
-      const tail = pin.querySelector("[data-pin-tail]");
+      const lead = q("[data-pin-lead]");
+      const rule = q("[data-pin-rule]");
+      const tail = q("[data-pin-tail]");
+      const body = q("[data-pin-body]");
+      const glow = q("[data-pin-glow]");
 
-      if (rule) {
+      // The first clause settles back in depth as the second arrives, so the
+      // two halves of the claim trade focus instead of just sitting there.
+      if (lead.length) {
+        tl.fromTo(
+          lead,
+          { z: 0, opacity: 1 },
+          { z: -90, opacity: 0.45, ease: EASE_SCRUB },
+          0,
+        );
+      }
+      if (rule.length) {
         tl.fromTo(
           rule,
           { scaleX: 0 },
           { scaleX: 1, ease: EASE_SCRUB, transformOrigin: "left center" },
+          0,
         );
       }
-      if (tail) {
-        tl.fromTo(tail, { opacity: 0.25 }, { opacity: 1, ease: EASE_SCRUB }, "<");
+      if (tail.length) {
+        tl.fromTo(
+          tail,
+          { z: -160, yPercent: 22, autoAlpha: 0 },
+          { z: 0, yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+          0.05,
+        );
+      }
+      if (body.length) {
+        tl.fromTo(
+          body,
+          { yPercent: 30, autoAlpha: 0 },
+          { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+          0.35,
+        );
+      }
+      if (glow.length) {
+        tl.fromTo(
+          glow,
+          { scale: 0.75, opacity: 0.25 },
+          { scale: 1.1, opacity: 0.7, ease: EASE_SCRUB },
+          0,
+        );
       }
     });
 

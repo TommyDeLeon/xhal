@@ -15,14 +15,28 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
     >
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14">
         <div
-          className={
+          className={`self-start lg:sticky lg:top-24 ${
             flip
               ? "lg:order-2 lg:col-span-5 lg:col-start-8"
               : "lg:col-span-5"
-          }
+          }`}
         >
-          <p className="text-mono-sm text-text-muted">{project.year}</p>
-          <h3 className="text-h2 mt-3 font-medium">{project.name}</h3>
+          <div className="flex items-center gap-4">
+            {project.mark ? (
+              <img
+                src={project.mark.src}
+                alt={project.mark.alt}
+                width={128}
+                height={128}
+                loading="lazy"
+                decoding="async"
+                aria-hidden={project.mark.alt === ""}
+                className="h-12 w-12 rounded-[10px] border border-hairline"
+              />
+            ) : null}
+            <p className="text-mono-sm text-text-muted">{project.year}</p>
+          </div>
+          <h3 className="text-h2 mt-4 font-medium">{project.name}</h3>
           <p className="text-body-lg mt-5 max-w-[42ch] text-text-muted">
             {project.summary}
           </p>
@@ -53,6 +67,34 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
               </a>
             ) : null}
           </div>
+
+          {project.media ? (
+            <figure className="mt-9 overflow-hidden rounded-panel border border-hairline">
+              {project.media.kind === "video" ? (
+                <video
+                  src={project.media.src}
+                  poster={project.media.poster}
+                  muted
+                  loop
+                  playsInline
+                  controls
+                  preload="none"
+                  aria-label={project.media.label}
+                  className="block w-full"
+                />
+              ) : (
+                <img
+                  src={project.media.src}
+                  alt={project.media.alt}
+                  width={project.media.width}
+                  height={project.media.height}
+                  loading="lazy"
+                  decoding="async"
+                  className="block w-full"
+                />
+              )}
+            </figure>
+          ) : null}
         </div>
 
         <div className={flip ? "lg:order-1 lg:col-span-6" : "lg:col-span-6 lg:col-start-7"}>
@@ -65,9 +107,34 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             </p>
           ))}
 
+          {project.details ? (
+            <details className="group mt-7 border-y border-hairline">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-sm text-text marker:content-none">
+                {project.details.summary}
+                <span
+                  aria-hidden
+                  className="text-mono-sm shrink-0 text-accent transition-transform duration-300 group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="pb-5">
+                {project.details.body.map((para) => (
+                  <p
+                    key={para.slice(0, 40)}
+                    className="mb-4 max-w-[65ch] text-sm leading-[1.75] text-text-muted last:mb-0"
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
+            </details>
+          ) : null}
+
           <p className="mt-8 border-l border-accent pl-5 text-sm leading-[1.7] text-text">
             {project.angle}
           </p>
+
 
           <ul className="mt-8 flex flex-wrap gap-x-4 gap-y-2 border-t border-hairline pt-6">
             {project.stack.map((tech) => (
