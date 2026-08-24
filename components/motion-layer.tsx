@@ -7,6 +7,12 @@ import { DUR, EASE_OUT, EASE_SCRUB, MQ, STAGGER } from "@/lib/motion";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// GSAP's own documented mitigation for the mobile-Safari address-bar issue:
+// ScrollTrigger normally refreshes on any resize, and the toolbar collapsing
+// as the user scrolls fires one. This tells it to ignore a resize on touch
+// devices when only the height changed, which is the toolbar's signature.
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 /**
  * The single motion island. Sections stay server-rendered and mark themselves
  * with data attributes; this component reads those attributes and attaches the
@@ -139,81 +145,134 @@ export default function MotionLayer() {
     });
 
     // The pinned thesis. It holds the viewport because it is the argument the
-    // whole site is making. Not pinned below 768px, where it fights OS scroll.
-    mm.add(`${MQ.canPin} and ${MQ.motionOK}`, () => {
+    // whole site is making, on viewports with the width AND the vertical room
+    // for it. Everything else gets the same beat scrubbed to scroll position
+    // instead, so the section is never merely static.
+    //
+    // The width query is the only live-reactive condition. Height is read
+    // fresh, once, each time this handler (re)runs — which only happens on an
+    // actual width crossing (a real orientation change or resize), never on
+    // mobile Safari's toolbar collapsing mid-scroll. A live min-height query
+    // would retrigger on that toolbar movement and tear down/rebuild the pin
+    // while the user is actively scrolling through it, which is exactly the
+    // "scroll jumps back and forth" bug this replaced.
+    mm.add(`${MQ.wide} and ${MQ.motionOK}`, () => {
       const pin = document.querySelector<HTMLElement>("[data-pin]");
       if (!pin) return;
 
+      const tallEnough = window.innerHeight >= 640;
       const q = gsap.utils.selector(pin);
-
-      // Short pin. The whole sequence resolves inside roughly half a screen of
-      // scroll, so the section reads as a beat rather than as a stall.
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: pin,
-          start: "top top",
-          end: "+=55%",
-          pin: true,
-          scrub: 0.4,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-
       const lead = q("[data-pin-lead]");
       const rule = q("[data-pin-rule]");
       const tail = q("[data-pin-tail]");
       const body = q("[data-pin-body]");
       const glow = q("[data-pin-glow]");
 
-      // The first clause settles back in depth as the second arrives, so the
-      // two halves of the claim trade focus instead of just sitting there.
-      if (lead.length) {
-        tl.fromTo(
-          lead,
-          { z: 0, opacity: 1 },
-          { z: -90, opacity: 0.45, ease: EASE_SCRUB },
-          0,
-        );
-      }
-      if (rule.length) {
-        tl.fromTo(
-          rule,
-          { scaleX: 0 },
-          { scaleX: 1, ease: EASE_SCRUB, transformOrigin: "left center" },
-          0,
-        );
-      }
-      if (tail.length) {
-        tl.fromTo(
-          tail,
-          { z: -160, yPercent: 22, autoAlpha: 0 },
-          { z: 0, yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
-          0.05,
-        );
-      }
-      if (body.length) {
-        tl.fromTo(
-          body,
-          { yPercent: 30, autoAlpha: 0 },
-          { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
-          0.35,
-        );
-      }
-      if (glow.length) {
-        tl.fromTo(
-          glow,
-          { scale: 0.75, opacity: 0.25 },
-          { scale: 1.1, opacity: 0.7, ease: EASE_SCRUB },
-          0,
-        );
+      if (tallEnough) {
+        // Short pin. The whole sequence resolves inside roughly half a screen
+        // of scroll, so the section reads as a beat rather than as a stall.
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: pin,
+            start: "top top",
+            end: "+=55%",
+            pin: true,
+            scrub: 0.4,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // The first clause settles back in depth as the second arrives, so
+        // the two halves of the claim trade focus instead of just sitting.
+        if (lead.length) {
+          tl.fromTo(
+            lead,
+            { z: 0, opacity: 1 },
+            { z: -90, opacity: 0.45, ease: EASE_SCRUB },
+            0,
+          );
+        }
+        if (rule.length) {
+          tl.fromTo(
+            rule,
+            { scaleX: 0 },
+            { scaleX: 1, ease: EASE_SCRUB, transformOrigin: "left center" },
+            0,
+          );
+        }
+        if (tail.length) {
+          tl.fromTo(
+            tail,
+            { z: -160, yPercent: 22, autoAlpha: 0 },
+            { z: 0, yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+            0.05,
+          );
+        }
+        if (body.length) {
+          tl.fromTo(
+            body,
+            { yPercent: 30, autoAlpha: 0 },
+            { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+            0.35,
+          );
+        }
+        if (glow.length) {
+          tl.fromTo(
+            glow,
+            { scale: 0.75, opacity: 0.25 },
+            { scale: 1.1, opacity: 0.7, ease: EASE_SCRUB },
+            0,
+          );
+        }
+      } else {
+        // Wide but short (a phone held sideways). Same beat, no pin.
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: pin,
+            start: "top 80%",
+            end: "top 15%",
+            scrub: 0.5,
+          },
+        });
+
+        if (lead.length) {
+          tl.fromTo(
+            lead,
+            { yPercent: 16, autoAlpha: 0 },
+            { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+            0,
+          );
+        }
+        if (rule.length) {
+          tl.fromTo(
+            rule,
+            { scaleX: 0 },
+            { scaleX: 1, ease: EASE_SCRUB, transformOrigin: "left center" },
+            0.15,
+          );
+        }
+        if (tail.length) {
+          tl.fromTo(
+            tail,
+            { yPercent: 22, autoAlpha: 0 },
+            { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+            0.3,
+          );
+        }
+        if (body.length) {
+          tl.fromTo(
+            body,
+            { yPercent: 18, autoAlpha: 0 },
+            { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+            0.5,
+          );
+        }
       }
     });
 
-    // Same beat as the pinned version, for viewports too narrow or too short
-    // to pin. Scrubbed against the section's own travel through the viewport,
-    // so it still reads as choreography rather than a static block of text.
-    mm.add(MQ.cannotPin, () => {
+    // Narrow (portrait phone). Never pins, whatever the height.
+    mm.add(`(max-width: 767.98px) and ${MQ.motionOK}`, () => {
       const pin = document.querySelector<HTMLElement>("[data-pin]");
       if (!pin) return;
 

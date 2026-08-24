@@ -25,18 +25,17 @@ export const MQ = {
   motionOK: "(prefers-reduced-motion: no-preference)",
 
   /**
-   * Pinning needs vertical room, not just width. A phone held sideways is
-   * wider than 768px but only ~390px tall, and there the pinned section opens
-   * on a near-empty screen while the rest of the claim waits below the fold.
-   * Height is the real condition, so it is part of the query.
+   * Width-only gate for the pinned thesis section. Deliberately NOT combined
+   * with a min-height media feature: gsap.matchMedia listens live, and on
+   * mobile Safari window.innerHeight changes as the address bar collapses and
+   * expands mid-scroll. A live height query crosses its threshold while the
+   * user is scrolling through the very section it gates, tearing down and
+   * rebuilding the pinned ScrollTrigger under their thumb, which is the
+   * section jumping back and forth. Width is stable across toolbar show/hide,
+   * so it is the only feature allowed to react live here. The vertical-room
+   * check still happens, just as a one-time read inside the handler (see
+   * motion-layer.tsx) so it only re-evaluates on a real orientation change,
+   * not a toolbar twitch.
    */
-  canPin: "(min-width: 768px) and (min-height: 640px)",
-
-  /**
-   * The exact complement of canPin: too narrow OR too short. Comma is OR in a
-   * media query. These viewports still get the choreography, just driven by
-   * scroll position instead of a pin, so the section is never merely static.
-   */
-  cannotPin:
-    "(max-width: 767.98px) and (prefers-reduced-motion: no-preference), (max-height: 639.98px) and (prefers-reduced-motion: no-preference)",
+  wide: "(min-width: 768px)",
 } as const;
