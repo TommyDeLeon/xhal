@@ -3,9 +3,9 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { site } from "@/content/site";
 
 /**
- * Editorial hero. The portrait sits above the headline as a byline rather than
- * filling a panel: the source is 294px square, and at this display size it
- * renders around 2.6x density instead of being upscaled into softness.
+ * Asymmetric split hero. Text holds the left seven columns, the portrait the
+ * right five, sitting in its own perspective so it tilts independently of the
+ * type as you move the pointer.
  */
 export default function Hero() {
   const portrait = site.portrait;
@@ -13,7 +13,7 @@ export default function Hero() {
   return (
     <section
       data-hero
-      className="relative flex min-h-[100dvh] items-center overflow-hidden pt-24 pb-16"
+      className="relative flex min-h-[100dvh] items-center overflow-hidden pt-28 pb-16 md:pt-24"
     >
       {/* Depth ground. Decorative, so it is hidden from assistive tech. */}
       <div
@@ -22,31 +22,9 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[120%] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,var(--bg-raised)_0%,transparent_70%)]"
       />
 
-      <div className="shell grid w-full grid-cols-1 items-center lg:grid-cols-12">
-        <div className="lg:col-span-10">
-          {portrait ? (
-            <div data-hero-portrait className="mb-9 flex items-center gap-4">
-              {/* Pre-compressed at build time: static export has no image
-                  optimizer at request time. */}
-              <picture>
-                <source srcSet="/images/tommy.avif" type="image/avif" />
-                <source srcSet="/images/tommy.webp" type="image/webp" />
-                <img
-                  src={portrait.src}
-                  alt={portrait.alt}
-                  width={portrait.width}
-                  height={portrait.height}
-                  fetchPriority="high"
-                  decoding="async"
-                  className="h-24 w-24 rounded-full border border-hairline object-cover md:h-28 md:w-28"
-                />
-              </picture>
-
-              <p className="text-mono-sm max-w-[18ch] text-text-muted">
-                {site.status}
-              </p>
-            </div>
-          ) : null}
+      <div className="shell grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-14">
+        <div className={portrait ? "lg:col-span-7" : "lg:col-span-10"}>
+          <p className="text-mono-sm mb-7 text-text-muted">{site.status}</p>
 
           <h1 className="text-display font-medium">
             {/* The visual lines are split for the mask reveal, which would make
@@ -73,7 +51,7 @@ export default function Hero() {
 
           <p
             data-hero-sub
-            className="text-body-lg mt-7 max-w-[48ch] text-text-muted"
+            className="text-body-lg mt-7 max-w-[46ch] text-text-muted"
           >
             {site.positioning}
           </p>
@@ -93,6 +71,42 @@ export default function Hero() {
             </Link>
           </div>
         </div>
+
+        {portrait ? (
+          <div
+            data-hero-portrait
+            className="order-first lg:order-none lg:col-span-5 [perspective:1100px]"
+          >
+            <div
+              data-tilt
+              className="relative mx-auto w-full max-w-[clamp(13rem,32vw,24rem)] [transform-style:preserve-3d]"
+            >
+              {/* Offset frame sitting behind the photo in Z, so the panel reads
+                  as a physical object rather than a pasted-in circle. */}
+              <div
+                aria-hidden
+                className="absolute -inset-3 -z-10 rounded-[20px] border border-hairline"
+                style={{ transform: "translateZ(-40px)" }}
+              />
+
+              <picture>
+                <source srcSet="/images/tommy.avif" type="image/avif" />
+                <source srcSet="/images/tommy.webp" type="image/webp" />
+                {/* Pre-compressed at build time: static export has no image
+                    optimizer at request time. */}
+                <img
+                  src={portrait.src}
+                  alt={portrait.alt}
+                  width={portrait.width}
+                  height={portrait.height}
+                  fetchPriority="high"
+                  decoding="async"
+                  className="block w-full rounded-[16px] border border-hairline object-cover"
+                />
+              </picture>
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );

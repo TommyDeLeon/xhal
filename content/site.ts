@@ -29,15 +29,16 @@ export const site = {
   phone: null as string | null,
 
   /**
-   * Headshot. Source is 294x294, so it is rendered small enough to stay sharp
-   * (about 2.6x pixel density at its display size) rather than being stretched
-   * across a hero panel. Replace with a larger original to use it bigger.
+   * Headshot. The original in assets/ is 294x294 and is resampled up to 735 by
+   * scripts/optimize-images.mjs. That adds no detail it did not have, so the
+   * hero frames it deliberately rather than pretending it is a large photo.
+   * Drop a bigger original into assets/tommy.jpg and re-run npm run images.
    */
   portrait: {
-    src: "/images/tommy.opt.jpg",
+    src: "/images/tommy.jpg",
     alt: "Tommy De Leon",
-    width: 294,
-    height: 294,
+    width: 735,
+    height: 735,
   } as { src: string; alt: string; width: number; height: number } | null,
 
   /** Freelance work is open. Drives the availability line in the contact fork. */
