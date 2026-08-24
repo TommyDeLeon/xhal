@@ -66,18 +66,28 @@ export const projects: Project[] = [
     angle:
       "Checks that run on the client are suggestions. The trust boundary belongs at the API, and the limits of the lock are written down honestly rather than overstated.",
     repoUrl: "https://github.com/TommyDeLeon/codelock",
-    liveUrl: null,
+    liveUrl: "https://codelock.tommydeleon.com",
     mark: { src: "/images/codelock-mark.png", alt: "" },
-    /*
-     * TODO(tommy): drop these three into assets/ and run `npm run images`, then
-     * the entries below go back into the array. Kept empty meanwhile so the
-     * build cannot ship an image reference that resolves to nothing.
-     *
-     *   assets/codelock-demo.png    the problem and editor split
-     *   assets/codelock-gate.png    the landing hero with the speed gate meter
-     *   assets/codelock-limits.png  the table of escape attempts
-     */
-    media: [],
+    media: [
+      {
+        src: "/images/codelock-gate.jpg",
+        alt: "The CodeLock landing page. A meter shows a quadratic solution finishing in 412ms against a 186ms budget, overshooting the gate, with the verdict still locked, roughly 3.8 times slower than the best known answer.",
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: "/images/codelock-limits.jpg",
+        alt: "A table of attempts to escape the desktop lock. Killing the process, switching virtual desktop, and calling the unlock channel from DevTools are marked as holding; deleting the lock file, rebooting, and Ctrl+Alt+Del are marked as defeating it.",
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: "/images/codelock-howitworks.jpg",
+        alt: "The how it works page, explaining that the server records the deadline and the problem is chosen when the timer fires rather than when it is armed.",
+        width: 1600,
+        height: 1000,
+      },
+    ],
     year: "2026",
   },
 ];
