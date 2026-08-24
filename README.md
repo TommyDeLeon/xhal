@@ -1,59 +1,59 @@
-# Digital Portfolio Website: A Journey of Learning and Creation
+# tommydeleon.com
 
-![image](https://github.com/TommyDeLeon/xhal/assets/144635056/009701b0-89bd-4d31-8255-1b06192d106d)
+Personal site for Tommy De Leon, network and security engineer.
 
-## Table of Contents
-1. Introduction
-2. Technologies Used
-3. Prerequisites
-4. Installation
-5. Website Structure
-6. Usage
-7. Lessons Learned
-8. Future Improvements
-9. Contributing
-10. License
+## Stack
 
-## Introduction
-Hi there, I’m Tommy De Leon, a web developer and a lifelong learner. This is my digital portfolio website, where I showcase my skills and projects that I have worked on. I built this website using the Next.js framework and styled it with Tailwind CSS. The website is still a work in progress, but I’m happy to share it with you and get your feedback. You can also connect with me through my social media accounts, which you can find in the introduction section of the website.
+Next.js 16 (App Router) on React 19, Tailwind CSS 4, GSAP with ScrollTrigger,
+TypeScript. Exported as static HTML and served from Hostinger, so there is no
+Node runtime in production.
 
-## Technologies Used
-This project was created with:
-* React: A JavaScript library for building user interfaces.
-* Next.js: A React framework for production-ready websites.
-* Tailwind CSS: A utility-first CSS framework for rapid UI development.
+## Running it
 
-## Website Structure
-Here's an overview of the files and directories in the website:
+```
+npm install
+npm run dev
+```
 
-- `page.tsx`: The main landing page of the portfolio, which contains an introduction, a skills section, and a projects section.
-- `./skills`: A page dedicated to showcasing my skills in various domains and technologies.
-- `/.projects`: A page for each of my projects, which contains a description, a demo, and a source code link.
-- `layouts.tsx`: A component that contains the layout for the entire website, which includes a header, a footer, and a main content area.
-- `globals.css`: A file that contains all the global styling for the website, such as fonts, colors, and breakpoints.
+`npm run build` writes the deployable site to `out/`. Upload the contents of
+that directory to the Hostinger document root; `public/.htaccess` is copied
+along with it and wires up the 404 page, compression, and cache headers.
 
-## Usage
-To use this website, you can do the following:
+`npm run images` regenerates the favicon set and the Open Graph card from the
+vector source in `scripts/make-icons.mjs`.
 
-* To learn more about me and my skills, scroll down the landing page or click on the Skills link in the header.
-* To view my projects, scroll down the landing page or click on the Projects link in the header. You can also click on each project card to see more details.
-* To connect with me, click on the social media icons in the introduction section or in the footer. You can also send me an email by clicking on the envelope icon in the footer.
+## Editing content
 
-## Lessons Learned
-Throughout the development of this portfolio, I learned a lot of things, such as:
+Copy and data live in `content/`, separate from the components that render them.
 
-* How to use Next.js for building a dynamic website that supports server-side rendering, static site generation, and API routes.
-* How to use Tailwind CSS for styling the website with utility classes and customizing the theme with configuration files.
-* How to structure the project for easy navigation and future scalability, by following the conventions and best practices of Next.js and React.
-* How to deploy the website to Vercel, a platform that integrates seamlessly with Next.js and provides features such as preview deployments, automatic HTTPS, and serverless functions.
+| File | Holds |
+|---|---|
+| `content/site.ts` | Name, positioning, email, phone, socials, portrait, form key |
+| `content/projects.ts` | One object per project. Adding one needs no layout change |
+| `content/skills.ts` | Capability groups and their grid spans |
+| `content/story.ts` | The about narrative. Empty means the section does not render |
 
-## Future Improvements
-In the future, I plan to improve this website by adding more features and functionalities, such as:
+Fields that are `null` are unset on purpose. Every component checks for null and
+renders nothing rather than showing a placeholder, so an unfinished field is
+invisible instead of wrong. Setting `liveUrl` on a project adds its Live Demo
+button; leaving it null hides the button.
 
-* Adding more interactive elements to the website, such as animations, transitions, and hover effects, to make it more engaging and appealing.
-* Adding a blog section to the website, where I can share my thoughts and experiences on various topics related to web development and learning.
-* Adding a contact form to the website, where visitors can send me messages directly without leaving the website.
-* Adding more projects to the website, especially ones that involve different technologies and frameworks that I want to learn and explore.
+## Motion
 
-## Contributing
-Contributions are welcome! If you're interested in contributing, please follow the guidelines which will be provided soon.
+All animation runs through `components/motion-layer.tsx`, a single client
+component. Sections stay server-rendered and mark themselves with data
+attributes (`data-reveal`, `data-parallax`, `data-pin`, `data-tilt`) that the
+motion layer reads. Keeping it in one place means one `gsap.matchMedia()`
+teardown and no animation code scattered across sections.
+
+Breakpoint behaviour is defined in `lib/motion.ts`. Pinning and parallax are
+desktop and tablet only; below 768px the page gets entrance reveals and nothing
+else, because pinned scrolling on a phone competes with OS scroll. Under
+`prefers-reduced-motion: reduce` no animation is created at all, and because
+nothing is hidden by CSS in that case, the page renders complete and readable.
+
+## Deploying
+
+1. `npm run build`
+2. Upload everything inside `out/` to the Hostinger document root
+3. Confirm `.htaccess` made it across; hidden files are easy to miss over FTP
