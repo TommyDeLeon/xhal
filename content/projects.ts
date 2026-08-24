@@ -70,20 +70,20 @@ export const projects: Project[] = [
     mark: { src: "/images/codelock-mark.png", alt: "" },
     media: [
       {
-        src: "/images/codelock-gate.jpg",
-        alt: "The CodeLock landing page. A meter shows a quadratic solution finishing in 412ms against a 186ms budget, overshooting the gate, with the verdict still locked, roughly 3.8 times slower than the best known answer.",
+        src: "/images/codelock-verdict.jpg",
+        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass with green ticks, but the speed gate shows 337 milliseconds against a 189 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 3.06 times slower than the best known solution.",
+        width: 1600,
+        height: 1000,
+      },
+      {
+        src: "/images/codelock-demo.jpg",
+        alt: "The CodeLock demo screen. A Pair Sum problem statement with sample cases sits beside a code editor holding a deliberately quadratic JavaScript solution, above a Run against the judge button.",
         width: 1600,
         height: 1000,
       },
       {
         src: "/images/codelock-limits.jpg",
         alt: "A table of attempts to escape the desktop lock. Killing the process, switching virtual desktop, and calling the unlock channel from DevTools are marked as holding; deleting the lock file, rebooting, and Ctrl+Alt+Del are marked as defeating it.",
-        width: 1600,
-        height: 1000,
-      },
-      {
-        src: "/images/codelock-howitworks.jpg",
-        alt: "The how it works page, explaining that the server records the deadline and the problem is chosen when the timer fires rather than when it is armed.",
         width: 1600,
         height: 1000,
       },
