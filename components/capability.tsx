@@ -21,8 +21,10 @@ export default function Capability() {
   return (
     <section id="capability" className="section-y">
       <div className="shell">
-        <h2 className="text-h2 max-w-[16ch] font-medium">
-          Where I actually am
+        <h2 className="text-h2 max-w-[16ch] overflow-hidden pb-[0.08em] font-medium">
+          <span data-head className="block">
+            Where I actually am
+          </span>
         </h2>
         <p className="text-body-lg mt-6 max-w-[58ch] text-text-muted">
           Two of these I can be asked about in an interview today. Two I am still

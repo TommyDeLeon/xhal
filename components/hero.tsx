@@ -13,7 +13,7 @@ export default function Hero() {
   return (
     <section
       data-hero
-      className="relative flex min-h-[100dvh] items-center overflow-hidden pt-28 pb-16 md:pt-24"
+      className="relative flex min-h-[100dvh] items-center overflow-hidden pt-24 pb-14 md:pt-24 [@media(max-height:640px)]:min-h-0 [@media(max-height:640px)]:py-7"
     >
       {/* Depth ground. Decorative, so it is hidden from assistive tech. */}
       <div
@@ -22,9 +22,9 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[120%] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,var(--bg-raised)_0%,transparent_70%)]"
       />
 
-      <div className="shell grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-14">
-        <div className={portrait ? "lg:col-span-7" : "lg:col-span-10"}>
-          <p className="text-mono-sm mb-7 text-text-muted">{site.status}</p>
+      <div className="shell grid w-full grid-cols-1 items-center gap-9 md:grid-cols-12 md:gap-10 [@media(max-height:640px)]:gap-6 lg:gap-14">
+        <div className={portrait ? "md:col-span-7" : "md:col-span-10"}>
+          <p className="text-mono-sm mb-5 text-text-muted md:mb-7 [@media(max-height:640px)]:mb-3">{site.status}</p>
 
           <h1 className="text-display font-medium">
             {/* The visual lines are split for the mask reveal, which would make
@@ -51,12 +51,12 @@ export default function Hero() {
 
           <p
             data-hero-sub
-            className="text-body-lg mt-7 max-w-[46ch] text-text-muted"
+            className="text-body-lg mt-5 max-w-[46ch] text-text-muted md:mt-7 [@media(max-height:640px)]:mt-3"
           >
             {site.positioning}
           </p>
 
-          <div data-hero-cta className="mt-10">
+          <div data-hero-cta className="mt-7 md:mt-10 [@media(max-height:640px)]:mt-4">
             <Link
               href="#contact"
               className="group inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px active:translate-y-0"
@@ -75,11 +75,11 @@ export default function Hero() {
         {portrait ? (
           <div
             data-hero-portrait
-            className="order-first lg:order-none lg:col-span-5 [perspective:1100px]"
+            className="order-first md:order-none md:col-span-5 [perspective:1100px] [@media(max-height:640px)]:hidden"
           >
             <div
               data-tilt
-              className="relative mx-auto w-full max-w-[clamp(13rem,32vw,24rem)] [transform-style:preserve-3d]"
+              className="relative mx-auto w-full max-w-[clamp(9.5rem,30vw,24rem)] [transform-style:preserve-3d] [@media(max-height:640px)]:max-w-[6.5rem]"
             >
               {/* Offset frame sitting behind the photo in Z, so the panel reads
                   as a physical object rather than a pasted-in circle. */}

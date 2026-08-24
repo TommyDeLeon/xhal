@@ -7,6 +7,7 @@ import Projects from "@/components/projects";
 import Contact from "@/components/contact";
 import Footer from "@/components/footer";
 import MotionLayer from "@/components/motion-layer";
+import ThemeShots from "@/components/theme-shots";
 import { hasStory } from "@/content/story";
 import { projects } from "@/content/projects";
 
@@ -35,6 +36,7 @@ export default function HomePage() {
       </main>
       <Footer links={navLinks} />
       <MotionLayer />
+      <ThemeShots />
     </>
   );
 }

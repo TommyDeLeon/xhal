@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { List, X } from "@phosphor-icons/react";
+import { ArrowUpRight, List, X } from "@phosphor-icons/react";
 import { site } from "@/content/site";
 import ThemeToggle from "./theme-toggle";
 
@@ -122,37 +122,57 @@ export default function Nav({ links }: { links: NavLink[] }) {
         <div
           id="mobile-nav"
           ref={panelRef}
-          className="fixed inset-0 z-50 bg-bg-sunken/98 backdrop-blur-sm md:hidden"
+          className="menu-panel fixed inset-0 z-50 flex flex-col bg-bg md:hidden"
         >
-          <div className="shell flex h-16 items-center justify-end">
+          <div className="shell flex h-16 shrink-0 items-center justify-between">
+            <span className="text-mono-sm uppercase text-text-muted">Menu</span>
             <button
               type="button"
               onClick={() => {
                 close();
                 toggleRef.current?.focus();
               }}
-              className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-text"
+              className="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full border border-hairline text-text"
             >
               <span className="sr-only">Close menu</span>
-              <X size={22} aria-hidden />
+              <X size={20} aria-hidden />
             </button>
           </div>
 
-          <nav aria-label="Mobile" className="shell pt-8">
-            <ul className="flex flex-col gap-2">
-              {links.map((link) => (
-                <li key={link.href}>
+          <nav
+            aria-label="Mobile"
+            className="shell flex flex-1 flex-col justify-center"
+          >
+            <ul className="flex flex-col divide-y divide-hairline border-y border-hairline">
+              {links.map((link, i) => (
+                <li key={link.href} style={{ "--i": i } as React.CSSProperties}>
                   <Link
                     href={link.href}
                     onClick={close}
-                    className="block py-3 text-h3 text-text transition-colors hover:text-accent"
+                    className="menu-item flex min-h-[56px] items-center justify-between gap-4 py-4 text-h3 text-text transition-colors hover:text-accent"
                   >
                     {link.label}
+                    <ArrowUpRight
+                      size={18}
+                      aria-hidden
+                      className="shrink-0 text-text-faint"
+                    />
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
+
+          <div className="shell shrink-0 pb-10">
+            <a
+              href={`mailto:${site.email}`}
+              onClick={close}
+              style={{ "--i": links.length } as React.CSSProperties}
+              className="menu-item flex min-h-[52px] items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-on-accent"
+            >
+              {site.email}
+            </a>
+          </div>
         </div>
       ) : null}
     </header>

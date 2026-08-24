@@ -1,44 +1,73 @@
 "use client";
 
-import { Moon, Sun } from "@phosphor-icons/react";
+import { Desktop, Moon, Sun } from "@phosphor-icons/react";
 
 /**
- * Explicit override on top of prefers-color-scheme. The stored choice is
- * applied by an inline script in the document head before first paint.
+ * Three-state colour mode control: System, Light, Dark.
  *
- * There is deliberately no React state here. Which icon shows is decided by CSS
- * from the same signals the palette uses, so the button cannot disagree with
- * the theme and there is nothing to mismatch during hydration.
+ * There is deliberately no React state. Which icon and which accessible label
+ * are shown is decided by CSS from the same data-theme attribute the palette
+ * reads, so the control cannot disagree with the theme and there is nothing to
+ * mismatch during hydration.
+ *
+ * System is represented by the ABSENCE of data-theme, which is what lets the
+ * prefers-color-scheme media query stay live: changing the OS setting
+ * repaints immediately with no listener and no reload.
  */
-export default function ThemeToggle() {
-  function toggle() {
-    const root = document.documentElement;
-    const isDark =
-      root.dataset.theme === "dark" ||
-      (!root.dataset.theme &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches);
+type Mode = "system" | "light" | "dark";
 
-    const next = isDark ? "light" : "dark";
-    root.dataset.theme = next;
+const NEXT: Record<Mode, Mode> = {
+  system: "light",
+  light: "dark",
+  dark: "system",
+};
+
+export default function ThemeToggle() {
+  function cycle() {
+    const root = document.documentElement;
+    const current = (root.dataset.theme as Mode) || "system";
+    const next = NEXT[current];
+
+    if (next === "system") {
+      delete root.dataset.theme;
+    } else {
+      root.dataset.theme = next;
+    }
 
     try {
-      localStorage.setItem("theme", next);
+      if (next === "system") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", next);
     } catch {
-      // Private mode can refuse storage. The toggle still works for this visit.
+      // Private mode can refuse storage. The control still works this visit.
     }
   }
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={cycle}
       className="inline-flex h-11 w-11 items-center justify-center rounded-full text-text transition-colors hover:text-accent"
     >
-      <span className="sr-only">Switch colour mode</span>
-      <span className="icon-when-dark">
+      {/* All three labels are in the markup; CSS reveals the one that matches
+          the current setting. display:none removes the others from the
+          accessibility tree, so only the true state is announced. */}
+      <span className="sr-only theme-label-system">
+        Colour mode: system. Activate to switch to light.
+      </span>
+      <span className="sr-only theme-label-light">
+        Colour mode: light. Activate to switch to dark.
+      </span>
+      <span className="sr-only theme-label-dark">
+        Colour mode: dark. Activate to switch to system.
+      </span>
+
+      <span className="theme-icon-system">
+        <Desktop size={20} aria-hidden />
+      </span>
+      <span className="theme-icon-light">
         <Sun size={20} aria-hidden />
       </span>
-      <span className="icon-when-light">
+      <span className="theme-icon-dark">
         <Moon size={20} aria-hidden />
       </span>
     </button>

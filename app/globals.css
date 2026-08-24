@@ -112,9 +112,18 @@
 }
 
 @utility text-display {
-  font-size: clamp(2.75rem, 7vw, 6rem);
-  line-height: 0.95;
+  font-size: clamp(2.05rem, 6.4vw, 6rem);
+  line-height: 0.98;
   letter-spacing: -0.03em;
+}
+
+/* Short viewports, mostly phones held sideways. A four-line display headline
+   at the normal scale does not fit in ~400px of height, so it steps down.
+   Written as a plain rule because @utility cannot nest inside @media. */
+@media (max-height: 640px) {
+  .text-display {
+    font-size: clamp(1.85rem, 4.4vw, 3rem);
+  }
 }
 
 @utility text-h2 {
@@ -157,30 +166,67 @@
     padding-inline: 4rem;
   }
 }
-/* Theme toggle icon visibility, driven by the same signals as the palette. */
-.icon-when-dark {
+/*
+  Theme control state, driven by the same attribute as the palette.
+  System is the absence of data-theme, which is what keeps
+  prefers-color-scheme live without a listener.
+*/
+.theme-icon-system,
+.theme-icon-light,
+.theme-icon-dark,
+.theme-label-system,
+.theme-label-light,
+.theme-label-dark {
   display: none;
 }
-.icon-when-light {
+
+:root:not([data-theme]) .theme-icon-system,
+:root[data-theme="light"] .theme-icon-light,
+:root[data-theme="dark"] .theme-icon-dark {
   display: block;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .icon-when-dark {
-    display: block;
+
+/* sr-only sets position:absolute, so these need inline, not block. */
+:root:not([data-theme]) .theme-label-system,
+:root[data-theme="light"] .theme-label-light,
+:root[data-theme="dark"] .theme-label-dark {
+  display: inline;
+}
+/*
+  Mobile menu entrance. Transform and opacity only, and the whole block sits
+  behind a no-preference query so a reduced-motion visitor gets the panel in
+  its final state instantly rather than a degraded animation.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes menu-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
-  :root:not([data-theme="light"]) .icon-when-light {
-    display: none;
+
+  @keyframes menu-item-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
-}
-:root[data-theme="dark"] .icon-when-dark {
-  display: block;
-}
-:root[data-theme="dark"] .icon-when-light {
-  display: none;
-}
-:root[data-theme="light"] .icon-when-dark {
-  display: none;
-}
-:root[data-theme="light"] .icon-when-light {
-  display: block;
+
+  .menu-panel {
+    animation: menu-panel-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .menu-item {
+    animation: menu-item-in 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    /* Each row follows the one above it rather than all arriving together. */
+    animation-delay: calc(60ms + var(--i, 0) * 45ms);
+  }
 }

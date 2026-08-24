@@ -25,7 +25,15 @@ export type Project = {
    * rest in a grid beneath it. An empty array renders no media panel at all,
    * rather than a mocked-up fake of the interface.
    */
-  media: { src: string; alt: string; width: number; height: number }[];
+  media: {
+    /** Dark-theme capture. The light variant is the same name plus -light. */
+    src: string;
+    alt: string;
+    /** Shown under the image. Carries the meaning when the text is too small. */
+    caption: string;
+    width: number;
+    height: number;
+  }[];
   year: string;
 };
 
@@ -71,19 +79,25 @@ export const projects: Project[] = [
     media: [
       {
         src: "/images/codelock-verdict.jpg",
-        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass with green ticks, but the speed gate shows 337 milliseconds against a 189 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 3.06 times slower than the best known solution.",
+        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass with green ticks, but the measured runtime overshoots the 189 millisecond budget, and the verdict explains the lock stays on because the answer is roughly three times slower than the best known solution.",
+        caption:
+          "Every test passes and the machine stays locked. The submission came in over the 189ms budget, about 3x off the best known solution.",
         width: 1600,
         height: 1000,
       },
       {
         src: "/images/codelock-demo.jpg",
         alt: "The CodeLock demo screen. A Pair Sum problem statement with sample cases sits beside a code editor holding a deliberately quadratic JavaScript solution, above a Run against the judge button.",
+        caption:
+          "The demo hands you a problem that is winnable the wrong way: the obvious nested loop is correct and will not clear the gate.",
         width: 1600,
         height: 1000,
       },
       {
         src: "/images/codelock-limits.jpg",
         alt: "A table of attempts to escape the desktop lock. Killing the process, switching virtual desktop, and calling the unlock channel from DevTools are marked as holding; deleting the lock file, rebooting, and Ctrl+Alt+Del are marked as defeating it.",
+        caption:
+          "What the lock survives and what beats it, written down rather than glossed over. Ctrl+Alt+Del wins, and the docs say so.",
         width: 1600,
         height: 1000,
       },

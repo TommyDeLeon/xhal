@@ -1,6 +1,60 @@
 import { ArrowSquareOut, GithubLogo } from "@phosphor-icons/react/dist/ssr";
 import { projects, type Project } from "@/content/projects";
 
+type Shot = Project["media"][number];
+
+/**
+ * One picture element per screenshot, with both theme variants declared as
+ * data attributes. ThemeShots swaps the sources at runtime.
+ *
+ * An earlier version rendered both variants and hid one with display:none, on
+ * the assumption that a hidden lazy image is never fetched. Measured in the
+ * browser, that is false: transferSize showed all six files downloading. One
+ * element is the only way to guarantee a single fetch.
+ *
+ * The markup ships the dark variant, which is what most visitors see.
+ */
+function ShotFigure({ shot }: { shot: Shot }) {
+  const light = (ext: string) => shot.src.replace(/\.jpg$/, `-light.${ext}`);
+  const dark = (ext: string) => shot.src.replace(/\.jpg$/, `.${ext}`);
+
+  return (
+    <figure
+      data-shot
+      className="overflow-hidden rounded-panel border border-hairline bg-bg-raised"
+    >
+      <picture>
+        <source
+          data-dark={dark("avif")}
+          data-light={light("avif")}
+          srcSet={dark("avif")}
+          type="image/avif"
+        />
+        <source
+          data-dark={dark("webp")}
+          data-light={light("webp")}
+          srcSet={dark("webp")}
+          type="image/webp"
+        />
+        <img
+          data-dark={shot.src}
+          data-light={light("jpg")}
+          src={shot.src}
+          alt={shot.alt}
+          width={shot.width}
+          height={shot.height}
+          loading="lazy"
+          decoding="async"
+          className="block w-full"
+        />
+      </picture>
+
+      <figcaption className="border-t border-hairline px-5 py-4 text-sm leading-[1.6] text-text-muted">
+        {shot.caption}
+      </figcaption>
+    </figure>
+  );
+}
 function ProjectRow({ project, index }: { project: Project; index: number }) {
   // Alternates sides. Capped at two orientations, so with more projects the
   // rhythm still reads as composed rather than as a zigzag template.
@@ -15,65 +69,20 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
     >
       {project.media.length ? (
         <div className="mb-12 [perspective:1600px]">
-          <figure
-            data-shot
-            className="overflow-hidden rounded-panel border border-hairline shadow-[0_30px_80px_-40px_rgba(0,0,0,0.6)]"
-          >
-            <picture>
-              <source
-                srcSet={project.media[0].src.replace(/\.jpg$/, ".avif")}
-                type="image/avif"
-              />
-              <source
-                srcSet={project.media[0].src.replace(/\.jpg$/, ".webp")}
-                type="image/webp"
-              />
-              <img
-                src={project.media[0].src}
-                alt={project.media[0].alt}
-                width={project.media[0].width}
-                height={project.media[0].height}
-                loading="lazy"
-                decoding="async"
-                className="block w-full"
-              />
-            </picture>
-          </figure>
+          <ShotFigure shot={project.media[0]} />
 
           {project.media.length > 1 ? (
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            /* Full width on small screens: these are 1600px captures of dense
+               mono text, and a two-up grid on a phone makes the numbers that
+               carry the meaning unreadable. */
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
               {project.media.slice(1).map((shot) => (
-                <figure
-                  key={shot.src}
-                  data-shot
-                  className="overflow-hidden rounded-panel border border-hairline"
-                >
-                  <picture>
-                    <source
-                      srcSet={shot.src.replace(/\.jpg$/, ".avif")}
-                      type="image/avif"
-                    />
-                    <source
-                      srcSet={shot.src.replace(/\.jpg$/, ".webp")}
-                      type="image/webp"
-                    />
-                    <img
-                      src={shot.src}
-                      alt={shot.alt}
-                      width={shot.width}
-                      height={shot.height}
-                      loading="lazy"
-                      decoding="async"
-                      className="block w-full"
-                    />
-                  </picture>
-                </figure>
+                <ShotFigure key={shot.src} shot={shot} />
               ))}
             </div>
           ) : null}
         </div>
       ) : null}
-
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14">
         <div
           className={`self-start lg:sticky lg:top-24 ${
@@ -189,8 +198,10 @@ export default function Projects() {
   return (
     <section id="work" className="section-y bg-bg-sunken">
       <div className="shell [perspective:1400px]">
-        <h2 className="text-h2 max-w-[18ch] font-medium">
-          Things I have built
+        <h2 className="text-h2 max-w-[18ch] overflow-hidden pb-[0.08em] font-medium">
+          <span data-head className="block">
+            Things I have built
+          </span>
         </h2>
 
         <div data-reveal-group className="mt-14 flex flex-col gap-6">

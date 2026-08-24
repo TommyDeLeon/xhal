@@ -140,7 +140,7 @@ export default function MotionLayer() {
 
     // The pinned thesis. It holds the viewport because it is the argument the
     // whole site is making. Not pinned below 768px, where it fights OS scroll.
-    mm.add(`(min-width: 768px) and ${MQ.motionOK}`, () => {
+    mm.add(`${MQ.canPin} and ${MQ.motionOK}`, () => {
       const pin = document.querySelector<HTMLElement>("[data-pin]");
       if (!pin) return;
 
@@ -210,6 +210,62 @@ export default function MotionLayer() {
       }
     });
 
+    // Same beat as the pinned version, for viewports too narrow or too short
+    // to pin. Scrubbed against the section's own travel through the viewport,
+    // so it still reads as choreography rather than a static block of text.
+    mm.add(MQ.cannotPin, () => {
+      const pin = document.querySelector<HTMLElement>("[data-pin]");
+      if (!pin) return;
+
+      const q = gsap.utils.selector(pin);
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pin,
+          start: "top 80%",
+          end: "top 15%",
+          scrub: 0.5,
+        },
+      });
+
+      const lead = q("[data-pin-lead]");
+      const rule = q("[data-pin-rule]");
+      const tail = q("[data-pin-tail]");
+      const body = q("[data-pin-body]");
+
+      if (lead.length) {
+        tl.fromTo(
+          lead,
+          { yPercent: 16, autoAlpha: 0 },
+          { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+          0,
+        );
+      }
+      if (rule.length) {
+        tl.fromTo(
+          rule,
+          { scaleX: 0 },
+          { scaleX: 1, ease: EASE_SCRUB, transformOrigin: "left center" },
+          0.15,
+        );
+      }
+      if (tail.length) {
+        tl.fromTo(
+          tail,
+          { yPercent: 22, autoAlpha: 0 },
+          { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+          0.3,
+        );
+      }
+      if (body.length) {
+        tl.fromTo(
+          body,
+          { yPercent: 18, autoAlpha: 0 },
+          { yPercent: 0, autoAlpha: 1, ease: EASE_SCRUB },
+          0.5,
+        );
+      }
+    });
+
     // Card tilt. Feedback that the card is an object you are about to open.
     // Pointer-driven, so it uses quickTo rather than a tween per event.
     mm.add(`${MQ.desktop} and ${MQ.motionOK}`, () => {
@@ -247,6 +303,45 @@ export default function MotionLayer() {
       });
 
       return () => teardowns.forEach((fn) => fn());
+    });
+
+    // Section headings rise out of a mask. Hierarchy: the heading is the first
+    // thing the eye should land on when a section arrives.
+    mm.add(MQ.motionOK, () => {
+      gsap.utils.toArray<HTMLElement>("[data-head]").forEach((head) => {
+        gsap.fromTo(
+          head,
+          { yPercent: 105 },
+          {
+            yPercent: 0,
+            duration: DUR.enter,
+            ease: EASE_OUT,
+            scrollTrigger: { trigger: head, start: "top 88%", once: true },
+          },
+        );
+      });
+    });
+
+    // Screenshots settle out of depth as they arrive. Storytelling: each shot
+    // reads as an object being placed down rather than a picture appearing.
+    mm.add(`${MQ.desktop} and ${MQ.motionOK}`, () => {
+      gsap.utils.toArray<HTMLElement>("[data-shot]").forEach((shot) => {
+        gsap.fromTo(
+          shot,
+          { rotateX: 7, scale: 0.94, transformOrigin: "50% 100%" },
+          {
+            rotateX: 0,
+            scale: 1,
+            ease: EASE_SCRUB,
+            scrollTrigger: {
+              trigger: shot,
+              start: "top 92%",
+              end: "top 45%",
+              scrub: 0.6,
+            },
+          },
+        );
+      });
     });
 
     // Fonts change metrics, which moves every trigger. Recalculate once they
