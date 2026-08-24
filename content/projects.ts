@@ -21,13 +21,11 @@ export type Project = {
   /** Small square brand mark shown beside the title. */
   mark: { src: string; alt: string } | null;
   /**
-   * Screenshot or screen recording of the project running. Null renders the
-   * card without a media panel rather than a mocked-up fake of the interface.
+   * Real screenshots of the project running. The first is shown large and the
+   * rest in a grid beneath it. An empty array renders no media panel at all,
+   * rather than a mocked-up fake of the interface.
    */
-  media:
-    | { kind: "image"; src: string; alt: string; width: number; height: number }
-    | { kind: "video"; src: string; poster: string; label: string }
-    | null;
+  media: { src: string; alt: string; width: number; height: number }[];
   year: string;
 };
 
@@ -70,9 +68,16 @@ export const projects: Project[] = [
     repoUrl: "https://github.com/TommyDeLeon/codelock",
     liveUrl: null,
     mark: { src: "/images/codelock-mark.png", alt: "" },
-    // TODO(tommy): add a screenshot or a short screen recording of the lock
-    // screen so visitors can see the app rather than only read about it.
-    media: null,
+    /*
+     * TODO(tommy): drop these three into assets/ and run `npm run images`, then
+     * the entries below go back into the array. Kept empty meanwhile so the
+     * build cannot ship an image reference that resolves to nothing.
+     *
+     *   assets/codelock-demo.png    the problem and editor split
+     *   assets/codelock-gate.png    the landing hero with the speed gate meter
+     *   assets/codelock-limits.png  the table of escape attempts
+     */
+    media: [],
     year: "2026",
   },
 ];

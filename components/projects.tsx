@@ -13,6 +13,67 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       data-tilt
       className="rounded-panel border border-hairline bg-bg-raised p-6 [transform-style:preserve-3d] md:p-10 lg:p-14"
     >
+      {project.media.length ? (
+        <div className="mb-12 [perspective:1600px]">
+          <figure
+            data-shot
+            className="overflow-hidden rounded-panel border border-hairline shadow-[0_30px_80px_-40px_rgba(0,0,0,0.6)]"
+          >
+            <picture>
+              <source
+                srcSet={project.media[0].src.replace(/\.jpg$/, ".avif")}
+                type="image/avif"
+              />
+              <source
+                srcSet={project.media[0].src.replace(/\.jpg$/, ".webp")}
+                type="image/webp"
+              />
+              <img
+                src={project.media[0].src}
+                alt={project.media[0].alt}
+                width={project.media[0].width}
+                height={project.media[0].height}
+                loading="lazy"
+                decoding="async"
+                className="block w-full"
+              />
+            </picture>
+          </figure>
+
+          {project.media.length > 1 ? (
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {project.media.slice(1).map((shot) => (
+                <figure
+                  key={shot.src}
+                  data-shot
+                  className="overflow-hidden rounded-panel border border-hairline"
+                >
+                  <picture>
+                    <source
+                      srcSet={shot.src.replace(/\.jpg$/, ".avif")}
+                      type="image/avif"
+                    />
+                    <source
+                      srcSet={shot.src.replace(/\.jpg$/, ".webp")}
+                      type="image/webp"
+                    />
+                    <img
+                      src={shot.src}
+                      alt={shot.alt}
+                      width={shot.width}
+                      height={shot.height}
+                      loading="lazy"
+                      decoding="async"
+                      className="block w-full"
+                    />
+                  </picture>
+                </figure>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-14">
         <div
           className={`self-start lg:sticky lg:top-24 ${
@@ -68,33 +129,6 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             ) : null}
           </div>
 
-          {project.media ? (
-            <figure className="mt-9 overflow-hidden rounded-panel border border-hairline">
-              {project.media.kind === "video" ? (
-                <video
-                  src={project.media.src}
-                  poster={project.media.poster}
-                  muted
-                  loop
-                  playsInline
-                  controls
-                  preload="none"
-                  aria-label={project.media.label}
-                  className="block w-full"
-                />
-              ) : (
-                <img
-                  src={project.media.src}
-                  alt={project.media.alt}
-                  width={project.media.width}
-                  height={project.media.height}
-                  loading="lazy"
-                  decoding="async"
-                  className="block w-full"
-                />
-              )}
-            </figure>
-          ) : null}
         </div>
 
         <div className={flip ? "lg:order-1 lg:col-span-6" : "lg:col-span-6 lg:col-start-7"}>

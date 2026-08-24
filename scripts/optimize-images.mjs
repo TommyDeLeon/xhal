@@ -17,8 +17,11 @@ const SRC = "assets";
 const OUT = "public/images";
 const SOURCE_EXT = new Set([".jpg", ".jpeg", ".png"]);
 
-/** Widest anything is displayed, times two for high-density screens. */
+/** Widest a portrait is displayed, times two for high-density screens. */
 const MAX_WIDTH = 1200;
+
+/** Screenshots run full width of the card, so they get more pixels. */
+const SHOT_WIDTH = 1600;
 
 /** How far a small source may be enlarged before it stops being worth it. */
 const UPSCALE_LIMIT = 2.5;
@@ -58,7 +61,12 @@ for (const file of sources) {
     continue;
   }
 
-  const source = meta.width ?? MAX_WIDTH;
+  // Landscape sources are screenshots: wider target, higher JPEG quality
+  // because flat UI text shows compression artefacts far more than a photo,
+  // and never upscaled.
+  const isShot = (meta.width ?? 0) > (meta.height ?? 0);
+  const cap = isShot ? SHOT_WIDTH : MAX_WIDTH;
+  const source = meta.width ?? cap;
 
   /*
    * Small sources are enlarged up to UPSCALE_LIMIT. This adds no real detail,
@@ -66,10 +74,11 @@ for (const file of sources) {
    * the browser scale the bitmap at paint time, which is what produces the
    * mushy look. Anything already large is only ever shrunk.
    */
-  const width =
-    source < MAX_WIDTH
-      ? Math.min(Math.round(source * UPSCALE_LIMIT), MAX_WIDTH)
-      : MAX_WIDTH;
+  const width = isShot
+    ? Math.min(source, cap)
+    : source < cap
+      ? Math.min(Math.round(source * UPSCALE_LIMIT), cap)
+      : cap;
 
   let base = sharp(input)
     .rotate()
@@ -79,11 +88,17 @@ for (const file of sources) {
     base = base.sharpen({ sigma: 0.8, m1: 0.5, m2: 2 });
   }
 
-  await base.clone().avif({ quality: 64 }).toFile(join(OUT, `${stem}.avif`));
-  await base.clone().webp({ quality: 80 }).toFile(join(OUT, `${stem}.webp`));
   await base
     .clone()
-    .jpeg({ quality: 84, mozjpeg: true })
+    .avif({ quality: isShot ? 72 : 64 })
+    .toFile(join(OUT, `${stem}.avif`));
+  await base
+    .clone()
+    .webp({ quality: isShot ? 88 : 80 })
+    .toFile(join(OUT, `${stem}.webp`));
+  await base
+    .clone()
+    .jpeg({ quality: isShot ? 92 : 84, mozjpeg: true })
     .toFile(join(OUT, `${stem}.jpg`));
 
   const out = await sharp(join(OUT, `${stem}.avif`)).metadata();
