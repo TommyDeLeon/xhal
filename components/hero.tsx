@@ -4,8 +4,9 @@ import { site } from "@/content/site";
 
 /**
  * Asymmetric split hero. Text holds the left seven columns, the portrait the
- * right five, sitting in its own perspective so it tilts independently of the
- * type as you move the pointer.
+ * right five. Both sit in the section's shared camera rather than in separate
+ * perspectives, so the portrait tilts as an object standing in the same room as
+ * the type instead of in a box of its own.
  */
 export default function Hero() {
   const portrait = site.portrait;
@@ -13,16 +14,27 @@ export default function Hero() {
   return (
     <section
       data-hero
+      /* The shared camera. Every 3D parent on the page reads --depth, so the
+         hero, the thesis and the project cards are all shot on one lens. */
+      style={{ perspective: "var(--depth)" }}
       className="relative flex min-h-[100dvh] items-center overflow-hidden pt-24 pb-14 md:pt-24 [@media(max-height:640px)]:min-h-0 [@media(max-height:640px)]:py-7"
     >
-      {/* Depth ground. Decorative, so it is hidden from assistive tech. */}
+      {/* Depth ground, the furthest plane. Decorative, so it is hidden from
+          assistive tech. The value is a 0-1 depth scalar, not a distance. */}
       <div
         aria-hidden
         data-parallax="1"
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[120%] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,var(--bg-raised)_0%,transparent_70%)]"
       />
 
-      <div className="shell grid w-full grid-cols-1 items-center gap-9 md:grid-cols-12 md:gap-10 [@media(max-height:640px)]:gap-6 lg:gap-14">
+      {/* Everything that recedes as the hero scrolls away moves as one plate,
+          so the type and the portrait travel back in Z together rather than
+          separating. preserve-3d keeps the portrait's own offset frame in the
+          section's camera instead of giving it a second one. */}
+      <div
+        data-hero-depth
+        className="shell grid w-full grid-cols-1 items-center gap-9 [transform-style:preserve-3d] md:grid-cols-12 md:gap-10 [@media(max-height:640px)]:gap-6 lg:gap-14"
+      >
         <div className={portrait ? "md:col-span-7" : "md:col-span-10"}>
           <p className="text-mono-sm mb-5 text-text-muted md:mb-7 [@media(max-height:640px)]:mb-3">{site.status}</p>
 
@@ -75,7 +87,7 @@ export default function Hero() {
         {portrait ? (
           <div
             data-hero-portrait
-            className="order-first md:order-none md:col-span-5 [perspective:1100px] [@media(max-height:640px)]:hidden"
+            className="order-first [transform-style:preserve-3d] md:order-none md:col-span-5 [@media(max-height:640px)]:hidden"
           >
             <div
               data-tilt

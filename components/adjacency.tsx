@@ -9,7 +9,7 @@ export default function Adjacency() {
     <section
       data-pin
       id="approach"
-      className="relative flex min-h-[100dvh] items-center overflow-hidden bg-bg-sunken [perspective:1200px]"
+      className="relative flex min-h-[100dvh] items-center overflow-hidden bg-bg-sunken [perspective:var(--depth)]"
     >
       {/* Depth ground, pushed back in Z so it drifts slower than the type. */}
       <div

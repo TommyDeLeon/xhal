@@ -1,60 +1,16 @@
 import { ArrowSquareOut, GithubLogo } from "@phosphor-icons/react/dist/ssr";
 import { projects, type Project } from "@/content/projects";
 
-type Shot = Project["media"][number];
+/*
+  ShotFigure lives in its own client component now that the screenshots are
+  openable. The markup it renders is unchanged and still ships exactly one
+  <picture> per capture with both theme variants as data attributes, which is
+  what keeps a single file per shot on the wire -- an earlier version rendered
+  both variants and hid one with display:none, and transferSize showed all six
+  downloading anyway.
+*/
+import ShotFigure from "./shot-lightbox";
 
-/**
- * One picture element per screenshot, with both theme variants declared as
- * data attributes. ThemeShots swaps the sources at runtime.
- *
- * An earlier version rendered both variants and hid one with display:none, on
- * the assumption that a hidden lazy image is never fetched. Measured in the
- * browser, that is false: transferSize showed all six files downloading. One
- * element is the only way to guarantee a single fetch.
- *
- * The markup ships the dark variant, which is what most visitors see.
- */
-function ShotFigure({ shot }: { shot: Shot }) {
-  const light = (ext: string) => shot.src.replace(/\.jpg$/, `-light.${ext}`);
-  const dark = (ext: string) => shot.src.replace(/\.jpg$/, `.${ext}`);
-
-  return (
-    <figure
-      data-shot
-      className="overflow-hidden rounded-panel border border-hairline bg-bg-raised"
-    >
-      <picture>
-        <source
-          data-dark={dark("avif")}
-          data-light={light("avif")}
-          srcSet={dark("avif")}
-          type="image/avif"
-        />
-        <source
-          data-dark={dark("webp")}
-          data-light={light("webp")}
-          srcSet={dark("webp")}
-          type="image/webp"
-        />
-        <img
-          data-dark={shot.src}
-          data-light={light("jpg")}
-          src={shot.src}
-          alt={shot.alt}
-          width={shot.width}
-          height={shot.height}
-          loading="lazy"
-          decoding="async"
-          className="block w-full"
-        />
-      </picture>
-
-      <figcaption className="border-t border-hairline px-5 py-4 text-sm leading-[1.6] text-text-muted">
-        {shot.caption}
-      </figcaption>
-    </figure>
-  );
-}
 function ProjectRow({ project, index }: { project: Project; index: number }) {
   // Alternates sides. Capped at two orientations, so with more projects the
   // rhythm still reads as composed rather than as a zigzag template.
@@ -68,7 +24,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       className="rounded-panel border border-hairline bg-bg-raised p-6 [transform-style:preserve-3d] md:p-10 lg:p-14"
     >
       {project.media.length ? (
-        <div className="mb-12 [perspective:1600px]">
+        <div className="mb-12 [transform-style:preserve-3d]">
           <ShotFigure shot={project.media[0]} />
 
           {project.media.length > 1 ? (
@@ -196,8 +152,15 @@ export default function Projects() {
   if (!projects.length) return null;
 
   return (
-    <section id="work" className="section-y bg-bg-sunken">
-      <div className="shell [perspective:1400px]">
+    <section id="work" className="relative section-y overflow-hidden bg-bg-sunken">
+      {/* Mid-depth ground. Decorative. */}
+      <div
+        aria-hidden
+        data-parallax="0.7"
+        className="pointer-events-none absolute inset-x-0 -top-[10%] -z-10 h-[120%] bg-[radial-gradient(ellipse_70%_45%_at_50%_20%,var(--bg-raised)_0%,transparent_65%)]"
+      />
+
+      <div className="shell [perspective:var(--depth)]">
         <h2 className="text-h2 max-w-[18ch] overflow-hidden pb-[0.08em] font-medium">
           <span data-head className="block">
             Things I have built

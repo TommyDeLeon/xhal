@@ -73,7 +73,21 @@ export default function Nav({ links }: { links: NavLink[] }) {
   }, [close]);
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
+    /*
+      Fixed rather than absolute so the bar survives the scroll. That is what
+      makes the glass mean anything at all: a bar that scrolls away with the
+      hero never has content behind it to frost. The trade is that it now
+      overlaps content permanently, which the hero already accounts for with
+      its top padding.
+    */
+    <header data-nav className="fixed inset-x-0 top-0 z-50">
+      {/*
+        The frosted pane. A separate element rather than a background on the
+        header, so its opacity can be tweened without touching the header's own
+        compositing or the contrast of the links sitting on top of it.
+      */}
+      <div aria-hidden data-nav-glass className="nav-glass" />
+
       <div className="shell flex h-16 items-center justify-between md:h-20">
         <Link
           href="/"

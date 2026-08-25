@@ -19,7 +19,15 @@ const statusLabel = {
  */
 export default function Capability() {
   return (
-    <section id="capability" className="section-y">
+    <section id="capability" className="relative section-y overflow-hidden">
+      {/* Nearest of the three grounds, so this section reads as the closest
+          plane in the same space rather than as a separate backdrop. */}
+      <div
+        aria-hidden
+        data-parallax="0.45"
+        className="pointer-events-none absolute inset-x-0 -top-[10%] -z-10 h-[120%] bg-[radial-gradient(ellipse_65%_40%_at_70%_10%,var(--bg-raised)_0%,transparent_60%)]"
+      />
+
       <div className="shell">
         <h2 className="text-h2 max-w-[16ch] overflow-hidden pb-[0.08em] font-medium">
           <span data-head className="block">

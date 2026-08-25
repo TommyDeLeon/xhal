@@ -113,11 +113,16 @@ export default function MotionLayer() {
     });
 
     // Parallax depth. Desktop only: on tablet it is one layer, on mobile none.
+    //
+    // data-parallax is a 0-1 depth scalar, and 12% of the layer's own height is
+    // the ceiling. The previous multiplier (-12 * depth * 10) sent a depth-1
+    // ground -120%, further than its own height, which is why it read as a
+    // moving object rather than as distance. Depth should be felt, not watched.
     mm.add(`${MQ.desktop} and ${MQ.motionOK}`, () => {
       gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
         const depth = Number(el.dataset.parallax) || 0.15;
         gsap.to(el, {
-          yPercent: -12 * depth * 10,
+          yPercent: -12 * depth,
           ease: EASE_SCRUB,
           scrollTrigger: {
             trigger: el.closest("section") ?? el,
@@ -133,6 +138,8 @@ export default function MotionLayer() {
       const single = document.querySelector<HTMLElement>('[data-parallax="1"]');
       if (!single) return;
       gsap.to(single, {
+        // Two thirds of the desktop ceiling. One layer carrying all the depth
+        // should move less than the deepest of three, not the same.
         yPercent: -8,
         ease: EASE_SCRUB,
         scrollTrigger: {
@@ -142,6 +149,100 @@ export default function MotionLayer() {
           scrub: 1,
         },
       });
+    });
+
+    // The hero recedes as it leaves.
+    //
+    // This is the one idea worth taking from a scroll-driven 3D camera: the next
+    // section should arrive from IN FRONT of the thing it replaces, not from
+    // below it. Pushing the hero back in Z while the page scrolls past does that
+    // with two composited properties and no renderer.
+    //
+    // -90px against the shared 1400px perspective is an effective scale of
+    // 1400 / (1400 + 90) = 0.94 -- the floor of the amplitude budget, not past
+    // it. Opacity carries the rest, because distance reads as falloff and
+    // animating an actual blur is per-frame GPU work this page will not spend.
+    mm.add(`${MQ.wide} and ${MQ.motionOK}`, () => {
+      const plate = document.querySelector<HTMLElement>("[data-hero-depth]");
+      const hero = document.querySelector<HTMLElement>("[data-hero]");
+      if (!plate || !hero) return;
+
+      gsap.fromTo(
+        plate,
+        { z: 0, opacity: 1 },
+        {
+          z: -90,
+          opacity: 0.5,
+          ease: EASE_SCRUB,
+          scrollTrigger: {
+            trigger: hero,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.4,
+            invalidateOnRefresh: true,
+          },
+        },
+      );
+    });
+
+    // Same beat on a phone, at roughly half the travel. A small screen makes the
+    // same Z displacement read as a much larger proportional move, and the phone
+    // is also the device least able to afford it.
+    mm.add(`(max-width: 767.98px) and ${MQ.motionOK}`, () => {
+      const plate = document.querySelector<HTMLElement>("[data-hero-depth]");
+      const hero = document.querySelector<HTMLElement>("[data-hero]");
+      if (!plate || !hero) return;
+
+      gsap.fromTo(
+        plate,
+        { z: 0, opacity: 1 },
+        {
+          z: -45,
+          opacity: 0.6,
+          ease: EASE_SCRUB,
+          scrollTrigger: {
+            trigger: hero,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.4,
+            invalidateOnRefresh: true,
+          },
+        },
+      );
+    });
+
+    // The nav frosts once there is something behind it to frost.
+    //
+    // Runs at every width, because a transparent bar over body copy is a
+    // legibility problem on a phone as much as on a desktop. Only the ANIMATED
+    // case lives here; a reduced-motion visitor gets the frost outright and
+    // permanently from CSS (:root:not(.js-motion) .nav-glass), because they need
+    // the contrast fix more than anyone and should not have to earn it by
+    // scrolling.
+    //
+    // Opacity is the only property that moves. The blur radius is static in CSS
+    // and never tweened -- scrubbing a backdrop-filter is the single most
+    // reliable way to drop a mid-range phone below 60fps.
+    mm.add(MQ.motionOK, () => {
+      const glass = document.querySelector<HTMLElement>("[data-nav-glass]");
+      if (!glass) return;
+
+      gsap.fromTo(
+        glass,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          ease: EASE_SCRUB,
+          scrollTrigger: {
+            trigger: document.documentElement,
+            start: "top top",
+            // Roughly the height of the bar itself: the frost arrives as the
+            // first content slides under it, not several screens later.
+            end: "+=120",
+            scrub: 0.3,
+          },
+        },
+      );
     });
 
     // The pinned thesis. It holds the viewport because it is the argument the
