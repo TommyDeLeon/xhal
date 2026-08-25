@@ -24,7 +24,25 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       className="rounded-panel border border-hairline bg-bg-raised p-6 [transform-style:preserve-3d] md:p-10 lg:p-14"
     >
       {project.media.length ? (
-        <div className="mb-12 [transform-style:preserve-3d]">
+        <div
+          /*
+            The screenshot stack keeps a perspective of its OWN, at the shared
+            --depth distance rather than an arbitrary one.
+
+            It briefly did not, on the theory that inheriting the section's
+            camera was more "one continuous space". That broke: this card is
+            ~2500px tall, and one perspective origin sitting at the centre of
+            the whole section projects elements near its top and bottom
+            extremely hard. Combined with the data-shot rotateX, parts of a shot
+            crossed the camera plane while scrolling and were clipped away
+            entirely -- the screenshot simply vanished.
+
+            Sharing the perspective DISTANCE is what makes the page read as one
+            room. Sharing one vanishing point across a full-page-height element
+            is not something CSS does gracefully, and this is that wall.
+          */
+          className="mb-12 [perspective:var(--depth)]"
+        >
           <ShotFigure shot={project.media[0]} />
 
           {project.media.length > 1 ? (

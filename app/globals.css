@@ -437,30 +437,39 @@
   }
 
   /*
-    The panel gets the scale as well as the fade. Declared separately because it
-    is centred with a translate that the keyframe has to carry too -- animating
-    `scale` alone would be composited against a transform the animation does not
-    know about, and the panel would jump to the corner for the duration.
+    The panel gets the scale as well as the fade.
+
+    This animates the INDEPENDENT `scale` property, never `transform`.
+    Tailwind 4 centres the panel with `translate: -50% -50%` -- the standalone
+    `translate` property, not a transform function. `translate`, `rotate`,
+    `scale` and `transform` are four separate properties that the browser
+    composes in that order, so a keyframe that re-declared
+    `transform: translate(-50%, -50%)` did not REPLACE Tailwind's centring, it
+    STACKED on top of it: the panel was displaced a full -100% of its own size
+    and rendered off the top-left corner.
+
+    Animating `scale` alone composes correctly with the centring translate, and
+    scales about the panel's own centre because transform-origin is 50% 50%.
   */
   @keyframes dialog-panel-in {
     from {
       opacity: 0;
-      transform: translate(-50%, -50%) scale(0.98);
+      scale: 0.98;
     }
     to {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
+      scale: 1;
     }
   }
 
   @keyframes dialog-panel-out {
     from {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
+      scale: 1;
     }
     to {
       opacity: 0;
-      transform: translate(-50%, -50%) scale(0.98);
+      scale: 0.98;
     }
   }
 
