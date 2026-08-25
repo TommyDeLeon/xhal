@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MagnifyingGlassPlus } from "@phosphor-icons/react";
+import { MagnifyingGlassPlus, X } from "@phosphor-icons/react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTitle,
   DialogTrigger,
@@ -165,11 +166,26 @@ export default function ShotFigure({ shot }: { shot: Shot }) {
           </button>
         </DialogTrigger>
 
-        <DialogContent className="max-w-[min(96rem,calc(100vw-1.5rem))] p-0">
-          <div className="border-b border-hairline px-5 py-4 pr-16">
+        {/*
+            showCloseButton={false} because the close control is laid out as a
+            real flex item in the header row below rather than absolutely
+            positioned over the panel. Absolute placement cannot stay centred
+            in a strip whose height changes when a long caption wraps -- it sat
+            proud of the header and crossed the border into the image.
+        */}
+        <DialogContent
+          showCloseButton={false}
+          className="max-w-[min(96rem,calc(100vw-1.5rem))] p-0"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-hairline py-2 pr-2 pl-5">
             <DialogTitle className="text-sm font-medium">
               {shot.caption}
             </DialogTitle>
+
+            <DialogClose className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-hairline bg-bg text-text transition-colors hover:border-accent hover:text-accent">
+              <X size={18} aria-hidden />
+              <span className="sr-only">Close</span>
+            </DialogClose>
           </div>
 
           <div className="overflow-auto p-3">
