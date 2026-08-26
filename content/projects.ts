@@ -104,4 +104,48 @@ export const projects: Project[] = [
     ],
     year: "2026",
   },
+  {
+    slug: "tenant101",
+    name: "Tenant101",
+    summary:
+      "Rent collection for Philippine landlords who run their books on a notebook and a folder of GCash screenshots.",
+    body: [
+      "Most small landlords here collect rent the same way: a notebook, a group chat, and a screenshot of a GCash transfer. It works until somebody disputes a balance from four months ago, and then there is no version of events either side can point to. The landlord has one record, the tenant has another, and neither is complete.",
+      "Tenant101 replaces that with a single ledger both sides read. Rent charges generate themselves at the start of each period, overdue rent is flagged nightly with the same surcharge for everyone, and reminders go out at seven days, three days and on the due date without anyone remembering to send them. The tenant gets a portal showing exactly what they owe, which is the same number the landlord sees.",
+      "The money never touches the system. Tenants pay the landlord directly, into the landlord's own GCash or bank account, exactly as they did before. What changed is that the screenshot they were already sending now attaches to a payment record instead of a chat thread, and the landlord approves it in one place.",
+    ],
+    details: {
+      summary: "Why approval is the only thing that creates a payment",
+      body: [
+        "There is exactly one code path that writes a Payment row, and everything else has to travel through it. A tenant's uploaded proof, a cash collection recorded by the owner, a trusted-tenant auto-approval and a confirmed card payment from the gateway all become a submission first and are then approved. A second way to create money would mean two places to keep the allocation and penalty logic correct, and they would drift.",
+        "That mattered most when wiring in PayMongo. A webhook arrives more than once as a matter of course, so the idempotency key is the processor's payment id enforced by a unique index in Postgres rather than a check in application code, because a check-then-insert loses the race when two deliveries land together. The integration test fires four concurrent deliveries of the same payment and asserts exactly one Payment exists afterwards.",
+        "Money is stored as integer centavos throughout, and pesos exist only at the edges where a form is filled in or a figure is rendered. Timestamps are stored UTC and displayed in Asia/Manila. The scheduled jobs were written against a Manila crontab and had to be converted to UTC for serverless cron, which rolls several of them onto the previous day, including one monthly job that cron cannot express at all and now runs daily against an idempotent unique index.",
+      ],
+    },
+    stack: [
+      "TypeScript",
+      "Next.js 16",
+      "React 19",
+      "Prisma 7",
+      "Postgres",
+      "Tailwind 4",
+      "Vitest",
+      "Playwright",
+      "Vercel",
+    ],
+    angle:
+      "A ledger is only worth having if it cannot disagree with itself. One path creates money, duplicates are stopped by a database constraint rather than by hopeful code, and the marketing site says plainly what the software will not do.",
+    repoUrl: null,
+    liveUrl: "https://tenant101.tommydeleon.com",
+    mark: null,
+    /*
+     * Empty on purpose, for now. The type says an empty array renders no media
+     * panel "rather than a mocked-up fake of the interface", and the honest
+     * position today is that the application itself is not publicly deployed —
+     * only its marketing site is. Captures of the real dashboard belong here
+     * once it is live: originals into assets/, then `npm run images`.
+     */
+    media: [],
+    year: "2026",
+  },
 ];
