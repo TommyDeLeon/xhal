@@ -61,7 +61,21 @@ function ShotFull({ shot }: { shot: Shot }) {
         width={shot.width}
         height={shot.height}
         decoding="async"
-        className="block h-auto max-h-[calc(92vh-5rem)] w-full object-contain"
+        /*
+           Below md the capture is rendered LARGER than the panel and the body
+           scrolls to it, rather than being shrunk to fit.
+
+           Fitting it to the panel is what the inline figure already does: on a
+           375px phone that lands at roughly 327px, which is the unreadable size
+           the lightbox exists to escape. 860px is about 2.6x that, enough for
+           the runtimes and the budget numbers -- the things these screenshots
+           are actually evidence of -- to be legible, and the container scrolls
+           horizontally to reach the rest.
+
+           From md up the panel is already wider than the capture needs, so it
+           goes back to fitting the width.
+        */
+        className="block h-auto w-[860px] max-w-none md:w-full"
       />
     </picture>
   );
@@ -175,9 +189,9 @@ export default function ShotFigure({ shot }: { shot: Shot }) {
         */}
         <DialogContent
           showCloseButton={false}
-          className="max-w-[min(96rem,calc(100vw-1.5rem))] p-0"
+          className="flex max-h-[92vh] max-w-[min(96rem,calc(100vw-1.5rem))] flex-col p-0"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-hairline py-2 pr-2 pl-5">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-hairline py-2 pr-2 pl-5">
             <DialogTitle className="text-sm font-medium">
               {shot.caption}
             </DialogTitle>
@@ -188,7 +202,9 @@ export default function ShotFigure({ shot }: { shot: Shot }) {
             </DialogClose>
           </div>
 
-          <div className="overflow-auto p-3">
+          {/* min-h-0 is what allows a flex child to actually shrink and scroll
+              rather than growing the panel past max-h. */}
+          <div className="min-h-0 flex-1 overflow-auto p-3">
             {/* Guarded as well as portaled: ShotFull reads the DOM in a lazy
                 initialiser, so it must never be evaluated while closed. */}
             {open ? <ShotFull shot={shot} /> : null}
