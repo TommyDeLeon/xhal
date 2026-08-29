@@ -165,7 +165,13 @@ export default function ShotFigure({ shot }: { shot: Shot }) {
                 height={shot.height}
                 loading="lazy"
                 decoding="async"
-                className="block w-full"
+                /* h-auto is load-bearing, not cosmetic. The width/height
+                   attributes reserve space through the UA's implicit
+                   aspect-ratio only while height resolves to auto; w-full on
+                   its own left a performance trace reporting this as an
+                   unsized image beside a layout-shift cluster. Declaring it
+                   makes the reservation explicit. */
+                className="block h-auto w-full"
               />
             </picture>
 

@@ -88,6 +88,30 @@
      would fail AA everywhere it is used as text. This is 5.2:1. */
   --accent: #a35700;
   --on-accent: #ffffff;
+
+  /*
+    Cinematic film stack.
+
+    Four surfaces the hero composites in a fixed order: one key light, a scrim
+    that guarantees a legible ground for text, a vignette, and grain. Every one
+    is derived from --accent and --bg rather than introducing a colour of its
+    own, so a colour is still decided in exactly one place and the three-state
+    theme switch carries the whole stack for free.
+
+    Light mode runs weaker across the board. The effect depends on light falling
+    off into darkness, and a near-white ground has nowhere to fall off to --
+    pushing the dark values here produces a dirty page, not an atmospheric one.
+  */
+  --key-core: color-mix(in srgb, var(--accent) 15%, transparent);
+  --key-mid: color-mix(in srgb, var(--accent) 4%, transparent);
+  --vignette-edge: color-mix(in srgb, var(--bg) 92%, transparent);
+  --scrim-base: color-mix(in srgb, var(--bg) 94%, transparent);
+  --scrim-mid: color-mix(in srgb, var(--bg) 72%, transparent);
+
+  /* A number, not a colour, so it lives with the palette but is set per theme:
+     grain at the strength that reads as film over near-black reads as dirt
+     over near-white. */
+  --grain-opacity: 0.05;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -102,6 +126,17 @@
     --text-faint: #868d99;
     --accent: #f5a524;
     --on-accent: #0a0b0d;
+
+    /* Dark is the world this design is composed for, so the film stack runs at
+       full strength here. Kept byte-identical to the [data-theme="dark"] block
+       below -- the two must never drift, or the toggle and the OS preference
+       would render different atmospheres. */
+    --key-core: color-mix(in srgb, var(--accent) 26%, transparent);
+    --key-mid: color-mix(in srgb, var(--accent) 7%, transparent);
+    --vignette-edge: color-mix(in srgb, var(--bg) 88%, transparent);
+    --scrim-base: color-mix(in srgb, var(--bg) 92%, transparent);
+    --scrim-mid: color-mix(in srgb, var(--bg) 70%, transparent);
+    --grain-opacity: 0.1;
   }
 }
 
@@ -116,6 +151,14 @@
   --text-faint: #868d99;
   --accent: #f5a524;
   --on-accent: #0a0b0d;
+
+  /* Byte-identical to the prefers-color-scheme block above. See the note there. */
+  --key-core: color-mix(in srgb, var(--accent) 26%, transparent);
+  --key-mid: color-mix(in srgb, var(--accent) 7%, transparent);
+  --vignette-edge: color-mix(in srgb, var(--bg) 88%, transparent);
+  --scrim-base: color-mix(in srgb, var(--bg) 92%, transparent);
+  --scrim-mid: color-mix(in srgb, var(--bg) 70%, transparent);
+  --grain-opacity: 0.1;
 }
 
 @layer base {
@@ -182,10 +225,25 @@
   }
 }
 
+/*
+  The display step.
+
+  Raised from a 6rem ceiling to 8.5rem, and the ratio against body copy goes
+  from roughly 4.6:1 to about 8:1. That gap is the whole point of the reference:
+  a heading that is merely large reads as UI, and the jump has to be big enough
+  that the headline is an event rather than the biggest label on the page.
+
+  8.5rem is safe against the longest line this actually sets. "and the software"
+  is 16 characters, roughly 8em in Geist at mixed case, which is 1088px at this
+  ceiling -- inside the 1272px the shell leaves at its widest. Checked rather
+  than assumed, because an overflowing display line is the failure mode here.
+*/
 @utility text-display {
-  font-size: clamp(2.05rem, 6.4vw, 6rem);
-  line-height: 0.98;
-  letter-spacing: -0.03em;
+  font-size: clamp(2.4rem, 8.4vw, 8.5rem);
+  /* Tighter than 0.98: at this size the old leading opened rivers between the
+     stacked lines and they stopped reading as one block. */
+  line-height: 0.92;
+  letter-spacing: -0.035em;
 }
 
 /* Short viewports, mostly phones held sideways. A four-line display headline
@@ -221,8 +279,13 @@
   letter-spacing: 0.04em;
 }
 
+/*
+  Pacing. Raised from a 6-11rem band to 7-15rem so a section boundary reads as
+  a cut rather than as a paragraph break -- "one idea per viewport" is mostly a
+  question of how much empty space separates them.
+*/
 @utility section-y {
-  padding-block: clamp(6rem, 14vh, 11rem);
+  padding-block: clamp(7rem, 18vh, 15rem);
 }
 
 @utility shell {
@@ -237,6 +300,177 @@
     padding-inline: 4rem;
   }
 }
+/*
+  The film stack.
+
+  Four decorative layers the hero composites in a fixed z order: key light (0),
+  content, then scrim, vignette and grain above it. Each is a separate element
+  rather than a stack of backgrounds on one node, because they sit at different
+  depths relative to the content -- the scrim must sit UNDER the copy it makes
+  legible, while the vignette and grain sit over everything.
+
+  All four are static. Nothing here is ever tweened: these are large, cheap
+  paint layers, and animating a full-viewport gradient or a blend mode is the
+  reliable way to lose the frame budget the scroll work needs.
+*/
+.film-key {
+  position: absolute;
+  inset: -20% -10% auto -25%;
+  height: 150%;
+  z-index: 0;
+  pointer-events: none;
+  /*
+    One source, upper left. The existing three radial "grounds" were centred
+    and therefore read as ambient fill -- light that comes from everywhere
+    reads as no light at all. A single off-centre origin is what makes the
+    page look lit rather than tinted.
+  */
+  background: radial-gradient(
+    58% 62% at 22% 8%,
+    var(--key-core) 0%,
+    var(--key-mid) 34%,
+    transparent 68%
+  );
+}
+
+/*
+  RETIRED -- kept only as a record of why it cannot come back in this form.
+
+  This was a bottom-anchored gradient inside the hero, meant to guarantee a
+  legible ground under the hero copy. It caused the section seam. Measured: its
+  bottom edge sat at exactly the hero's clipped edge, at 92% opacity, inside a
+  section with overflow-hidden. So it masked the page-level key light for the
+  hero's lower third and then stopped dead -- the light snapped back on at that
+  line, full width, which is precisely the break that kept being reported.
+
+  It cannot be fixed by softening it: its job is to be opaque at the bottom of
+  the hero, and the bottom of the hero is where the clip happens. Any layer
+  that is still visible where its container clips it produces this artefact.
+  If hero copy ever does need a ground again, it has to be attached to the copy
+  block itself and fade out in every direction, never anchored to a clipped
+  section edge.
+
+  No element uses this class.
+*/
+.film-scrim {
+  position: absolute;
+  inset: auto 0 0;
+  /*
+    34%, not 52%. At the taller value the gradient reached up over the last
+    line of the headline and washed it from white to grey -- the layer that
+    exists to protect contrast was taking it away from the largest text on the
+    page. It only needs to cover the copy block beneath.
+  */
+  height: 34%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    var(--scrim-base) 0%,
+    var(--scrim-mid) 42%,
+    transparent 100%
+  );
+}
+
+.film-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 100% at 50% 38%,
+    transparent 42%,
+    var(--vignette-edge) 100%
+  );
+}
+
+/*
+  Page-level film surfaces.
+
+  These replace the per-section copies. Repeating a key light inside each
+  section meant one light source PER SECTION, and because every copy was clipped
+  to its own box, each section boundary became a visible rectangle edge where a
+  new glow abruptly started. That is the seam. A single fixed light for the whole
+  document is both the correct reading of "lit from one direction" and the thing
+  that removes it.
+
+  Fixed rather than absolute, so the treatment belongs to the viewport the way a
+  lens does instead of scrolling away with one section. pointer-events: none
+  throughout -- these sit above the nav and must never swallow a click.
+*/
+.film-page-key {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    62% 55% at 18% 0%,
+    var(--key-core) 0%,
+    var(--key-mid) 38%,
+    transparent 72%
+  );
+}
+
+.film-page-vignette {
+  position: fixed;
+  inset: 0;
+  /* Above the nav (z-50) deliberately: a vignette that stops short of the
+     chrome reads as an overlay pasted onto the content rather than as the edge
+     of the frame everything is being seen through. */
+  z-index: 60;
+  pointer-events: none;
+  background: radial-gradient(
+    130% 105% at 50% 42%,
+    transparent 52%,
+    var(--vignette-edge) 100%
+  );
+}
+
+.film-page-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 61;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.55'/></svg>");
+}
+
+/* Overlay lightens a dark ground; over a light one it must darken instead. */
+:root[data-theme="light"] .film-page-grain {
+  mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .film-page-grain {
+    mix-blend-mode: multiply;
+  }
+}
+
+/*
+  Grain. An inline SVG turbulence tile rather than an image request: it is about
+  400 bytes, needs no network round trip, and cannot 404 on a static export.
+*/
+.film-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.55'/></svg>");
+}
+
+/* Overlay lightens a dark ground; over a light one it has to darken instead,
+   or the grain is invisible where it is already subtle. */
+:root[data-theme="light"] .film-grain {
+  mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .film-grain {
+    mix-blend-mode: multiply;
+  }
+}
+
 /*
   Segmented colour mode control.
 

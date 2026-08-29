@@ -13,9 +13,6 @@ export type SkillGroup = {
   status: "building" | "learning";
   blurb: string;
   items: string[];
-  /** Tailwind col-span for the >=1024px grid. */
-  span: string;
-  surface: "raised" | "hairline" | "textured";
 };
 
 export const skillGroups: SkillGroup[] = [
@@ -32,8 +29,6 @@ export const skillGroups: SkillGroup[] = [
       "VLANs and segmentation",
       "DNS, DHCP, NAT",
     ],
-    span: "lg:col-span-7",
-    surface: "raised",
   },
   {
     id: "security-foundations",
@@ -48,8 +43,6 @@ export const skillGroups: SkillGroup[] = [
       "Threat modeling",
       "System hardening",
     ],
-    span: "lg:col-span-5",
-    surface: "textured",
   },
   {
     id: "software",
@@ -65,8 +58,6 @@ export const skillGroups: SkillGroup[] = [
       "Docker",
       "Git",
     ],
-    span: "lg:col-span-5",
-    surface: "raised",
   },
   {
     id: "tools",
@@ -81,7 +72,5 @@ export const skillGroups: SkillGroup[] = [
       "pfSense / OPNsense",
       "Virtual lab environments",
     ],
-    span: "lg:col-span-7",
-    surface: "hairline",
   },
 ];

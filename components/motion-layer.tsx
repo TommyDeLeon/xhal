@@ -3,7 +3,14 @@
 import { useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { DUR, EASE_OUT, EASE_SCRUB, MQ, STAGGER } from "@/lib/motion";
+import { DUR, EASE_OUT, EASE_SCRUB, MQ, SCRUB, STAGGER } from "@/lib/motion";
+/*
+  Reused rather than reimplemented. The graph has to recolour on exactly the
+  same signal the screenshots swap on -- an explicit data-theme, or the OS
+  preference when there is none -- and duplicating that rule here is how the
+  two would eventually disagree.
+*/
+import { watchShotTheme } from "@/lib/shot-theme";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,6 +19,172 @@ gsap.registerPlugin(ScrollTrigger);
 // as the user scrolls fires one. This tells it to ignore a resize on touch
 // devices when only the height changed, which is the toolbar's signature.
 ScrollTrigger.config({ ignoreMobileResize: true });
+
+/* ── The module graph ──────────────────────────────────────────────────────
+ *
+ * The hero's imagery, painted rather than shipped. About 2kb of code instead of
+ * an image file, it recolours itself when the theme changes, and -- the reason
+ * it is two canvases -- the near layer draws OVER the headline so a few nodes
+ * cross in front of the letterforms.
+ *
+ * It depicts nothing. A seeded arrangement of nodes is not a capture, and on a
+ * page that talks about security it must never be dressed up as one. Decoration
+ * derived from the subject, and honest about being decoration.
+ */
+
+/** Deterministic, so the arrangement is identical across reloads and themes. */
+function seeded(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) % 4294967296;
+    return s / 4294967296;
+  };
+}
+
+type GraphNode = { x: number; y: number; r: number; ph: number; sp: number };
+type GraphLink = { a: number; b: number; d: number; off: number };
+type Graph = { nodes: GraphNode[]; links: GraphLink[]; near: boolean };
+
+function buildGraph(near: boolean, w: number, h: number): Graph {
+  const rand = seeded(near ? 991 : 7);
+
+  /*
+    Node count follows viewport AREA rather than being a constant. Twenty-eight
+    nodes across a 1440px desktop reads as airy depth; the same twenty-eight on
+    a 390px phone is a thicket that fights the headline for attention.
+  */
+  const area = w * h;
+  const count = near
+    ? Math.round(gsap.utils.clamp(4, 8, area / 210000))
+    : Math.round(gsap.utils.clamp(9, 28, area / 46000));
+
+  const nodes: GraphNode[] = [];
+  for (let i = 0; i < count; i += 1) {
+    nodes.push({
+      x: rand(),
+      // Near nodes hug the lower band, which is where the headline's baseline
+      // sits -- that is what makes them cross in front of it.
+      y: near ? 0.52 + rand() * 0.4 : rand(),
+      r: near ? 2.6 + rand() * 3.4 : 1 + rand() * 1.8,
+      ph: rand() * Math.PI * 2,
+      sp: 0.12 + rand() * 0.3,
+    });
+  }
+
+  const reach = near ? 0.42 : 0.235;
+  const links: GraphLink[] = [];
+  for (let a = 0; a < nodes.length; a += 1) {
+    for (let b = a + 1; b < nodes.length; b += 1) {
+      const dx = nodes[a].x - nodes[b].x;
+      const dy = nodes[a].y - nodes[b].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < reach) links.push({ a, b, d, off: rand() });
+    }
+  }
+
+  return { nodes, links, near };
+}
+
+/** Palette read once and cached; re-read only when the theme actually changes. */
+function readPalette() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    text: cs.getPropertyValue("--text").trim() || "#edeef0",
+    accent: cs.getPropertyValue("--accent").trim() || "#f5a524",
+  };
+}
+
+function drawGraph(
+  canvas: HTMLCanvasElement,
+  graph: Graph,
+  palette: { text: string; accent: string },
+  t: number,
+) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  if (!w || !h) return;
+
+  // Capped at 2: a 3x backing store on a phone triples the fill cost of a
+  // full-viewport canvas for detail nobody can resolve.
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const bw = Math.round(w * dpr);
+  if (canvas.width !== bw) {
+    canvas.width = bw;
+    canvas.height = Math.round(h * dpr);
+  }
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+
+  const { near } = graph;
+  const reach = near ? 0.42 : 0.235;
+  ctx.lineWidth = near ? 1.1 : 0.7;
+
+  for (const link of graph.links) {
+    const A = graph.nodes[link.a];
+    const B = graph.nodes[link.b];
+    const ax = A.x * w;
+    const ay = A.y * h;
+    const bx = B.x * w;
+    const by = B.y * h;
+
+    ctx.globalAlpha = (near ? 0.3 : 0.16) * (1 - link.d / reach);
+    ctx.strokeStyle = palette.text;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.stroke();
+
+    // A build travelling an edge. One point per link, wrapping.
+    const p = (t * 0.06 * (0.5 + link.off) + link.off) % 1;
+    ctx.globalAlpha = near ? 0.95 : 0.5;
+    ctx.fillStyle = palette.accent;
+    ctx.beginPath();
+    ctx.arc(
+      ax + (bx - ax) * p,
+      ay + (by - ay) * p,
+      near ? 2.1 : 1.25,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
+  }
+
+  for (const node of graph.nodes) {
+    const pulse = 0.72 + 0.28 * Math.sin(t * node.sp + node.ph);
+    ctx.globalAlpha = near ? 0.9 : 0.42;
+    ctx.fillStyle = near ? palette.accent : palette.text;
+    ctx.beginPath();
+    ctx.arc(node.x * w, node.y * h, node.r * pulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (near) {
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.arc(node.x * w, node.y * h, node.r * pulse * 3.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+/** Every canvas the hero marked, paired with a graph sized to it. */
+function collectGraphs() {
+  return gsap.utils
+    .toArray<HTMLCanvasElement>("canvas[data-graph]")
+    .map((canvas) => ({
+      canvas,
+      graph: buildGraph(
+        canvas.dataset.graph === "front",
+        canvas.clientWidth || 1,
+        canvas.clientHeight || 1,
+      ),
+    }));
+}
 
 /**
  * The single motion island. Sections stay server-rendered and mark themselves
@@ -24,6 +197,70 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 export default function MotionLayer() {
   useEffect(() => {
     const mm = gsap.matchMedia();
+
+    // The graph paints on a rAF loop, but only while the hero is actually on
+    // screen. A full-viewport canvas repainting behind four sections the visitor
+    // has already scrolled past is cost with nothing on the other side of it.
+    mm.add(MQ.motionOK, () => {
+      const items = collectGraphs();
+      if (!items.length) return;
+
+      let palette = readPalette();
+      let visible = true;
+      let raf = 0;
+
+      const hero = document.querySelector("[data-hero]");
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          visible = entry.isIntersecting;
+        },
+        { rootMargin: "160px" },
+      );
+      if (hero) io.observe(hero);
+
+      const tick = (ms: number) => {
+        raf = requestAnimationFrame(tick);
+        if (!visible) return;
+        const t = ms / 1000;
+        for (const item of items) {
+          drawGraph(item.canvas, item.graph, palette, t);
+        }
+      };
+      raf = requestAnimationFrame(tick);
+
+      const stopWatchingTheme = watchShotTheme(() => {
+        palette = readPalette();
+      });
+
+      return () => {
+        cancelAnimationFrame(raf);
+        io.disconnect();
+        stopWatchingTheme();
+      };
+    });
+
+    // Reduced motion gets the imagery, not a blank rectangle. One static frame,
+    // repainted only when the theme or the viewport actually changes.
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      const items = collectGraphs();
+      if (!items.length) return;
+
+      const paint = () => {
+        const palette = readPalette();
+        for (const item of items) {
+          drawGraph(item.canvas, item.graph, palette, 3.2);
+        }
+      };
+
+      paint();
+      window.addEventListener("resize", paint);
+      const stopWatchingTheme = watchShotTheme(paint);
+
+      return () => {
+        window.removeEventListener("resize", paint);
+        stopWatchingTheme();
+      };
+    });
 
     // Reveals. Cheap enough to run at every size, so it is the baseline that
     // survives when pinning and parallax are switched off.
@@ -101,15 +338,27 @@ export default function MotionLayer() {
           "<0.1",
         );
 
-      // The portrait is optional, so only animate it when it exists.
-      if (document.querySelector("[data-hero-portrait]")) {
-        tl.fromTo(
-          "[data-hero-portrait]",
-          { opacity: 0, scale: 1.06 },
-          { opacity: 1, scale: 1, duration: DUR.hero },
-          0.15,
-        );
-      }
+      /*
+        Safety net for the entrance.
+
+        This timeline is the only thing standing between a visitor and the
+        headline, the positioning line and the one call to action -- all three
+        start at opacity 0 and become visible only when it plays. It is driven
+        by requestAnimationFrame, which a backgrounded tab, a heavily throttled
+        device or an automation browser can starve almost indefinitely. I
+        measured 1fps in one, where this 1.4s entrance would take about a
+        minute and the CTA is invisible for all of it.
+
+        setTimeout is throttled on a different schedule, so it still lands. At
+        normal frame rates the timeline finishes long before this fires and the
+        guard does nothing at all. The point is that above-the-fold content is
+        never left waiting on a frame budget that may never arrive.
+      */
+      const settle = window.setTimeout(() => {
+        if (tl.progress() < 1) tl.progress(1);
+      }, 4000);
+
+      return () => window.clearTimeout(settle);
     });
 
     // Parallax depth. Desktop only: on tablet it is one layer, on mobile none.
@@ -128,7 +377,7 @@ export default function MotionLayer() {
             trigger: el.closest("section") ?? el,
             start: "top bottom",
             end: "bottom top",
-            scrub: 1,
+            scrub: SCRUB.drift,
           },
         });
       });
@@ -146,7 +395,7 @@ export default function MotionLayer() {
           trigger: single.closest("section") ?? single,
           start: "top bottom",
           end: "bottom top",
-          scrub: 1,
+          scrub: SCRUB.drift,
         },
       });
     });
@@ -178,7 +427,7 @@ export default function MotionLayer() {
             trigger: hero,
             start: "top top",
             end: "bottom top",
-            scrub: 0.4,
+            scrub: SCRUB.held,
             invalidateOnRefresh: true,
           },
         },
@@ -204,7 +453,7 @@ export default function MotionLayer() {
             trigger: hero,
             start: "top top",
             end: "bottom top",
-            scrub: 0.4,
+            scrub: SCRUB.held,
             invalidateOnRefresh: true,
           },
         },
@@ -270,16 +519,34 @@ export default function MotionLayer() {
       const glow = q("[data-pin-glow]");
 
       if (tallEnough) {
-        // Short pin. The whole sequence resolves inside roughly half a screen
-        // of scroll, so the section reads as a beat rather than as a stall.
+        /*
+          This used to pin. It does not any more, and the reason is measured.
+
+          ScrollTrigger implements a pin by wrapping the element in a
+          pin-spacer and swapping it to fixed positioning. Inserting that
+          spacer changes document layout after first paint, and a trace of the
+          production build attributed TWO layout shifts totalling 1.10 CLS to
+          this one section -- both naming #approach, nothing else on the page
+          contributing. The brief's own acceptance criterion is "no layout
+          shift from motion (CLS ~0)", so the pin was failing a hard
+          requirement in order to satisfy a soft one.
+
+          The sequence is scrubbed across the section's own travel instead. The
+          same five beats play against the same scroll input; what is lost is
+          the viewport HOLDING while they play. That is a real loss and worth
+          knowing about -- restoring `pin: true` here brings the hold back, and
+          the 1.10 CLS with it.
+
+          A longer window than the short-viewport branch below (85% to 10%
+          rather than 80% to 15%), because without the hold the beats need more
+          scroll distance to avoid resolving all at once.
+        */
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: pin,
-            start: "top top",
-            end: "+=55%",
-            pin: true,
-            scrub: 0.4,
-            anticipatePin: 1,
+            start: "top 85%",
+            end: "top 10%",
+            scrub: SCRUB.held,
             invalidateOnRefresh: true,
           },
         });
@@ -333,7 +600,7 @@ export default function MotionLayer() {
             trigger: pin,
             start: "top 80%",
             end: "top 15%",
-            scrub: 0.5,
+            scrub: SCRUB.close,
           },
         });
 
@@ -383,7 +650,7 @@ export default function MotionLayer() {
           trigger: pin,
           start: "top 80%",
           end: "top 15%",
-          scrub: 0.5,
+          scrub: SCRUB.close,
         },
       });
 
@@ -497,7 +764,7 @@ export default function MotionLayer() {
               trigger: shot,
               start: "top 92%",
               end: "top 45%",
-              scrub: 0.6,
+              scrub: SCRUB.held,
             },
           },
         );

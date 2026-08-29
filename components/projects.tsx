@@ -1,4 +1,9 @@
-import { ArrowSquareOut, GithubLogo } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import {
+  ArrowRight,
+  ArrowSquareOut,
+  GithubLogo,
+} from "@phosphor-icons/react/dist/ssr";
 import { projects, type Project } from "@/content/projects";
 
 /*
@@ -98,13 +103,51 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
               </a>
             ) : null}
 
+            {/*
+              The case study link, rendered only for a project that has one.
+              Sits first because it is the destination this section most wants
+              you to take -- the repo and the demo are both one click deeper
+              from there anyway.
+            */}
+            {project.caseStudy ? (
+              <Link
+                href={`/work/${project.slug}/`}
+                /*
+                  prefetch is off deliberately.
+
+                  Next's static export writes this route's RSC payload as a
+                  NESTED DIRECTORY -- out/work/codelock/__next.work/codelock/
+                  __PAGE__.txt -- while the prefetch requests it as a
+                  dot-separated filename, /work/codelock/__next.work.codelock.
+                  __PAGE__.txt. Those do not match, so the prefetch 404s on any
+                  static host, logging a console error on every page that links
+                  here. Navigation itself is unaffected; only the speculative
+                  fetch fails. Turning it off removes the error, and on a
+                  two-page static site the prefetch was buying almost nothing.
+                */
+                prefetch={false}
+                className="group inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px"
+              >
+                Read the case study
+                <ArrowRight
+                  size={16}
+                  weight="bold"
+                  aria-hidden
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </Link>
+            ) : null}
+
             {/* Renders only when a live URL exists. */}
             {project.liveUrl ? (
               <a
                 href={project.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px"
+                /* Outline, not filled. The case study is now the primary action
+                   in this row, and two filled amber buttons beside each other
+                   would leave neither of them reading as the primary one. */
+                className="inline-flex items-center gap-2 rounded-full border border-hairline px-5 py-2.5 text-sm text-text transition-colors hover:border-accent hover:text-accent"
               >
                 <ArrowSquareOut size={16} aria-hidden />
                 Live Demo
@@ -170,14 +213,17 @@ export default function Projects() {
   if (!projects.length) return null;
 
   return (
-    <section id="work" className="relative section-y overflow-hidden bg-bg-sunken">
-      {/* Mid-depth ground. Decorative. */}
-      <div
-        aria-hidden
-        data-parallax="0.7"
-        className="pointer-events-none absolute inset-x-0 -top-[10%] -z-10 h-[120%] bg-[radial-gradient(ellipse_70%_45%_at_50%_20%,var(--bg-raised)_0%,transparent_65%)]"
-      />
+    <section id="work" className="relative section-y overflow-hidden">
+      {/*
+        The decorative radial ground that used to sit here is gone.
 
+        It was a --bg-raised ellipse at 120% height inside a section with
+        overflow-hidden, so the gradient was still bright where the section's
+        box clipped it -- a hard, full-width horizontal line at the boundary.
+        That was the visible seam between sections, and every section carrying
+        one produced another. Lighting is now a single fixed layer in the root
+        layout, so there is nothing left to clip.
+      */}
       <div className="shell [perspective:var(--depth)]">
         <h2 className="text-h2 max-w-[18ch] overflow-hidden pb-[0.08em] font-medium">
           <span data-head className="block">

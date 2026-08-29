@@ -96,13 +96,24 @@ export default function Nav({ links }: { links: NavLink[] }) {
           {site.wordmark}
         </Link>
 
+        {/*
+          Micro-chrome. The reference's hierarchy is a near-invisible bar set
+          against enormous display type, and the SIZE GAP between the two is
+          what does the work: a 14px nav beside a 121px headline reads as two
+          competing levels, an 11px letterspaced one reads as a frame around
+          the headline.
+
+          Held at 11px rather than going smaller. These are real navigation
+          targets, and the row still has to clear 4.5:1 and stay hittable --
+          the styling is quiet, not decorative.
+        */}
         <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center gap-8">
+          <ul className="flex items-center gap-9">
             {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-sm text-text-muted transition-colors hover:text-text"
+                  className="text-[0.6875rem] uppercase tracking-[0.16em] text-text-muted transition-colors hover:text-text"
                 >
                   {link.label}
                 </Link>

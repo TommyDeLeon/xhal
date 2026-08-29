@@ -3,123 +3,121 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { site } from "@/content/site";
 
 /**
- * Asymmetric split hero. Text holds the left seven columns, the portrait the
- * right five. Both sit in the section's shared camera rather than in separate
- * perspectives, so the portrait tilts as an object standing in the same room as
- * the type instead of in a box of its own.
+ * Full-bleed hero.
+ *
+ * The composition is the reference's: one lit ground, display type set into it,
+ * and micro-chrome around the edges. What changed from the previous asymmetric
+ * split is that the type no longer shares the viewport with anything -- it owns
+ * it, and the supporting copy sits below rather than beside.
+ *
+ * The two canvases are rendered here but never drawn here. They are marked with
+ * data-graph and left empty; components/motion-layer.tsx finds them and does all
+ * the painting, so this stays a server component and every moving thing on the
+ * page is still owned by one island. A visitor with JS off gets the lit ground
+ * and the type, which is the whole message -- the graph is decoration.
  */
 export default function Hero() {
-  const portrait = site.portrait;
+  // Split for the per-line mask reveal. The accessible sentence is rendered
+  // separately below, because three masked spans would otherwise be announced
+  // as one run-on string.
+  const lines = ["Networks, security,", "and the software", "between."];
 
   return (
     <section
       data-hero
       /* The shared camera. Every 3D parent on the page reads --depth, so the
-         hero, the thesis and the project cards are all shot on one lens. */
+         hero and the sections after it are shot on one lens. */
       style={{ perspective: "var(--depth)" }}
-      className="relative flex min-h-[100dvh] items-center overflow-hidden pt-24 pb-14 md:pt-24 [@media(max-height:640px)]:min-h-0 [@media(max-height:640px)]:py-7"
+      className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pt-24 pb-16 [@media(max-height:640px)]:min-h-0 [@media(max-height:640px)]:py-24"
     >
-      {/* Depth ground, the furthest plane. Decorative, so it is hidden from
-          assistive tech. The value is a 0-1 depth scalar, not a distance. */}
-      <div
+      {/*
+        Far half of the module graph. Sits behind the headline so the type reads
+        as standing inside the space rather than pasted onto it.
+      */}
+      <canvas
         aria-hidden
-        data-parallax="1"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[120%] bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,var(--bg-raised)_0%,transparent_70%)]"
+        data-graph="back"
+        className="pointer-events-none absolute inset-0 z-[1] h-full w-full"
       />
 
-      {/* Everything that recedes as the hero scrolls away moves as one plate,
-          so the type and the portrait travel back in Z together rather than
-          separating. preserve-3d keeps the portrait's own offset frame in the
-          section's camera instead of giving it a second one. */}
-      <div
-        data-hero-depth
-        className="shell grid w-full grid-cols-1 items-center gap-9 [transform-style:preserve-3d] md:grid-cols-12 md:gap-10 [@media(max-height:640px)]:gap-6 lg:gap-14"
-      >
-        <div className={portrait ? "md:col-span-7" : "md:col-span-10"}>
-          <p className="text-mono-sm mb-5 text-text-muted md:mb-7 [@media(max-height:640px)]:mb-3">{site.status}</p>
+      <div data-hero-depth className="shell relative z-[2] w-full [transform-style:preserve-3d]">
+        <h1 className="text-display font-semibold">
+          <span className="sr-only">
+            Networks, security, and the software between.
+          </span>
 
-          <h1 className="text-display font-medium">
-            {/* The visual lines are split for the mask reveal, which would make
-                the accessible name read as one run-on word. Screen readers get
-                the clean sentence instead. */}
-            <span className="sr-only">
-              Networks, security, and the software between.
-            </span>
-            <span aria-hidden>
-              {["Networks, security,", "and the software", "between."].map(
-                (line) => (
-                  <span
-                    key={line}
-                    className="block overflow-hidden pb-[0.06em]"
-                  >
-                    <span data-hero-line className="block">
-                      {line}
-                    </span>
-                  </span>
-                ),
-              )}
-            </span>
-          </h1>
+          <span aria-hidden>
+            {lines.map((line) => (
+              // overflow-hidden is the mask the line rises out of. The padding
+              // keeps descenders from being clipped by their own mask.
+              <span key={line} className="block overflow-hidden pb-[0.08em]">
+                <span data-hero-line className="block">
+                  {line === "and the software" ? (
+                    <>
+                      and the{" "}
+                      {/*
+                        The one accented word on the page.
 
-          <p
-            data-hero-sub
-            className="text-body-lg mt-5 max-w-[46ch] text-text-muted md:mt-7 [@media(max-height:640px)]:mt-3"
-          >
-            {site.positioning}
-          </p>
-
-          <div data-hero-cta className="mt-7 md:mt-10 [@media(max-height:640px)]:mt-4">
-            <Link
-              href="#contact"
-              className="group inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px active:translate-y-0"
-            >
-              Start a project
-              <ArrowRight
-                size={16}
-                weight="bold"
-                aria-hidden
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
-          </div>
-        </div>
-
-        {portrait ? (
-          <div
-            data-hero-portrait
-            className="order-first [transform-style:preserve-3d] md:order-none md:col-span-5 [@media(max-height:640px)]:hidden"
-          >
-            <div
-              data-tilt
-              className="relative mx-auto w-full max-w-[clamp(9.5rem,30vw,24rem)] [transform-style:preserve-3d] [@media(max-height:640px)]:max-w-[6.5rem]"
-            >
-              {/* Offset frame sitting behind the photo in Z, so the panel reads
-                  as a physical object rather than a pasted-in circle. */}
-              <div
-                aria-hidden
-                className="absolute -inset-3 -z-10 rounded-[20px] border border-hairline"
-                style={{ transform: "translateZ(-40px)" }}
-              />
-
-              <picture>
-                <source srcSet="/images/tommy.avif" type="image/avif" />
-                <source srcSet="/images/tommy.webp" type="image/webp" />
-                {/* Pre-compressed at build time: static export has no image
-                    optimizer at request time. */}
-                <img
-                  src={portrait.src}
-                  alt={portrait.alt}
-                  width={portrait.width}
-                  height={portrait.height}
-                  fetchPriority="high"
-                  decoding="async"
-                  className="block w-full rounded-[16px] border border-hairline object-cover"
-                />
-              </picture>
-            </div>
-          </div>
-        ) : null}
+                        The headline is Tommy's own and leads with networks,
+                        which is what he wants said -- but software is what he
+                        wants emphasised. Colour resolves that without rewriting
+                        the sentence: the claim is unchanged, the weight moves.
+                      */}
+                      <span className="text-accent">software</span>
+                    </>
+                  ) : (
+                    line
+                  )}
+                </span>
+              </span>
+            ))}
+          </span>
+        </h1>
       </div>
+
+      {/*
+        Near half of the graph. Drawn OVER the headline so a few nodes cross in
+        front of the letterforms. That occlusion is what separates "type on an
+        image" from "type in a space", and it is the single idea worth taking
+        from the reference.
+      */}
+      <canvas
+        aria-hidden
+        data-graph="front"
+        className="pointer-events-none absolute inset-0 z-[3] h-full w-full"
+      />
+
+      <div className="shell relative z-[4] mt-10 flex w-full flex-col gap-7 md:mt-14 md:flex-row md:items-end md:justify-between md:gap-10">
+        <p data-hero-sub className="text-body-lg max-w-[44ch] text-text-muted">
+          {/*
+            positioning ONLY.
+
+            The old hero showed site.status as a label above the headline and
+            site.positioning below it. Moving the status into this sentence
+            printed it twice, because positioning already opens with the same
+            clause -- "Electronics Engineering student. I build working software
+            while I train toward...". One field already says the whole thing, so
+            it is the one field rendered.
+          */}
+          {site.positioning}
+        </p>
+
+        <div data-hero-cta className="shrink-0">
+          <Link
+            href="#contact"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px active:translate-y-0"
+          >
+            Start a project
+            <ArrowRight
+              size={16}
+              weight="bold"
+              aria-hidden
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Link>
+        </div>
+      </div>
+
     </section>
   );
 }

@@ -11,7 +11,7 @@ export default function Contact() {
     <section id="contact" className="section-y">
       <div className="shell grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-20">
         <div className="lg:col-span-6">
-          <h2 className="text-h2 font-medium">Start a project</h2>
+          <h2 className="text-h2 font-semibold">Start a project</h2>
           <p className="mt-5 max-w-[46ch] leading-[1.7] text-text-muted">
             I am taking freelance work now. Websites, web apps, and the kind of
             small internal tool that never gets built because nobody has time.
@@ -23,7 +23,7 @@ export default function Contact() {
         </div>
 
         <div className="lg:col-span-5 lg:col-start-8">
-          <h2 className="text-h2 font-medium">Let&apos;s connect</h2>
+          <h2 className="text-h2 font-semibold">Let&apos;s connect</h2>
           <p className="mt-5 max-w-[42ch] leading-[1.7] text-text-muted">
             Hiring for an entry-level network or security role, comparing notes,
             or asking how something in CodeLock works. No pitch required, and I
