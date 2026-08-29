@@ -94,29 +94,57 @@ function readPalette() {
   };
 }
 
+/*
+  The backing store is deliberately 1:1 with CSS pixels, NOT devicePixelRatio.
+
+  This was Math.min(devicePixelRatio, 2), which on any high-DPI display made
+  each of these two full-viewport canvases 3810x2160 -- 8.2 megapixels each, so
+  16.5 million pixels were cleared and refilled every single frame. Nothing on
+  this canvas benefits: it is hairlines at 16% alpha and dots two pixels across,
+  and a 2x backing store spends four times the fill rate to make a soft edge
+  slightly less soft.
+
+  That cost never shows up in a requestAnimationFrame frame counter, because it
+  is not main-thread work. It is fill rate, and on an integrated GPU it is the
+  difference between a page that scrolls and a page that does not.
+*/
+const GRAPH_DPR = 1;
+
+/*
+  The graph redraws at roughly 30fps rather than at display refresh.
+
+  Packets travel at 0.06 of a link per second and nodes pulse between 0.12 and
+  0.42Hz. Nothing here moves fast enough for anyone to tell 30fps from 144, and
+  at 144 the page pays for nearly five times as many full-viewport repaints to
+  render motion nobody can see. The scroll-linked animations are untouched and
+  still run at full rate; only this decorative loop is capped.
+*/
+const GRAPH_FRAME_MS = 1000 / 30;
+
 function drawGraph(
   canvas: HTMLCanvasElement,
   graph: Graph,
   palette: { text: string; accent: string },
   t: number,
+  /*
+    Size is passed in rather than read off the element. Reading clientWidth
+    inside the loop forced a layout every frame, for every canvas, purely to
+    re-learn a number that only changes on resize.
+  */
+  w: number,
+  h: number,
 ) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
-
-  const w = canvas.clientWidth;
-  const h = canvas.clientHeight;
   if (!w || !h) return;
 
-  // Capped at 2: a 3x backing store on a phone triples the fill cost of a
-  // full-viewport canvas for detail nobody can resolve.
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const bw = Math.round(w * dpr);
+  const bw = Math.round(w * GRAPH_DPR);
   if (canvas.width !== bw) {
     canvas.width = bw;
-    canvas.height = Math.round(h * dpr);
+    canvas.height = Math.round(h * GRAPH_DPR);
   }
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.setTransform(GRAPH_DPR, 0, 0, GRAPH_DPR, 0, 0);
   ctx.clearRect(0, 0, w, h);
 
   const { near } = graph;
@@ -208,6 +236,26 @@ export default function MotionLayer() {
       let palette = readPalette();
       let visible = true;
       let raf = 0;
+      let lastDraw = 0;
+
+      /*
+        Canvas sizes are measured once here and refreshed only on resize.
+        Reading clientWidth inside the loop meant a forced layout on every
+        frame for every canvas, to re-read a number that changes when the
+        window changes and at no other time.
+      */
+      let sizes = items.map((item) => ({
+        w: item.canvas.clientWidth,
+        h: item.canvas.clientHeight,
+      }));
+      const remeasure = () => {
+        sizes = items.map((item) => ({
+          w: item.canvas.clientWidth,
+          h: item.canvas.clientHeight,
+        }));
+        lastDraw = 0;
+      };
+      window.addEventListener("resize", remeasure);
 
       const hero = document.querySelector("[data-hero]");
       const io = new IntersectionObserver(
@@ -221,9 +269,19 @@ export default function MotionLayer() {
       const tick = (ms: number) => {
         raf = requestAnimationFrame(tick);
         if (!visible) return;
+        // Capped at ~30fps. See GRAPH_FRAME_MS.
+        if (ms - lastDraw < GRAPH_FRAME_MS) return;
+        lastDraw = ms;
         const t = ms / 1000;
-        for (const item of items) {
-          drawGraph(item.canvas, item.graph, palette, t);
+        for (let i = 0; i < items.length; i += 1) {
+          drawGraph(
+            items[i].canvas,
+            items[i].graph,
+            palette,
+            t,
+            sizes[i].w,
+            sizes[i].h,
+          );
         }
       };
       raf = requestAnimationFrame(tick);
@@ -235,6 +293,7 @@ export default function MotionLayer() {
       return () => {
         cancelAnimationFrame(raf);
         io.disconnect();
+        window.removeEventListener("resize", remeasure);
         stopWatchingTheme();
       };
     });
@@ -248,7 +307,14 @@ export default function MotionLayer() {
       const paint = () => {
         const palette = readPalette();
         for (const item of items) {
-          drawGraph(item.canvas, item.graph, palette, 3.2);
+          drawGraph(
+            item.canvas,
+            item.graph,
+            palette,
+            3.2,
+            item.canvas.clientWidth,
+            item.canvas.clientHeight,
+          );
         }
       };
 
