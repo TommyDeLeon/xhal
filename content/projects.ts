@@ -135,9 +135,9 @@ export const projects: Project[] = [
       },
       {
         src: "/images/codelock-limits.jpg",
-        alt: "The desktop section of CodeLock's own limits page. Ten attempts, including killing the process from Task Manager, switching virtual desktop, and calling the unlock channel from DevTools, are each marked untested. Deleting the lock file, rebooting, and Ctrl+Alt+Del are marked defeated. Holding Escape for ten seconds is marked by design. No row is marked as holding.",
+        alt: "The desktop section of CodeLock's own limits page. Minimise, the second monitor and sleeping the machine are marked unit-tested. Switching virtual desktop and rebooting are marked untested. Killing the process, deleting the lock file and Ctrl+Alt+Del are marked defeated. Reopening after a kill and calling the unlock channel from DevTools are marked holds. Holding Escape for ten seconds is marked by design.",
         caption:
-          "What the lock survives and what beats it, written down rather than glossed over. Not one desktop row claims to hold: each is either defeated or written but never exercised on hardware.",
+          "What the lock survives and what beats it, written down rather than glossed over. unit-tested means the shell provably decides correctly, not that Windows was watched honouring it — that distinction is the point of having the column.",
         width: 1600,
         height: 1000,
       },
@@ -148,6 +148,14 @@ export const projects: Project[] = [
           "The desktop app rather than the web demo. The tier, the streak and the ratio against the best known answer are the state the lock reads when it picks a problem.",
         width: 1600,
         height: 1000,
+      },
+      {
+        src: "/images/codelock-app-lock.jpg",
+        alt: "The CodeLock lock screen filling the display. A header reads Locked, pass every test case to get back in, with Skip and Submit buttons. The problem is Characters That Appear Exactly Once, marked easy, with a worked example and two sample cases beside an editor holding an empty solve function. A footer offers holding Escape for ten seconds to abandon, noting it counts as a failed session.",
+        caption:
+          "The real lock, not the demo: a timer fired and this is the whole screen until a problem is solved. The problem is chosen at the moment the lock fires, so it cannot be fetched and worked out in advance.",
+        width: 1600,
+        height: 670,
       },
     ],
     year: "2026",
