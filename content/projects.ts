@@ -56,6 +56,21 @@ export type CaseStudySection = {
   /** Runs under the heading at display scale. One sentence, no wind-up. */
   standfirst: string;
   body: string[];
+  /**
+   * `media.src` of the capture that belongs under this section, if any.
+   *
+   * Named rather than positional. The page used to deal the remaining captures
+   * out by index — section 0 got media[1], section 1 got media[2] — and called
+   * it "beside the prose it illustrates". It was not: the limits table landed
+   * under a section about attention being engineered, the lock screen under one
+   * about runtime budgets, and the escape-matrix section, which the limits
+   * table is *of*, got no image at all because the indexes had run out.
+   *
+   * Index pairing also breaks silently. Adding a section or reordering media
+   * re-shuffles every pairing after it, with nothing to fail — the page still
+   * renders, just with the wrong picture under the wrong argument.
+   */
+  shot?: string;
 };
 
 export type CaseStudy = {
@@ -192,6 +207,7 @@ export const projects: Project[] = [
       ],
       sections: [
         {
+          shot: "/images/codelock-app-dashboard.jpg",
           heading: "Every timer I tried had a dismiss button",
           standfirst:
             "A blocker you can wave away is a suggestion, not a lock.",
@@ -211,6 +227,7 @@ export const projects: Project[] = [
           ],
         },
         {
+          shot: "/images/codelock-app-lock.jpg",
           heading: "The first version let the client decide it was unlocked",
           standfirst:
             "v1 asked the interface a question only the server had any business answering.",
@@ -218,11 +235,12 @@ export const projects: Project[] = [
             "In the first version the app ran the tests, decided the answer was good enough, and released the lock. It fell over immediately, and it fell over in the dullest possible way: anything that could talk to the interface could tell it that it had passed. There was no attack to speak of. The check and the thing being protected were on the same side of the fence.",
             "The second version moved the decision to the API. Nothing on the client is trusted to conclude anything. The judge runs the submission, the speed gate is evaluated separately, and only if both clear does the API sign an unlock token. The token is HS256, its payload carries the user id, the lock session id and a type marker, the issuer and audience are pinned, and it expires after five minutes.",
             "Writing this page found a replay flaw in that binding. The payload named one user and one lock session, but the handler that released the lock never compared either one against the session it was holding, so inside its five minute window a validly signed token could release whichever lock happened to be live. It is closed now: the comparison is pulled out into a function and tested on its own. That was the same mistake as the first version in a smaller place, and I would not have noticed it if I had not sat down to write out how the unlock path works.",
-            "The desktop shell verifies that signature in the Electron main process, behind an IPC handler. The renderer runs with node integration off, context isolation on and the sandbox flag set, so the window that draws the interface never holds the verifying key and cannot set the locked state itself. A patched web app, an injected script, or the unlock channel called by hand with an empty string all take the same path, and none of them can produce a signature. I have read that path and I am confident it refuses them. I have not run it, and the escape matrix records it as untested rather than held, which is the honest status.",
+            "The desktop shell verifies that signature in the Electron main process, behind an IPC handler. The renderer runs with node integration off, context isolation on and the sandbox flag set, so the window that draws the interface never holds the verifying key and cannot set the locked state itself. A patched web app, an injected script, or the unlock channel called by hand with an empty string all take the same path, and none of them can produce a signature. I ran that path against a live lock: a forged token and an empty one were both rejected, and the escape matrix records it as holds.",
             "There is a caveat I should state rather than let the paragraph above imply otherwise. The verifier accepts RS256 with a public key and HS256 with a shared secret. In the shared-secret mode the secret sits in the installed application's configuration, where the owner of the machine can read it. The documentation says that mode is acceptable when the only user is the person who installed it, and that is exactly the right way to describe it. It is not a defence against the machine's owner, and this lock has never claimed to be.",
           ],
         },
         {
+          shot: "/images/codelock-demo.jpg",
           heading:
             "One runtime budget for every language would be a language preference, not a gate",
           standfirst:
@@ -237,13 +255,15 @@ export const projects: Project[] = [
           ],
         },
         {
-          heading: "Most rows in my own escape matrix say UNTESTED",
+          shot: "/images/codelock-limits.jpg",
+          heading: "Only two rows in my own escape matrix say UNTESTED",
           standfirst:
             "The honest status of this lock is weaker than I would like it to be, and the document says so.",
           body: [
             "There are no download numbers, no user counts and no conversion figures on this project, so there is nothing of that kind to report. What exists instead is a document in the repository that lists every way I could think of to get out of the lock, and marks each one with what actually happened when I tried it.",
-            "The result is less flattering than a summary would be. Deleting the lock file after killing the process defeats it. Ctrl+Alt+Del defeats it. A hard power-off defeats it, and so does booting another operating system. Those are recorded as defeated because they were run and they worked. The rows I would most like to claim, killing the process, switching virtual desktop, calling the unlock channel from developer tools, are marked untested, because the code refuses them but I have not sat down and proven it on hardware. Reboot on its own is untested too, and the document calls that a real gap in as many words, noting that reboot combined with a power-off is currently a full escape.",
-            "I am leaving that section exactly as the matrix has it. A tool that overstates what it enforces trains you to trust it in the one situation where it will not hold, and a focus tool that quietly fails is worse than no tool, because you stop watching for the failure. The distance between what the code refuses and what I have personally verified is the most interesting thing on this project, and it is not a distance I can round down.",
+            "The result is less flattering than a summary would be. Deleting the lock file after killing the process defeats it. Ctrl+Alt+Del defeats it. Holding the power button defeats it, and so does booting another operating system. Those are recorded as defeated because they were run and they worked. Killing the process is defeated too, although reopening CodeLock after that holds. Switching virtual desktop and rebooting are the two untested rows. Calling the unlock channel from developer tools holds: against a live lock, a forged token and an empty one were both rejected.",
+            "The rows in between say unit-tested, which is a status I added rather than one I was pleased to need. Cancelling the close, undoing a minimise, and re-asserting the overlay after a display change or a wake are covered by tests now, and each is checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the app impossible to quit. That is not the same as the barrier holding. It proves the shell decides correctly; it says nothing about whether Windows honours the decision, which is the only part that matters to someone hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page says why.",
+            "I am leaving that section exactly as the matrix has it. A tool that overstates what it enforces trains you to trust it in the one situation where it will not hold, and a focus tool that quietly fails is worse than no tool, because you stop watching for the failure. Unit-tested sits between untested and holds: the shell makes the right decision while locked and while unlocked, because a guard that fired every time would make the app impossible to quit, but I have not watched Windows honour it on hardware. The distance between what the code refuses and what I have personally verified is the most interesting thing on this project, and it is not a distance I can round down.",
             "The parts I can point at without qualification are these. The judge and the problem set live in the repository, so the pieces that would normally cost money to run are the pieces anyone can host themselves rather than depend on mine. And the verdict screen in this write-up is a real capture rather than a mockup: every test passes, the submission takes 440 milliseconds against a 189 millisecond budget, roughly 4.0 times the best known 110 milliseconds, and the machine stays locked. That screenshot is the argument for the speed gate, because it is the case where a correct answer is not good enough and the interface has to say so without being vague about why.",
           ],
         },

@@ -68,7 +68,13 @@ export const metadata: Metadata = study
 export default function CodelockCaseStudy() {
   if (!project || !study) notFound();
 
-  const [lead, ...rest] = project.media;
+  const [lead] = project.media;
+  // Look the capture up by name. Dealing the remainder out by index put the
+  // limits table under a section about attention being engineered, and left the
+  // escape-matrix section — which that table is of — with no image at all,
+  // because the indexes had run out before reaching it.
+  const shotFor = (src?: string) =>
+    src ? project.media.find((m) => m.src === src) : undefined;
 
   return (
     <>
@@ -257,12 +263,13 @@ export default function CodelockCaseStudy() {
                 </div>
               </div>
 
-              {/* Remaining captures are dealt out between sections rather than
-                  stacked into a gallery, so each lands beside the prose it
-                  illustrates instead of arriving as an appendix. */}
-              {rest[i] ? (
+              {/* Captures sit between sections rather than stacked into a
+                  gallery, so each lands beside the prose it illustrates instead
+                  of arriving as an appendix. The section names the one it
+                  wants; a section with nothing to show renders no image. */}
+              {shotFor(section.shot) ? (
                 <div className="shell mt-16 [perspective:var(--depth)]">
-                  <ShotFigure shot={rest[i]} />
+                  <ShotFigure shot={shotFor(section.shot)!} />
                 </div>
               ) : null}
             </section>
