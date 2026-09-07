@@ -168,9 +168,9 @@ export const projects: Project[] = [
       },
       {
         src: "/images/codelock-app-dashboard.jpg",
-        alt: "The CodeLock desktop app's dashboard. A session panel offers 15, 30, 60 and 90 minute blocks with 60 selected, above counters for problems solved, locks cleared and median unlock time. A sidebar shows the current tier at Easy, a streak of nought of three fast solves needed to reach Medium, a ratio of 1.00x off the best known answer, and a personal best of 170 milliseconds in Python. A run log lists one abandoned session.",
+        alt: "The CodeLock desktop app's dashboard. A session panel offers 15, 30, 60 and 90 minute blocks with 60 selected, above counters reading five problems solved at three per cent of submissions accepted, five locks cleared, and a median unlock of 33 minutes. A sidebar shows the tier at Easy, a streak of nought of three fast solves needed to reach Medium, a ratio of 1.00x off the best known answer across six solves with six records held, and a list of personal bests in Python. A run log lists nine sessions marked solved, bypassed or abandoned.",
         caption:
-          "Where a focus block starts, and the state the lock reads when it picks a problem: the tier, the streak toward the next one, and how far off the best known answer you have been running. Captured September 2026, before the dashboard gained pause and reset controls and before run-log rows became openable.",
+          "Where a focus block starts, and the state the lock reads when it picks a problem: the tier, the streak toward the next one, and how far off the best known answer the last six solves have run. The run log keeps bypassed and abandoned sessions in plain sight next to the solved ones, which is the point of keeping a log at all.",
         width: 1600,
         height: 1000,
       },
