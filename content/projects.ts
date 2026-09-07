@@ -152,9 +152,9 @@ export const projects: Project[] = [
     media: [
       {
         src: "/images/codelock-app-lock.jpg",
-        alt: "The CodeLock desktop application's lock screen filling the display. A header reads Locked, pass every test case to get back in, with Skip and Submit buttons. The problem is Characters That Appear Exactly Once, marked easy, noted as taking most people about five and a half minutes, with a worked example and two sample cases beside an editor holding an empty solve function. A footer offers holding Escape for ten seconds to abandon, noting it counts as a failed session.",
+        alt: "The CodeLock lock screen filling the display. A header reads Locked, pass every test case to get back in, with Skip, Run and Submit buttons. The problem is Stack LIFO Basics, marked easy and noted as taking most people about six minutes, with the specification and sample cases beside an editor holding an empty Stack class. Below the editor, Console and Test results tabs offer a Run button described as running your code without using an attempt.",
         caption:
-          "The application, not the demo. A timer expired and this is the entire screen until the problem is solved — the problem chosen at the moment the lock fires, so it cannot be fetched and worked out in advance. Captured September 2026, before the screen gained a Run button and a console.",
+          "The application, not the demo. A timer expired and this is the entire screen until the problem is solved — chosen at the moment the lock fires, so it cannot be fetched and worked out in advance. Run and the console below the editor exist so a guess can be tested without spending an attempt, which is the difference between a lock that teaches and one that only punishes.",
         width: 1600,
         height: 670,
       },
