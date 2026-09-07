@@ -41,30 +41,19 @@ export default function Hero() {
       />
 
       {/*
-        The masthead line.
+        There is deliberately no label above the headline.
 
-        A magazine tells you what you are holding before it tells you anything
-        else, and it does it in small type at the top of the page with a rule
-        under it. Left is the subject; right is the edition. Neither is
-        decoration — both are real, and both come from content/site.ts.
+        There was one — a mono masthead line reading the subject on the left and
+        the status on the right, with a rule under it. It was the classic
+        eyebrow, and an eyebrow is an admission that the heading underneath is
+        not trusted to introduce itself. The heading is nine words of plain
+        English naming exactly what he does; it needs no announcement, and
+        removing the announcement is what lets it open the page cold.
+
+        The status did not vanish with it. It is the first clause of
+        site.positioning in the deck below, which is where it was already being
+        read from.
       */}
-      <div className="shell relative z-[2] w-full">
-        <div className="flex items-baseline justify-between gap-6 border-b border-hairline pb-4">
-          <p className="text-mono-sm text-text-faint">
-            Networks · Security · Software
-          </p>
-          {/*
-            Dropped on a phone, where 375px forces both halves of the masthead
-            to wrap to three lines each and the line stops reading as a masthead
-            at all. The subject stays; the edition marker is the half that can
-            go, because site.status also opens the standfirst directly below.
-          */}
-          <p className="text-mono-sm hidden text-text-faint sm:block">
-            {site.status}
-          </p>
-        </div>
-      </div>
-
       <div
         data-hero-depth
         className="shell relative z-[2] mt-10 w-full [transform-style:preserve-3d] md:mt-14"
@@ -200,20 +189,25 @@ export default function Hero() {
             </div>
 
             {/*
-              Facts, not claims. Every line here is read off content/site.ts
-              rather than written for effect: the availability flag drives the
-              first, and the socials array drives the rest. If a field is unset
-              its line does not render, which is the same rule the whole site
-              follows -- an unanswered field is invisible rather than wrong.
+              Facts, not claims. Every line is read off content/site.ts rather
+              than written for effect: the availability flag drives the first,
+              the socials array the rest. An unset field renders nothing, which
+              is the rule the whole site follows.
+
+              Set in the body face, NOT in mono. Mono earns its place on code, on
+              data, and on measurements — a runtime, a budget, a ratio. "Open to
+              freelance" is a sentence and a social handle is a name, and
+              setting either in a typewriter face is monospace worn as a costume
+              for technical credibility. It is one of the most reliable tells
+              that a page was assembled from the idea of a developer portfolio
+              rather than composed.
             */}
-            <ul className="flex flex-col gap-2 md:col-span-3 md:items-end md:text-right">
+            <ul className="flex flex-col gap-2 text-sm md:col-span-3 md:items-end md:text-right">
               {site.availableForWork ? (
-                <li className="text-mono-sm text-text-faint">
-                  Open to freelance
-                </li>
+                <li className="text-text-faint">Open to freelance</li>
               ) : null}
               {site.socials.map((social) => (
-                <li key={social.label} className="text-mono-sm text-text-faint">
+                <li key={social.label} className="text-text-faint">
                   {social.handle}
                 </li>
               ))}

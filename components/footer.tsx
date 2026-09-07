@@ -12,7 +12,7 @@ export default function Footer({
         <div>
           <Link
             href="/"
-            className="text-mono-sm uppercase text-text transition-colors hover:text-accent"
+            className="text-label-sm uppercase text-text transition-colors hover:text-accent"
           >
             {site.wordmark}
           </Link>
@@ -61,7 +61,7 @@ export default function Footer({
       </div>
 
       <div className="shell border-t border-hairline py-6">
-        <p className="text-mono-sm text-text-muted">
+        <p className="text-label-sm text-text-muted">
           {/* Computed at render, not hardcoded. */}
           &copy; {new Date().getFullYear()} {site.name}
         </p>

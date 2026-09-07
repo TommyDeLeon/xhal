@@ -308,6 +308,26 @@
   line-height: 1.6;
 }
 
+/*
+  The label register: small, letterspaced, and set in the BODY face.
+
+  This exists because monospace had quietly become the site's label voice — the
+  nav, the footer, the menu, every small uppercase run. Mono earns its place on
+  code, on data, and on measurements: a runtime, a budget, a ratio, a year. On
+  a navigation link it is monospace worn as a costume for technical
+  credibility, and it is one of the most reliable signals that a page was
+  assembled from the idea of an engineer's site rather than composed as one.
+
+  The tracking is what makes small uppercase readable; it is doing the work the
+  typewriter face was being asked to do, and doing it without the costume.
+*/
+@utility text-label-sm {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+}
+
 @utility text-mono-sm {
   font-family: var(--font-mono);
   font-size: 0.8125rem;

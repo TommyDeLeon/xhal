@@ -91,7 +91,7 @@ export default function Nav({ links }: { links: NavLink[] }) {
       <div className="shell flex h-16 items-center justify-between md:h-20">
         <Link
           href="/"
-          className="text-mono-sm uppercase text-text transition-colors hover:text-accent"
+          className="text-label-sm uppercase text-text transition-colors hover:text-accent"
         >
           {site.wordmark}
         </Link>
@@ -153,7 +153,7 @@ export default function Nav({ links }: { links: NavLink[] }) {
           className="menu-panel fixed inset-0 z-50 flex flex-col bg-bg md:hidden"
         >
           <div className="shell flex h-16 shrink-0 items-center justify-between">
-            <span className="text-mono-sm uppercase text-text-muted">Menu</span>
+            <span className="text-label-sm uppercase text-text-muted">Menu</span>
             <button
               type="button"
               onClick={() => {
@@ -196,7 +196,7 @@ export default function Nav({ links }: { links: NavLink[] }) {
               style={{ "--i": links.length } as React.CSSProperties}
               className="menu-item mb-6 flex items-center justify-between"
             >
-              <span className="text-mono-sm uppercase text-text-muted">
+              <span className="text-label-sm uppercase text-text-muted">
                 Appearance
               </span>
               <ThemeToggle />
