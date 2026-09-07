@@ -25,8 +25,21 @@ export default function Story() {
       >
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
+            {/*
+                The 144px cap is gone.
+
+                It was never a composition choice, it was damage control: the
+                old source was a 294px square upscaled to 735, and at any real
+                size it looked exactly as soft as it was — content/site.ts said
+                so outright. The replacement is a 937x1678 photograph, so a
+                constraint that existed to hide a weakness now only hides the
+                picture.
+
+                Given a column instead of a thumbnail, with the border kept so
+                it still reads as a plate rather than as a cut-out.
+            */}
             {portrait ? (
-              <div data-reveal className="mb-8 max-w-[9rem]">
+              <div data-reveal className="mb-8 max-w-[22rem]">
                 <picture>
                   <source srcSet="/images/tommy.avif" type="image/avif" />
                   <source srcSet="/images/tommy.webp" type="image/webp" />

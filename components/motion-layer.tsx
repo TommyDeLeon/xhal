@@ -11,6 +11,19 @@ import { DUR, EASE_OUT, EASE_SCRUB, MQ, SCRUB, STAGGER } from "@/lib/motion";
   two would eventually disagree.
 */
 import { watchShotTheme } from "@/lib/shot-theme";
+/*
+  Geometry and the 2D renderer. The 3D one is NOT imported here -- it is reached
+  through a dynamic import inside the motion-OK branch below, so its WebGL code
+  never enters this island's chunk and is never fetched by a visitor who has
+  asked for reduced motion.
+*/
+import {
+  buildGraph,
+  drawGraph,
+  readPalette,
+  GRAPH_FRAME_MS,
+} from "@/lib/graph";
+import type { Renderer } from "@/lib/graph-3d";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,184 +33,29 @@ gsap.registerPlugin(ScrollTrigger);
 // devices when only the height changed, which is the toolbar's signature.
 ScrollTrigger.config({ ignoreMobileResize: true });
 
-/* ── The module graph ──────────────────────────────────────────────────────
+/**
+ * Swaps a canvas for a structurally identical fresh one, and returns it.
  *
- * The hero's imagery, painted rather than shipped. About 2kb of code instead of
- * an image file, it recolours itself when the theme changes, and -- the reason
- * it is two canvases -- the near layer draws OVER the headline so a few nodes
- * cross in front of the letterforms.
+ * This exists because of a hard rule in the canvas API that is easy to miss:
+ * **a canvas that has held a WebGL context can never grant a 2D one.**
+ * getContext("2d") on it returns null, for the life of the element.
  *
- * It depicts nothing. A seeded arrangement of nodes is not a capture, and on a
- * page that talks about security it must never be dressed up as one. Decoration
- * derived from the subject, and honest about being decoration.
+ * That breaks the fallback in precisely the two situations the fallback exists
+ * for. If the driver rejects the shaders, the WebGL context was still created
+ * successfully before the rejection; if the context is lost mid-visit, it was
+ * created and then taken away. Either way the element is spent, drawGraph's
+ * getContext("2d") returns null, it returns without drawing, and the hero goes
+ * blank with nothing logged anywhere.
+ *
+ * Replacing the element is the only way back. cloneNode(false) copies the
+ * attributes -- class, data-graph, aria-hidden -- and nothing else, so the
+ * replacement lands in the same place in the same stacking order with no
+ * context attached.
  */
-
-/** Deterministic, so the arrangement is identical across reloads and themes. */
-function seeded(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 1664525 + 1013904223) % 4294967296;
-    return s / 4294967296;
-  };
-}
-
-type GraphNode = { x: number; y: number; r: number; ph: number; sp: number };
-type GraphLink = { a: number; b: number; d: number; off: number };
-type Graph = { nodes: GraphNode[]; links: GraphLink[]; near: boolean };
-
-function buildGraph(near: boolean, w: number, h: number): Graph {
-  const rand = seeded(near ? 991 : 7);
-
-  /*
-    Node count follows viewport AREA rather than being a constant. Twenty-eight
-    nodes across a 1440px desktop reads as airy depth; the same twenty-eight on
-    a 390px phone is a thicket that fights the headline for attention.
-  */
-  const area = w * h;
-  const count = near
-    ? Math.round(gsap.utils.clamp(4, 8, area / 210000))
-    : Math.round(gsap.utils.clamp(9, 28, area / 46000));
-
-  const nodes: GraphNode[] = [];
-  for (let i = 0; i < count; i += 1) {
-    nodes.push({
-      x: rand(),
-      // Near nodes hug the lower band, which is where the headline's baseline
-      // sits -- that is what makes them cross in front of it.
-      y: near ? 0.52 + rand() * 0.4 : rand(),
-      r: near ? 2.6 + rand() * 3.4 : 1 + rand() * 1.8,
-      ph: rand() * Math.PI * 2,
-      sp: 0.12 + rand() * 0.3,
-    });
-  }
-
-  const reach = near ? 0.42 : 0.235;
-  const links: GraphLink[] = [];
-  for (let a = 0; a < nodes.length; a += 1) {
-    for (let b = a + 1; b < nodes.length; b += 1) {
-      const dx = nodes[a].x - nodes[b].x;
-      const dy = nodes[a].y - nodes[b].y;
-      const d = Math.sqrt(dx * dx + dy * dy);
-      if (d < reach) links.push({ a, b, d, off: rand() });
-    }
-  }
-
-  return { nodes, links, near };
-}
-
-/** Palette read once and cached; re-read only when the theme actually changes. */
-function readPalette() {
-  const cs = getComputedStyle(document.documentElement);
-  return {
-    text: cs.getPropertyValue("--text").trim() || "#edeef0",
-    accent: cs.getPropertyValue("--accent").trim() || "#f5a524",
-  };
-}
-
-/*
-  The backing store is deliberately 1:1 with CSS pixels, NOT devicePixelRatio.
-
-  This was Math.min(devicePixelRatio, 2), which on any high-DPI display made
-  each of these two full-viewport canvases 3810x2160 -- 8.2 megapixels each, so
-  16.5 million pixels were cleared and refilled every single frame. Nothing on
-  this canvas benefits: it is hairlines at 16% alpha and dots two pixels across,
-  and a 2x backing store spends four times the fill rate to make a soft edge
-  slightly less soft.
-
-  That cost never shows up in a requestAnimationFrame frame counter, because it
-  is not main-thread work. It is fill rate, and on an integrated GPU it is the
-  difference between a page that scrolls and a page that does not.
-*/
-const GRAPH_DPR = 1;
-
-/*
-  The graph redraws at roughly 30fps rather than at display refresh.
-
-  Packets travel at 0.06 of a link per second and nodes pulse between 0.12 and
-  0.42Hz. Nothing here moves fast enough for anyone to tell 30fps from 144, and
-  at 144 the page pays for nearly five times as many full-viewport repaints to
-  render motion nobody can see. The scroll-linked animations are untouched and
-  still run at full rate; only this decorative loop is capped.
-*/
-const GRAPH_FRAME_MS = 1000 / 30;
-
-function drawGraph(
-  canvas: HTMLCanvasElement,
-  graph: Graph,
-  palette: { text: string; accent: string },
-  t: number,
-  /*
-    Size is passed in rather than read off the element. Reading clientWidth
-    inside the loop forced a layout every frame, for every canvas, purely to
-    re-learn a number that only changes on resize.
-  */
-  w: number,
-  h: number,
-) {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  if (!w || !h) return;
-
-  const bw = Math.round(w * GRAPH_DPR);
-  if (canvas.width !== bw) {
-    canvas.width = bw;
-    canvas.height = Math.round(h * GRAPH_DPR);
-  }
-
-  ctx.setTransform(GRAPH_DPR, 0, 0, GRAPH_DPR, 0, 0);
-  ctx.clearRect(0, 0, w, h);
-
-  const { near } = graph;
-  const reach = near ? 0.42 : 0.235;
-  ctx.lineWidth = near ? 1.1 : 0.7;
-
-  for (const link of graph.links) {
-    const A = graph.nodes[link.a];
-    const B = graph.nodes[link.b];
-    const ax = A.x * w;
-    const ay = A.y * h;
-    const bx = B.x * w;
-    const by = B.y * h;
-
-    ctx.globalAlpha = (near ? 0.3 : 0.16) * (1 - link.d / reach);
-    ctx.strokeStyle = palette.text;
-    ctx.beginPath();
-    ctx.moveTo(ax, ay);
-    ctx.lineTo(bx, by);
-    ctx.stroke();
-
-    // A build travelling an edge. One point per link, wrapping.
-    const p = (t * 0.06 * (0.5 + link.off) + link.off) % 1;
-    ctx.globalAlpha = near ? 0.95 : 0.5;
-    ctx.fillStyle = palette.accent;
-    ctx.beginPath();
-    ctx.arc(
-      ax + (bx - ax) * p,
-      ay + (by - ay) * p,
-      near ? 2.1 : 1.25,
-      0,
-      Math.PI * 2,
-    );
-    ctx.fill();
-  }
-
-  for (const node of graph.nodes) {
-    const pulse = 0.72 + 0.28 * Math.sin(t * node.sp + node.ph);
-    ctx.globalAlpha = near ? 0.9 : 0.42;
-    ctx.fillStyle = near ? palette.accent : palette.text;
-    ctx.beginPath();
-    ctx.arc(node.x * w, node.y * h, node.r * pulse, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (near) {
-      ctx.globalAlpha = 0.18;
-      ctx.beginPath();
-      ctx.arc(node.x * w, node.y * h, node.r * pulse * 3.4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  ctx.globalAlpha = 1;
+function recycleCanvas(canvas: HTMLCanvasElement): HTMLCanvasElement {
+  const fresh = canvas.cloneNode(false) as HTMLCanvasElement;
+  canvas.replaceWith(fresh);
+  return fresh;
 }
 
 /** Every canvas the hero marked, paired with a graph sized to it. */
@@ -266,6 +124,56 @@ export default function MotionLayer() {
       );
       if (hero) io.observe(hero);
 
+      /*
+        The 3D renderers, once they exist.
+
+        One slot per canvas, all null to begin with. The loop starts painting
+        the 2D graph on the very next frame and keeps doing so until the WebGL
+        module has been fetched, compiled and accepted by the driver -- so the
+        hero is never empty while that is happening, and if any of it fails the
+        page simply carries on with what it is already drawing. The upgrade is
+        invisible either way, because both renderers draw the same arrangement.
+      */
+      const renderers: (Renderer | null)[] = items.map(() => null);
+      let disposed = false;
+
+      import("@/lib/graph-3d")
+        .then(({ createRenderer }) => {
+          // matchMedia can tear this branch down while the chunk is in flight
+          // -- a resize across a breakpoint, or the visitor navigating away.
+          // Anything created after that would never be disposed.
+          if (disposed) return;
+          for (let i = 0; i < items.length; i += 1) {
+            /*
+              WebGL always gets a FRESH element, never the one already on screen.
+
+              By the time this resolves, the loop below has been painting the 2D
+              fallback for one or more frames, which permanently makes that
+              element a 2D canvas -- context types are exclusive in both
+              directions, not just from WebGL to 2D. Handing it to createRenderer
+              would get null from getContext("webgl") on a perfectly capable
+              GPU, and since nothing retries, a slow chunk would strand the
+              visitor in 2D for the whole visit.
+
+              So the attempt is made on a virgin clone. If it succeeds the clone
+              is already in the DOM in the right place and simply becomes ours;
+              if it fails, the clone is spent in turn and the 2D renderer needs
+              another one.
+            */
+            const candidate = recycleCanvas(items[i].canvas);
+            const renderer = createRenderer(candidate, items[i].graph);
+            renderers[i] = renderer;
+            items[i].canvas = renderer ? candidate : recycleCanvas(candidate);
+          }
+          // The swapped-in elements are new, so their measured sizes belong to
+          // elements that are no longer in the tree.
+          remeasure();
+        })
+        .catch(() => {
+          // A chunk that fails to load is a network problem, not a page
+          // problem. The 2D graph is already on screen; leave it there.
+        });
+
       const tick = (ms: number) => {
         raf = requestAnimationFrame(tick);
         if (!visible) return;
@@ -274,6 +182,24 @@ export default function MotionLayer() {
         lastDraw = ms;
         const t = ms / 1000;
         for (let i = 0; i < items.length; i += 1) {
+          const renderer = renderers[i];
+          /*
+            draw() returns false once its GL context has been lost -- a GPU
+            reset, or the browser reclaiming contexts from a backgrounded tab.
+            Dropping the renderer here means the very next frame is drawn in 2D
+            instead, so a lost context costs one frame rather than leaving the
+            hero blank for the rest of the visit.
+          */
+          if (renderer && renderer.draw(palette, t, sizes[i].w, sizes[i].h)) {
+            continue;
+          }
+          if (renderer) {
+            renderer.dispose();
+            renderers[i] = null;
+            // The lost context is still attached to this element, so it can
+            // never give a 2D one. Swap it before drawing. See recycleCanvas.
+            items[i].canvas = recycleCanvas(items[i].canvas);
+          }
           drawGraph(
             items[i].canvas,
             items[i].graph,
@@ -283,6 +209,7 @@ export default function MotionLayer() {
             sizes[i].h,
           );
         }
+
       };
       raf = requestAnimationFrame(tick);
 
@@ -291,10 +218,30 @@ export default function MotionLayer() {
       });
 
       return () => {
+        disposed = true;
         cancelAnimationFrame(raf);
         io.disconnect();
         window.removeEventListener("resize", remeasure);
         stopWatchingTheme();
+        /*
+          GPU objects are not reachable by the collector's usual rules. Without
+          this, crossing the reduced-motion or breakpoint boundary a few times
+          leaks a whole WebGL context per canvas per crossing.
+
+          The canvases are recycled as well as disposed, and that is the part
+          that is easy to miss: matchMedia hands the page straight to the
+          reduced-motion branch when someone turns the preference on mid-visit,
+          and that branch draws in 2D. A disposed context does not free the
+          element -- it stays a WebGL canvas forever -- so without this swap the
+          static fallback would paint nothing at all, which is precisely the
+          case it exists to cover.
+        */
+        for (let i = 0; i < renderers.length; i += 1) {
+          const renderer = renderers[i];
+          if (!renderer) continue;
+          renderer.dispose();
+          items[i].canvas = recycleCanvas(items[i].canvas);
+        }
       };
     });
 
@@ -526,39 +473,20 @@ export default function MotionLayer() {
       );
     });
 
-    // The nav frosts once there is something behind it to frost.
-    //
-    // Runs at every width, because a transparent bar over body copy is a
-    // legibility problem on a phone as much as on a desktop. Only the ANIMATED
-    // case lives here; a reduced-motion visitor gets the frost outright and
-    // permanently from CSS (:root:not(.js-motion) .nav-glass), because they need
-    // the contrast fix more than anyone and should not have to earn it by
-    // scrolling.
-    //
-    // Opacity is the only property that moves. The blur radius is static in CSS
-    // and never tweened -- scrubbing a backdrop-filter is the single most
-    // reliable way to drop a mid-range phone below 60fps.
-    mm.add(MQ.motionOK, () => {
-      const glass = document.querySelector<HTMLElement>("[data-nav-glass]");
-      if (!glass) return;
+    /*
+      The nav's frost is no longer animated, and the tween that used to live
+      here has been removed rather than retuned.
 
-      gsap.fromTo(
-        glass,
-        { opacity: 0 },
-        {
-          opacity: 1,
-          ease: EASE_SCRUB,
-          scrollTrigger: {
-            trigger: document.documentElement,
-            start: "top top",
-            // Roughly the height of the bar itself: the frost arrives as the
-            // first content slides under it, not several screens later.
-            end: "+=120",
-            scrub: 0.3,
-          },
-        },
-      );
-    });
+      It scrubbed the bar's opacity from 0 to 1 over the first 120px of scroll,
+      on the assumption that there was nothing behind the bar worth hiding until
+      content arrived. Full-bleed project plates broke that assumption: they run
+      under the fixed bar, several of them are near-white, and a bar that is
+      transparent for any part of that is unreadable for that part.
+
+      The frost is now a static, always-on rule in globals.css. One less
+      ScrollTrigger, and a contrast guarantee that does not depend on where the
+      reader happens to be.
+    */
 
     // The pinned thesis. It holds the viewport because it is the argument the
     // whole site is making, on viewports with the width AND the vertical room
@@ -848,3 +776,4 @@ export default function MotionLayer() {
 
   return null;
 }
+

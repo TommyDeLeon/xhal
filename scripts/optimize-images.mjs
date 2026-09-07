@@ -26,6 +26,21 @@ const SHOT_WIDTH = 1600;
 /** How far a small source may be enlarged before it stops being worth it. */
 const UPSCALE_LIMIT = 2.5;
 
+/*
+  Above this, a portrait source is already big enough and is never enlarged.
+
+  The upscaling rule below was written for a 294px headshot, where the choice
+  was between resampling once with lanczos3 or letting the browser scale a tiny
+  bitmap at paint time — and resampling won. It was never meant to apply to a
+  source already comfortably larger than the box it renders into.
+
+  The portrait renders at roughly 600px wide at its largest, so anything from
+  about 800px up is already past 2x on a high-density screen. Enlarging such a
+  source to reach an arbitrary 1200px ceiling invents no detail, costs bytes on
+  every visit, and re-creates exactly the softness the resample exists to avoid.
+*/
+const UPSCALE_FLOOR = 800;
+
 /** Square marks that only ever render small. Kept lossless and left alone. */
 const MARKS = new Set(["codelock-icon"]);
 
@@ -76,9 +91,9 @@ for (const file of sources) {
    */
   const width = isShot
     ? Math.min(source, cap)
-    : source < cap
+    : source < UPSCALE_FLOOR
       ? Math.min(Math.round(source * UPSCALE_LIMIT), cap)
-      : cap;
+      : Math.min(source, cap);
 
   let base = sharp(input)
     .rotate()

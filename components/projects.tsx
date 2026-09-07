@@ -26,7 +26,21 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       id={project.slug}
       data-reveal
       data-tilt
-      className="rounded-panel border border-hairline bg-bg-raised p-6 [transform-style:preserve-3d] md:p-10 lg:p-14"
+      /*
+        The card is gone, and that is the editorial move.
+
+        This was a raised panel with a hairline border, a radius and up to 56px
+        of padding. Three separate devices all saying "separate object", wrapped
+        around the one thing on the page that should read as the subject rather
+        than as an item in a list. The work ended up looking like an attachment
+        to the writing about it.
+
+        What replaces it is nothing: the project sits directly on the page, the
+        lead plate runs to the edges of the viewport, and the prose sits in a
+        narrow measure under it. A magazine does not put a border around a
+        feature.
+      */
+      className="[transform-style:preserve-3d]"
     >
       {project.media.length ? (
         <div
@@ -46,7 +60,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             room. Sharing one vanishing point across a full-page-height element
             is not something CSS does gracefully, and this is that wall.
           */
-          className="mb-12 [perspective:var(--depth)]"
+          className="plate-bleed mb-12 [perspective:var(--depth)]"
         >
           <ShotFigure shot={project.media[0]} />
 

@@ -29,16 +29,23 @@ export const site = {
   phone: null as string | null,
 
   /**
-   * Headshot. The original in assets/ is 294x294 and is resampled up to 735 by
-   * scripts/optimize-images.mjs. That adds no detail it did not have, so the
-   * hero frames it deliberately rather than pretending it is a large photo.
-   * Drop a bigger original into assets/tommy.jpg and re-run npm run images.
+   * Portrait. Replaced September 2026, and the note it used to carry is now
+   * obsolete rather than merely out of date.
+   *
+   * The old file was a 294x294 square resampled up to 735 — an enlargement that
+   * added no detail, so the layout had to frame it small and deliberately in
+   * order not to admit it. This is a real 937x1678 photograph published at its
+   * native size: scripts/optimize-images.mjs no longer enlarges a source that is
+   * already larger than the box it renders into.
+   *
+   * Portrait orientation now rather than square, so anything cropping it should
+   * crop toward the upper third, where the subject is.
    */
   portrait: {
     src: "/images/tommy.jpg",
-    alt: "Tommy De Leon",
-    width: 735,
-    height: 735,
+    alt: "Tommy De Leon at a harbour railing, a city skyline and water behind him.",
+    width: 937,
+    height: 1678,
   } as { src: string; alt: string; width: number; height: number } | null,
 
   /** Freelance work is open. Drives the availability line in the contact fork. */

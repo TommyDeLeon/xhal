@@ -1,7 +1,37 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
 import { site } from "@/content/site";
 import "./globals.css";
+
+/**
+ * The display face, and the reason there is now one at all.
+ *
+ * Every heading on this site used to be Geist — the same face as the body, at a
+ * larger size. That is not a typographic hierarchy, it is a font-size change,
+ * and it is most of why the page read as competent rather than as composed.
+ *
+ * Bodoni Moda is a Didone: extreme thick-to-thin contrast, unbracketed hairline
+ * serifs, vertical stress. Two things follow, and both are the point. At
+ * display size those hairlines catch the page's key light and the letterforms
+ * acquire an edge no grotesk has, which is exactly the "ink with weight" the
+ * direction asks for. And its authority is borrowed from print — this is the
+ * skeleton of a masthead — so it does the editorial work by association before
+ * a single word is read.
+ *
+ * DISPLAY SIZES ONLY. A Didone's hairlines thin to nothing below roughly 28px
+ * and the face turns to mush, so body copy stays Geist, which is drawn to
+ * disappear into reading. The two are doing opposite jobs deliberately, and the
+ * distance between them is the hierarchy.
+ */
+const bodoni = Bodoni_Moda({
+  subsets: ["latin"],
+  variable: "--font-display-face",
+  display: "swap",
+  // Regular for running display type; medium where a heading has to hold its
+  // own against a full-bleed plate behind it.
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+});
 
 const geist = Geist({
   subsets: ["latin"],
@@ -85,7 +115,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geist.variable} ${geistMono.variable}`}
+      className={`${geist.variable} ${geistMono.variable} ${bodoni.variable}`}
     >
       <head>
         {/*

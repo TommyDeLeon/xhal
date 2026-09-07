@@ -19,6 +19,18 @@
 
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /*
+    Three registers, three jobs, and the distance between them IS the hierarchy.
+
+    Display is a Didone (see app/layout.tsx) and appears only at sizes where its
+    hairlines survive. Sans disappears into reading. Mono labels anything the
+    reader is meant to scan rather than read -- years, stacks, captions.
+
+    The serif fallbacks matter more than usual here: if the webfont fails, a
+    Didone falling back to a grotesk would collapse the entire hierarchy into
+    one voice. Georgia and the generic serif keep the contrast even then.
+  */
+  --font-display: var(--font-display-face), Georgia, "Times New Roman", serif;
 
   --radius-panel: 12px;
   --radius-input: 8px;
@@ -239,11 +251,22 @@
   than assumed, because an overflowing display line is the failure mode here.
 */
 @utility text-display {
-  font-size: clamp(2.4rem, 8.4vw, 8.5rem);
-  /* Tighter than 0.98: at this size the old leading opened rivers between the
-     stacked lines and they stopped reading as one block. */
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  font-family: var(--font-display);
+  /*
+    Set in the Didone, which changes the tracking maths completely.
+
+    The old -0.035em was compensating for Geist, a grotesk whose sidebearings
+    are already tight. A Didone is drawn with generous sidebearings so its
+    hairline serifs have air to sit in, and pulling it to -0.035em jams those
+    serifs into the neighbouring stems -- the letterforms stop being separate
+    shapes and the word turns into a texture. Near zero is where this face wants
+    to be at display size, and the very slight negative only takes up the slack
+    that appears past about 6rem.
+  */
+  font-size: clamp(2.6rem, 8.8vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.012em;
+  font-weight: 400;
 }
 
 /* Short viewports, mostly phones held sideways. A four-line display headline
@@ -256,9 +279,22 @@
 }
 
 @utility text-h2 {
-  font-size: clamp(2rem, 4.2vw, 3.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  /*
+    Raised from a 3.5rem ceiling to 4.6rem, which is the editorial half of this
+    change rather than the typographic half.
+
+    Section headings at 3.5rem against body copy at ~1.15rem is a ratio of
+    about 3:1 -- large, but still inside the range the eye reads as "a bigger
+    label". The point of a magazine's scale is that a heading is a different
+    KIND of thing from the text under it, and that only starts to happen around
+    4:1. Anything less and the page is uniformly considered, which is exactly
+    the flatness this rebuild exists to fix.
+  */
+  font-size: clamp(2.1rem, 5vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.008em;
+  font-weight: 400;
 }
 
 @utility text-h3 {
@@ -313,6 +349,30 @@
   paint layers, and animating a full-viewport gradient or a blend mode is the
   reliable way to lose the frame budget the scroll work needs.
 */
+/*
+  The lead plate breaks its frame.
+
+  Every project's first capture is the one piece of evidence this section exists
+  to show, and until now it sat inside a bordered card inside a 1400px shell --
+  two frames deep, so the work read as an illustration accompanying the writing
+  rather than as the subject of it. This lets that one plate escape both and run
+  to the edges of the viewport, which is most of the difference between a
+  document about projects and a gallery of them.
+
+  `50% - 50vw` is the standard break-out: the negative margin is measured
+  against the parent's width, so it pulls the element back out to the viewport
+  however deeply the shells and cards have inset it.
+
+  Capped at 1600px because that is the captures' own pixel width. Past it the
+  plate would be upscaling a screenshot of dense mono text, and the numbers in
+  those captures are the entire reason they are on the page. Bleeding is not
+  worth going soft for.
+*/
+.plate-bleed {
+  width: min(100vw, 1600px);
+  margin-inline: calc(50% - min(50vw, 800px));
+}
+
 .film-key {
   position: absolute;
   inset: -20% -10% auto -25%;
@@ -573,11 +633,25 @@
   its radius is the single most reliable way to drop a mid-range phone off 60fps.
   A static blur on one small fixed bar is cheap; a scrubbed one is not.
 */
+/*
+  The bar now carries its ground at all times, and the scroll-in fade is gone.
+
+  That fade was safe while the page was uniformly dark: the bar could start
+  transparent because whatever slid under it was the same near-black as the bar
+  would have been. The editorial rebuild ends that. Project plates are now
+  full-bleed and run edge to edge under the fixed bar, and several of those
+  captures are near-white — so for the length of a plate the nav's muted links
+  were dark-on-light-on-nothing, which measured well under 3:1 and simply could
+  not be read.
+
+  A bar that is legible only over content it happens to match is not a design,
+  it is a coincidence. This one is opaque from first paint.
+*/
 .nav-glass {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0;
+  opacity: 1;
   border-bottom: 1px solid var(--hairline);
   /*
      90%, not 72%.

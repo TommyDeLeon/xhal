@@ -131,20 +131,46 @@ export const projects: Project[] = [
     repoUrl: "https://github.com/TommyDeLeon/codelock",
     liveUrl: "https://codelock.tommydeleon.com",
     mark: { src: "/images/codelock-mark.png", alt: "" },
+    /*
+      Ordered to market the application, not the browser demo.
+
+      The lead plate used to be the verdict screen — which is a capture of the
+      DEMO, carrying its own banner saying nothing is locked and solving it
+      cannot unlock anything. It is the best single illustration of the speed
+      gate, but it is the wrong thing to open with: the first plate is what the
+      reader takes the project to BE, and opening on a sandbox that admits it
+      locks nothing sells the toy instead of the tool.
+
+      So the real lock leads, the verdict follows as the argument for the gate,
+      the app's own dashboard follows that, and the demo goes last, framed as
+      what it is — the way to try the mechanism before installing anything.
+
+      The settings screen is deliberately not here. It is a real capture and a
+      real feature, but it is four controls at the top of an otherwise empty
+      window, and as a full-bleed plate it would be mostly background.
+    */
     media: [
       {
-        src: "/images/codelock-verdict.jpg",
-        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass with green ticks, but the measured runtime is 440 milliseconds against a 189 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 4.0 times slower than the best known solution.",
+        src: "/images/codelock-app-lock.jpg",
+        alt: "The CodeLock desktop application's lock screen filling the display. A header reads Locked, pass every test case to get back in, with Skip and Submit buttons. The problem is Characters That Appear Exactly Once, marked easy, noted as taking most people about five and a half minutes, with a worked example and two sample cases beside an editor holding an empty solve function. A footer offers holding Escape for ten seconds to abandon, noting it counts as a failed session.",
         caption:
-          "Every test passes and the machine stays locked. The submission took 440ms against the 189ms budget, about 4.0x off the best known solution.",
+          "The application, not the demo. A timer expired and this is the entire screen until the problem is solved — the problem chosen at the moment the lock fires, so it cannot be fetched and worked out in advance. Captured September 2026, before the screen gained a Run button and a console.",
+        width: 1600,
+        height: 670,
+      },
+      {
+        src: "/images/codelock-verdict.jpg",
+        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass with green ticks, but the measured runtime is 420 milliseconds against a 189 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 3.8 times slower than the best known solution.",
+        caption:
+          "Why the lock is not simply a test runner. Every test passes, the submission takes 420ms against a 189ms budget, about 3.8x off the best known 110ms — and it stays shut. Captured in the browser demo, which runs the same judge and the same arithmetic.",
         width: 1600,
         height: 1000,
       },
       {
-        src: "/images/codelock-demo.jpg",
-        alt: "The CodeLock demo screen. A Pair Sum problem statement with sample cases sits beside a code editor holding a deliberately quadratic JavaScript solution, above a Run against the judge button.",
+        src: "/images/codelock-app-dashboard.jpg",
+        alt: "The CodeLock desktop app's dashboard. A session panel offers 15, 30, 60 and 90 minute blocks with 60 selected, above counters for problems solved, locks cleared and median unlock time. A sidebar shows the current tier at Easy, a streak of nought of three fast solves needed to reach Medium, a ratio of 1.00x off the best known answer, and a personal best of 170 milliseconds in Python. A run log lists one abandoned session.",
         caption:
-          "The demo hands you a problem that is winnable the wrong way: the obvious nested loop is correct and will not clear the gate.",
+          "Where a focus block starts, and the state the lock reads when it picks a problem: the tier, the streak toward the next one, and how far off the best known answer you have been running. Captured September 2026, before the dashboard gained pause and reset controls and before run-log rows became openable.",
         width: 1600,
         height: 1000,
       },
@@ -157,20 +183,12 @@ export const projects: Project[] = [
         height: 1000,
       },
       {
-        src: "/images/codelock-app-dashboard.jpg",
-        alt: "The CodeLock desktop app's dashboard. A session panel offers 15, 30, 60 and 90 minute blocks with 60 selected, above counters for problems solved, locks cleared and median unlock time. A sidebar shows the current tier at Easy, a streak of nought of three fast solves needed to reach Medium, a ratio of 1.00x off the best known answer, and a personal best of 170 milliseconds in Python. A run log lists one abandoned session.",
+        src: "/images/codelock-demo.jpg",
+        alt: "The CodeLock demo screen. A Pair Sum problem statement with sample cases sits beside a code editor holding a deliberately quadratic JavaScript solution, above a Run against the judge button.",
         caption:
-          "The desktop app rather than the web demo. The tier, the streak and the ratio against the best known answer are the state the lock reads when it picks a problem. Captured September 2026, before the dashboard gained pause and reset controls and before run-log rows became openable.",
+          "The way to try the mechanism without installing anything: the same judge, in a browser tab, locking nothing. It hands you a problem that is winnable the wrong way, because the obvious nested loop is correct and will not clear the gate.",
         width: 1600,
         height: 1000,
-      },
-      {
-        src: "/images/codelock-app-lock.jpg",
-        alt: "The CodeLock lock screen filling the display. A header reads Locked, pass every test case to get back in, with Skip and Submit buttons. The problem is Characters That Appear Exactly Once, marked easy, with a worked example and two sample cases beside an editor holding an empty solve function. A footer offers holding Escape for ten seconds to abandon, noting it counts as a failed session.",
-        caption:
-          "The real lock, not the demo: a timer fired and this is the whole screen until a problem is solved. The problem is chosen at the moment the lock fires, so it cannot be fetched and worked out in advance. Captured September 2026, before the screen gained a Run button and a console.",
-        width: 1600,
-        height: 670,
       },
     ],
     year: "2026",
@@ -275,7 +293,7 @@ export const projects: Project[] = [
             "The result is less flattering than a summary would be. Deleting the lock file after killing the process defeats it. Ctrl+Alt+Del defeats it. Holding the power button defeats it, and so does booting another operating system. Those are recorded as defeated because they were run and they worked. Killing the process is defeated too, although reopening CodeLock after that holds. Switching virtual desktop and rebooting are the two untested rows. Calling the unlock channel from developer tools holds: against a live lock, a forged token and an empty one were both rejected.",
             "The rows in between say unit-tested, which is a status I added rather than one I was pleased to need. Cancelling the close, undoing a minimise, and re-asserting the overlay after a display change or a wake are covered by tests now, and each is checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the app impossible to quit. That is not the same as the barrier holding. It proves the shell decides correctly; it says nothing about whether Windows honours the decision, which is the only part that matters to someone hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page says why.",
             "I am leaving that section exactly as the matrix has it. A tool that overstates what it enforces trains you to trust it in the one situation where it will not hold, and a focus tool that quietly fails is worse than no tool, because you stop watching for the failure. Unit-tested sits between untested and holds: the shell makes the right decision while locked and while unlocked, because a guard that fired every time would make the app impossible to quit, but I have not watched Windows honour it on hardware. The distance between what the code refuses and what I have personally verified is the most interesting thing on this project, and it is not a distance I can round down.",
-            "The parts I can point at without qualification are these. The judge and the problem set live in the repository, so the pieces that would normally cost money to run are the pieces anyone can host themselves rather than depend on mine. And the verdict screen in this write-up is a real capture rather than a mockup: every test passes, the submission takes 440 milliseconds against a 189 millisecond budget, roughly 4.0 times the best known 110 milliseconds, and the machine stays locked. That screenshot is the argument for the speed gate, because it is the case where a correct answer is not good enough and the interface has to say so without being vague about why.",
+            "The parts I can point at without qualification are these. The judge and the problem set live in the repository, so the pieces that would normally cost money to run are the pieces anyone can host themselves rather than depend on mine. And the verdict screen in this write-up is a real capture rather than a mockup: every test passes, the submission takes 420 milliseconds against a 189 millisecond budget, roughly 3.8 times the best known 110 milliseconds, and the machine stays locked. That screenshot is the argument for the speed gate, because it is the case where a correct answer is not good enough and the interface has to say so without being vague about why.",
           ],
         },
         {
