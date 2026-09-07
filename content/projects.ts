@@ -160,7 +160,7 @@ export const projects: Project[] = [
         src: "/images/codelock-app-dashboard.jpg",
         alt: "The CodeLock desktop app's dashboard. A session panel offers 15, 30, 60 and 90 minute blocks with 60 selected, above counters for problems solved, locks cleared and median unlock time. A sidebar shows the current tier at Easy, a streak of nought of three fast solves needed to reach Medium, a ratio of 1.00x off the best known answer, and a personal best of 170 milliseconds in Python. A run log lists one abandoned session.",
         caption:
-          "The desktop app rather than the web demo. The tier, the streak and the ratio against the best known answer are the state the lock reads when it picks a problem.",
+          "The desktop app rather than the web demo. The tier, the streak and the ratio against the best known answer are the state the lock reads when it picks a problem. Captured September 2026, before the dashboard gained pause and reset controls and before run-log rows became openable.",
         width: 1600,
         height: 1000,
       },
@@ -168,7 +168,7 @@ export const projects: Project[] = [
         src: "/images/codelock-app-lock.jpg",
         alt: "The CodeLock lock screen filling the display. A header reads Locked, pass every test case to get back in, with Skip and Submit buttons. The problem is Characters That Appear Exactly Once, marked easy, with a worked example and two sample cases beside an editor holding an empty solve function. A footer offers holding Escape for ten seconds to abandon, noting it counts as a failed session.",
         caption:
-          "The real lock, not the demo: a timer fired and this is the whole screen until a problem is solved. The problem is chosen at the moment the lock fires, so it cannot be fetched and worked out in advance.",
+          "The real lock, not the demo: a timer fired and this is the whole screen until a problem is solved. The problem is chosen at the moment the lock fires, so it cannot be fetched and worked out in advance. Captured September 2026, before the screen gained a Run button and a console.",
         width: 1600,
         height: 670,
       },
@@ -192,7 +192,7 @@ export const projects: Project[] = [
         {
           label: "Timeline",
           value:
-            "2026. The escape matrix was last exercised on 22 August 2026, and it is the document I trust most about what this actually does.",
+            "2026. The escape audit — now the platform-limits section of the README — is the part I trust most about what this actually does; its most recent entries were exercised on 2 September 2026.",
         },
         {
           label: "Platforms",
@@ -255,12 +255,23 @@ export const projects: Project[] = [
           ],
         },
         {
+          heading: "The second bypass was not an attack, it was two clicks",
+          standfirst:
+            "Every path that ended a lock read the state, decided, and then wrote — which is not one decision, it is two.",
+          body: [
+            "The replay flaw was a missing comparison. This one was subtler and I found it the same way, by reading the code rather than by using the app. Every route that ended a lock session followed the same shape: read the session, check it was in the state that allowed the action, then write the new state. That reads like one decision. It is two, with a gap in the middle, and anything that arrives in the gap sees the same answer to the same question.",
+            "A race condition is not exotic here. Two requests, one gap. Skip was the reachable one: the handler counted the skips spent today, found the allowance had room, and wrote — so double-clicking the button spent two days of a one-per-day allowance, because both requests counted before either wrote. Resume was the one that actually weakened the lock, and it was mine from the same week. Resuming a paused timer pushes the deadline forward by however long it was paused. Two resumes reading the same paused-at stamp both push it forward, so a double click bought real time back.",
+            "Abandon was the worst of the three and the least interesting to trigger. It checked that the session belonged to you and nothing else — not what state it was in. Abandoning a session you had already solved overwrote the solve with abandoned, wrote an audit row contradicting the one already there, and recorded a failed session against the difficulty ladder. Repeat it and you walk your own ladder down on a problem you got right.",
+            "The fix is the same in all three places and it is not clever: stop making the decision in the application. `updateMany` with the expected state in its WHERE clause is a single statement, so the database decides who wins and the loser gets a row count of zero and stops before the audit row, the ladder move and the re-arm. The engage path had always worked this way, because assigning two problems to one lock is obviously wrong; the endings had simply never been held to the same standard. That is the pattern I keep relearning on this project — the mistake is rarely in the part you were being careful about.",
+          ],
+        },
+        {
           shot: "/images/codelock-limits.jpg",
           heading: "Only two rows in my own escape matrix say UNTESTED",
           standfirst:
             "The honest status of this lock is weaker than I would like it to be, and the document says so.",
           body: [
-            "There are no download numbers, no user counts and no conversion figures on this project, so there is nothing of that kind to report. What exists instead is a document in the repository that lists every way I could think of to get out of the lock, and marks each one with what actually happened when I tried it.",
+            "There are no download numbers, no user counts and no conversion figures on this project, so there is nothing of that kind to report. What exists instead is a section of the repository's README that lists every way I could think of to get out of the lock, and marks each one with what actually happened when I tried it.",
             "The result is less flattering than a summary would be. Deleting the lock file after killing the process defeats it. Ctrl+Alt+Del defeats it. Holding the power button defeats it, and so does booting another operating system. Those are recorded as defeated because they were run and they worked. Killing the process is defeated too, although reopening CodeLock after that holds. Switching virtual desktop and rebooting are the two untested rows. Calling the unlock channel from developer tools holds: against a live lock, a forged token and an empty one were both rejected.",
             "The rows in between say unit-tested, which is a status I added rather than one I was pleased to need. Cancelling the close, undoing a minimise, and re-asserting the overlay after a display change or a wake are covered by tests now, and each is checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the app impossible to quit. That is not the same as the barrier holding. It proves the shell decides correctly; it says nothing about whether Windows honours the decision, which is the only part that matters to someone hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page says why.",
             "I am leaving that section exactly as the matrix has it. A tool that overstates what it enforces trains you to trust it in the one situation where it will not hold, and a focus tool that quietly fails is worse than no tool, because you stop watching for the failure. Unit-tested sits between untested and holds: the shell makes the right decision while locked and while unlocked, because a guard that fired every time would make the app impossible to quit, but I have not watched Windows honour it on hardware. The distance between what the code refuses and what I have personally verified is the most interesting thing on this project, and it is not a distance I can round down.",
