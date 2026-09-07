@@ -160,9 +160,9 @@ export const projects: Project[] = [
       },
       {
         src: "/images/codelock-verdict.jpg",
-        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass with green ticks, but the measured runtime is 420 milliseconds against a 189 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 3.8 times slower than the best known solution.",
+        alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass, but the measured runtime is 249 milliseconds against a 47 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 50.8 times slower than the reference solution.",
         caption:
-          "Why the lock is not simply a test runner. Every test passes, the submission takes 420ms against a 189ms budget, about 3.8x off the best known 110ms — and it stays shut. Captured in the browser demo, which runs the same judge and the same arithmetic.",
+          "Why the lock is not simply a test runner. Every test passes, the submission takes 249ms against a 47ms budget — and it stays shut. Captured in the browser demo, which times a reference solution on the same machine moments earlier and applies the product's own arithmetic, best x 1.35 + 40ms, to whatever that machine reports. The 50.8x gap is larger than an installed judge shows, because a container's start-up cost is not being counted on both sides.",
         width: 1600,
         height: 1000,
       },
@@ -176,9 +176,9 @@ export const projects: Project[] = [
       },
       {
         src: "/images/codelock-limits.jpg",
-        alt: "The desktop section of CodeLock's own limits page. Minimise, the second monitor and sleeping the machine are marked unit-tested. Switching virtual desktop and rebooting are marked untested. Killing the process, deleting the lock file and Ctrl+Alt+Del are marked defeated. Reopening after a kill and calling the unlock channel from DevTools are marked holds. Holding Escape for ten seconds is marked by design.",
+        alt: "The desktop section of CodeLock's own limits page, headed Electron kiosk shell. Closing the window, minimising, the second monitor and sleeping the machine are marked prior tests. Switching virtual desktop and rebooting are marked untested. Killing the process, deleting the lock file and Ctrl+Alt+Del are marked defeated. Reopening after a kill and calling the unlock channel from DevTools are marked holds. Holding Escape for ten seconds is marked by design.",
         caption:
-          "What the lock survives and what beats it, written down rather than glossed over. unit-tested means the shell provably decides correctly, not that Windows was watched honouring it — that distinction is the point of having the column.",
+          "What the lock survives and what beats it, written down rather than glossed over. The status column is the honest part: prior tests means the shell provably decides correctly, not that anyone watched Windows honour it, and untested says so outright rather than leaving the reader to assume.",
         width: 1600,
         height: 1000,
       },
@@ -186,7 +186,7 @@ export const projects: Project[] = [
         src: "/images/codelock-demo.jpg",
         alt: "The CodeLock demo screen. A Pair Sum problem statement with sample cases sits beside a code editor holding a deliberately quadratic JavaScript solution, above a Run against the judge button.",
         caption:
-          "The way to try the mechanism without installing anything: the same judge, in a browser tab, locking nothing. It hands you a problem that is winnable the wrong way, because the obvious nested loop is correct and will not clear the gate.",
+          "The way to try the mechanism without installing anything, and it needs no server at all — the code runs in a worker in your own tab. It hands you a problem that is winnable the wrong way, because the obvious nested loop is correct and will not clear the gate.",
         width: 1600,
         height: 1000,
       },
@@ -291,9 +291,9 @@ export const projects: Project[] = [
           body: [
             "There are no download numbers, no user counts and no conversion figures on this project, so there is nothing of that kind to report. What exists instead is a section of the repository's README that lists every way I could think of to get out of the lock, and marks each one with what actually happened when I tried it.",
             "The result is less flattering than a summary would be. Deleting the lock file after killing the process defeats it. Ctrl+Alt+Del defeats it. Holding the power button defeats it, and so does booting another operating system. Those are recorded as defeated because they were run and they worked. Killing the process is defeated too, although reopening CodeLock after that holds. Switching virtual desktop and rebooting are the two untested rows. Calling the unlock channel from developer tools holds: against a live lock, a forged token and an empty one were both rejected.",
-            "The rows in between say unit-tested, which is a status I added rather than one I was pleased to need. Cancelling the close, undoing a minimise, and re-asserting the overlay after a display change or a wake are covered by tests now, and each is checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the app impossible to quit. That is not the same as the barrier holding. It proves the shell decides correctly; it says nothing about whether Windows honours the decision, which is the only part that matters to someone hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page says why.",
+            "The rows in between say prior tests, which is a status I added rather than one I was pleased to need. Cancelling the close, undoing a minimise, and re-asserting the overlay after a display change or a wake are covered by tests now, and each is checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the app impossible to quit. That is not the same as the barrier holding. It proves the shell decides correctly; it says nothing about whether Windows honours the decision, which is the only part that matters to someone hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page says why.",
             "I am leaving that section exactly as the matrix has it. A tool that overstates what it enforces trains you to trust it in the one situation where it will not hold, and a focus tool that quietly fails is worse than no tool, because you stop watching for the failure. Unit-tested sits between untested and holds: the shell makes the right decision while locked and while unlocked, because a guard that fired every time would make the app impossible to quit, but I have not watched Windows honour it on hardware. The distance between what the code refuses and what I have personally verified is the most interesting thing on this project, and it is not a distance I can round down.",
-            "The parts I can point at without qualification are these. The judge and the problem set live in the repository, so the pieces that would normally cost money to run are the pieces anyone can host themselves rather than depend on mine. And the verdict screen in this write-up is a real capture rather than a mockup: every test passes, the submission takes 420 milliseconds against a 189 millisecond budget, roughly 3.8 times the best known 110 milliseconds, and the machine stays locked. That screenshot is the argument for the speed gate, because it is the case where a correct answer is not good enough and the interface has to say so without being vague about why.",
+            "The parts I can point at without qualification are these. The judge and the problem set live in the repository, so the pieces that would normally cost money to run are the pieces anyone can host themselves rather than depend on mine. And the verdict screen in this write-up is a real capture rather than a mockup: every test passes, the submission takes 249 milliseconds against a 47 millisecond budget, and the machine stays locked. That capture comes from the browser demo, which times a reference solution on the same machine seconds earlier and feeds it the product's own arithmetic, so the budget is honest about the hardware it was measured on rather than borrowed from mine. That screenshot is the argument for the speed gate, because it is the case where a correct answer is not good enough and the interface has to say so without being vague about why.",
           ],
         },
         {
