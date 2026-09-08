@@ -79,7 +79,12 @@ export default function Hero() {
             {lines.map((line) => (
               // overflow-hidden is the mask the line rises out of. The padding
               // keeps descenders from being clipped by their own mask.
-              <span key={line} className="block overflow-hidden pb-[0.08em]">
+              // 0.2em, not 0.08em. Measured: this Didone's descenders reach
+              // 0.268em below the baseline, so at 127px the "y" of "security,"
+              // and the comma after it overflowed a 0.08em pad by 12.8px and
+              // the mask sheared their tails off flat. 0.2em clears the deepest
+              // ink with room left, and scales with the clamped display size.
+              <span key={line} className="block overflow-hidden pb-[0.2em]">
                 <span data-hero-line className="block">
                   {line === "and the software" ? (
                     <>

@@ -268,18 +268,20 @@
   letter-spacing: -0.012em;
   font-weight: 400;
   /*
-    Forces grayscale antialiasing instead of Windows LCD subpixel rendering.
+    Deliberately NOT promoted to its own compositing layer.
 
-    -webkit-font-smoothing is a no-op outside macOS, so on Windows the hairline
-    serifs of a Didone were being rendered with RGB subpixel coverage and the
-    stems picked up visible orange and blue edges — read as colour fringing on
-    the headline. Chrome only uses LCD text on a composited layer it knows is
-    opaque; promoting this one, which sits over a gradient and a canvas and so
-    is not, drops it to grayscale coverage. Scoped to display type only: at
-    body sizes subpixel rendering is worth having.
+    A previous pass added `will-change: transform` here to force grayscale
+    antialiasing in place of Windows LCD subpixel rendering, chasing reported
+    colour fringing. It was a guess that could not be reproduced or measured in
+    this environment, and it cost far more than it was worth: a headline at
+    clamp(2.6rem, 8.8vw, 9rem) becomes a very large composited layer, and when
+    such a layer fails to repaint mid-scroll it renders as nothing at all. The
+    headline vanished while scrolling on the client's machine.
+
+    Text this size stays in the normal paint path. If the fringing is still
+    there, it is Windows subpixel rendering and it needs a real diagnosis on a
+    real display, not another blind layer promotion.
   */
-  will-change: transform;
-  transform: translateZ(0);
 }
 
 /* Short viewports, mostly phones held sideways. A four-line display headline
