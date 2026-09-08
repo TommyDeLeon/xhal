@@ -8,7 +8,6 @@
 
 export const site = {
   name: "Tommy De Leon",
-  shortName: "Tommy De Leon",
   wordmark: "tommy de leon",
 
   /** Used in the document title and OG card. Not a job title he does not hold. */
@@ -63,7 +62,4 @@ export const site = {
       handle: "TommyDeLeon",
     },
   ],
-
 } as const;
-
-export type Site = typeof site;

@@ -63,23 +63,18 @@ export type Graph = {
    */
   reach: number;
 };
+
+/**
+ * The two colours both renderers draw with, and nothing else.
+ *
+ * This also carried the page ground and a luminance-derived `light` flag, for
+ * a renderer that is not in this repository. Neither field was read by either
+ * renderer that is, so the ground colour was being parsed and weighed on every
+ * theme change to answer a question nobody asked.
+ */
 export type Palette = {
   text: string;
   accent: string;
-  /** The page ground. The lattice ignores it; the crystal builds its
-      environment floor from it, so it is lit by the room it stands in. */
-  bg: string;
-  /**
-   * Whether the resolved theme is a light one.
-   *
-   * Derived from the luminance of `--bg` rather than from `data-theme` or a
-   * media query. Those two disagree by design -- the attribute is absent in
-   * "system" mode -- so anything reading them has to reimplement the same
-   * three-state resolution, and a fourth copy of that rule is a fourth chance
-   * to get it wrong. The ground colour is the answer that resolution produces,
-   * so this reads the answer instead.
-   */
-  light: boolean;
 };
 
 /** Clamp, written out rather than taken from gsap.utils: this module must stay
@@ -207,27 +202,10 @@ export function buildGraph(near: boolean, w: number, h: number): Graph {
 /** Palette read once and cached; re-read only when the theme actually changes. */
 export function readPalette(): Palette {
   const cs = getComputedStyle(document.documentElement);
-  const bg = cs.getPropertyValue("--bg").trim() || "#0a0b0d";
-
-  /*
-    Relative luminance, near enough. Not the WCAG formula -- nothing here is a
-    contrast decision, it only has to separate a near-black ground from a
-    near-white one, and the coefficients are what make green count for more than
-    blue in that judgement.
-  */
-  const m = /^#?([0-9a-f]{6})$/i.exec(bg);
-  const n = m ? parseInt(m[1], 16) : 0;
-  const luma =
-    (0.2126 * ((n >> 16) & 255) +
-      0.7152 * ((n >> 8) & 255) +
-      0.0722 * (n & 255)) /
-    255;
 
   return {
     text: cs.getPropertyValue("--text").trim() || "#edeef0",
     accent: cs.getPropertyValue("--accent").trim() || "#f5a524",
-    bg,
-    light: luma > 0.5,
   };
 }
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, List, X } from "@phosphor-icons/react";
 import { site } from "@/content/site";
+import { MQ } from "@/lib/motion";
 import ThemeToggle from "./theme-toggle";
 
 /** Only sections that actually exist on the page. */
@@ -39,6 +40,23 @@ export default function Nav({ links }: { links: NavLink[] }) {
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
 
+      /*
+        Focus is not necessarily inside the panel. Tapping any part of it that
+        is not a control -- the "Menu" strip, the centring gap between the link
+        list and the edges, the padding under the email button -- moves focus
+        to <body>, which is neither first nor last, so both branches below miss
+        and Tab falls through to the document. The next stop is then the skip
+        link and the desktop nav: real controls, sitting behind an opaque
+        full-screen panel, driven blind. aria-modal makes that worse rather
+        than better, because assistive tech has been told that background is
+        gone. Pull focus back to the correct end before deciding anything else.
+      */
+      if (!panelRef.current?.contains(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+
       if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
         last.focus();
@@ -71,6 +89,37 @@ export default function Nav({ links }: { links: NavLink[] }) {
     window.addEventListener("hashchange", close);
     return () => window.removeEventListener("hashchange", close);
   }, [close]);
+
+  /*
+    Growing past the breakpoint has to close it, because the panel is hidden by
+    `md:hidden` rather than unmounted. Left open, `open` stays true while the
+    panel is invisible: the body scroll lock stays on with no visible control
+    to release it -- the hamburger is md:hidden too -- and the Tab trap keeps
+    cycling focus through display:none elements, where .focus() does nothing.
+    Rotating a phone to landscape is enough to reach that state.
+
+    MQ.wide is the same 768px Tailwind's `md:` uses, imported rather than
+    retyped so the class and this listener cannot drift apart.
+  */
+  useEffect(() => {
+    if (!open) return;
+
+    /*
+      Subscribing only, with no synchronous check of `wide.matches` first. The
+      panel can only be opened by a control that is itself `md:hidden`, so the
+      viewport is always narrow at the moment `open` becomes true, and the
+      effect attaches this listener in the same commit. There is no width to
+      catch up on -- only a later crossing to react to.
+    */
+    const wide = window.matchMedia(MQ.wide);
+
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) close();
+    };
+
+    wide.addEventListener("change", onChange);
+    return () => wide.removeEventListener("change", onChange);
+  }, [open, close]);
 
   return (
     /*
@@ -147,9 +196,19 @@ export default function Nav({ links }: { links: NavLink[] }) {
       </div>
 
       {open ? (
+        /*
+          It behaves as a modal already -- covers the viewport, traps Tab,
+          locks body scroll, closes on Escape -- so it has to say so. Without
+          role and aria-modal a screen reader still browses the page
+          underneath: content the sighted user can neither see nor reach.
+          aria-modal is what removes that background from the reading order.
+        */
         <div
           id="mobile-nav"
           ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
           className="menu-panel fixed inset-0 z-50 flex flex-col bg-bg md:hidden"
         >
           <div className="shell flex h-16 shrink-0 items-center justify-between">

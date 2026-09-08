@@ -203,20 +203,20 @@
     The nav is fixed, so anything scrolled to the top of the viewport would
     otherwise land underneath it. 96px clears the tall (80px) bar with air.
 
-    scroll-padding on the scrolling element is the load-bearing half: it applies
-    to EVERY scroll-into-view, including the implicit one the browser performs
-    when focus moves to an off-screen control via Tab. scroll-margin on the
-    sections only covers the case where the section itself is the target (an
-    anchor click, :target, back/forward restoration), which leaves every
-    focusable control near a section top still obscured -- WCAG 2.2 SC 2.4.11.
-    Both are declared because they cover different scroll triggers.
+    scroll-padding on the scrolling element, and only that. It applies to every
+    scroll-into-view, including the implicit one the browser performs when focus
+    moves to an off-screen control via Tab -- the case WCAG 2.2 SC 2.4.11 is
+    about, and the one a per-section offset cannot reach.
+
+    The sections also carried scroll-margin-block-start: 96px, on the reasoning
+    that the two cover different triggers. They do -- but they also ADD on the
+    trigger they share. An anchor click satisfies both, so clicking a nav link
+    landed the section 192px down instead of 96px. Measured rather than
+    deduced: with either declaration alone it lands at exactly 96px. The
+    broader one stays; the narrower one is gone.
   */
   html {
     scroll-padding-block-start: 96px;
-  }
-
-  :where(section, article)[id] {
-    scroll-margin-block-start: 96px;
   }
 
   ::selection {

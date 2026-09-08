@@ -15,11 +15,13 @@ import { cn } from "@/lib/utils";
  *  1. The close icon is Phosphor, not Lucide. Every other icon on the site is
  *     Phosphor, and the generated version would have added a second icon
  *     package for one glyph.
- *  2. DialogFooter is removed rather than kept. It was the only export that
- *     imported the shadcn Button, and no Button is installed here -- the
- *     existing CTAs are already a consistent full-pill set, so routing them
- *     through a Button component would have been churn, not consolidation. An
- *     unused export with a dangling import is worse than no export.
+ *  2. Only the parts this site renders are kept. DialogFooter went first: it
+ *     was the only export that imported the shadcn Button, and no Button is
+ *     installed here -- the existing CTAs are already a consistent full-pill
+ *     set, so routing them through a Button component would have been churn,
+ *     not consolidation. DialogHeader and DialogDescription followed for the
+ *     same reason, having never been rendered. An unused export is a claim
+ *     nothing verifies.
  *  3. The enter/exit animation is plain CSS in globals.css keyed off
  *     data-state, not the animate-in/animate-out utilities. Those come from
  *     tailwindcss-animate, which is not installed and would be a whole plugin
@@ -111,16 +113,6 @@ function DialogContent({
   );
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
-      {...props}
-    />
-  );
-}
-
 function DialogTitle({
   className,
   ...props
@@ -134,27 +126,16 @@ function DialogTitle({
   );
 }
 
-function DialogDescription({
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Description>) {
-  return (
-    <DialogPrimitive.Description
-      data-slot="dialog-description"
-      className={cn("text-sm leading-[1.6] text-text-muted", className)}
-      {...props}
-    />
-  );
-}
-
+/*
+  DialogOverlay and DialogPortal are deliberately not exported. DialogContent
+  is the only thing that composes them, and the single consumer of this file
+  renders DialogContent. Exporting them would advertise an assembly-it-yourself
+  API that nothing uses and that nothing checks stays coherent.
+*/
 export {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
   DialogTrigger,
 };
