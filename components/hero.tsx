@@ -54,9 +54,21 @@ export default function Hero() {
         site.positioning in the deck below, which is where it was already being
         read from.
       */}
+      {/*
+        z-[4], above the front canvas, not z-[2] below it.
+
+        The front layer used to paint over the headline on purpose, so a few
+        nodes crossed the letterforms and the type read as standing in the
+        space. At 9rem in Bodoni it did not read as depth: an edge landing on a
+        hairline serif, or along the descender of the "y", looks like a scratch
+        on the type, and it was reported twice as a rendering fault. The graph
+        still passes in front of everything else in the hero, which is where the
+        parallax was doing real work; the display type is not a surface to draw
+        on.
+      */}
       <div
         data-hero-depth
-        className="shell relative z-[2] mt-10 w-full [transform-style:preserve-3d] md:mt-14"
+        className="shell relative z-[4] mt-10 w-full [transform-style:preserve-3d] md:mt-14"
       >
         <h1 className="text-display">
           <span className="sr-only">

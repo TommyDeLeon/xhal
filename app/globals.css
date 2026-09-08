@@ -267,6 +267,19 @@
   line-height: 0.9;
   letter-spacing: -0.012em;
   font-weight: 400;
+  /*
+    Forces grayscale antialiasing instead of Windows LCD subpixel rendering.
+
+    -webkit-font-smoothing is a no-op outside macOS, so on Windows the hairline
+    serifs of a Didone were being rendered with RGB subpixel coverage and the
+    stems picked up visible orange and blue edges — read as colour fringing on
+    the headline. Chrome only uses LCD text on a composited layer it knows is
+    opaque; promoting this one, which sits over a gradient and a canvas and so
+    is not, drops it to grayscale coverage. Scoped to display type only: at
+    body sizes subpixel rendering is worth having.
+  */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Short viewports, mostly phones held sideways. A four-line display headline
@@ -526,32 +539,15 @@
   z-index: 61;
   pointer-events: none;
   opacity: var(--grain-opacity);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.55'/></svg>");
-}
-
-/*
-  Grain. An inline SVG turbulence tile rather than an image request: it is about
-  400 bytes, needs no network round trip, and cannot 404 on a static export.
-*/
-.film-grain {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.55'/></svg>");
-}
-
-/* Overlay lightens a dark ground; over a light one it has to darken instead,
-   or the grain is invisible where it is already subtle. */
-:root[data-theme="light"] .film-grain {
-  mix-blend-mode: multiply;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .film-grain {
-    mix-blend-mode: multiply;
-  }
+  /*
+    feColorMatrix saturate 0 is not optional. feTurbulence runs its noise
+    function independently on R, G, B and A, so the raw tile is COLOUR noise,
+    not grain. Over the light type of a headline it laid orange and blue flecks
+    along every stroke, which read as colour fringing on the serif — and no
+    amount of layer promotion touched it, because it was never antialiasing.
+    Desaturating the tile keeps the texture and removes the hue entirely.
+  */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.55'/></svg>");
 }
 
 /*
