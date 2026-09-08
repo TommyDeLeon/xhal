@@ -115,7 +115,7 @@ export default function CodelockCaseStudy() {
               </div>
 
               <h1 className="text-display max-w-[14ch] font-semibold">
-                <span className="block overflow-hidden pb-[0.08em]">
+                <span className="block overflow-hidden pb-[0.2em]">
                   <span data-hero-line className="block">
                     {study.premise}
                   </span>

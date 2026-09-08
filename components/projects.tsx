@@ -239,7 +239,7 @@ export default function Projects() {
         layout, so there is nothing left to clip.
       */}
       <div className="shell [perspective:var(--depth)]">
-        <h2 className="text-h2 max-w-[18ch] overflow-hidden pb-[0.08em] font-medium">
+        <h2 className="text-h2 max-w-[18ch] overflow-hidden pb-[0.2em] font-medium">
           <span data-head className="block">
             Things I have built
           </span>

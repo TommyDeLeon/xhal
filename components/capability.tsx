@@ -19,7 +19,7 @@ export default function Capability() {
   return (
     <section id="capability" className="relative section-y overflow-hidden">
       <div className="shell">
-        <h2 className="text-h2 max-w-[16ch] overflow-hidden pb-[0.08em] font-medium">
+        <h2 className="text-h2 max-w-[16ch] overflow-hidden pb-[0.2em] font-medium">
           <span data-head className="block">
             Where I actually am
           </span>
