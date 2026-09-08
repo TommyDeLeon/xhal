@@ -37,3 +37,6 @@ next-env.d.ts
 
 # local deploy package
 /tommydeleon-site.zip
+
+# Local agent pointer; not part of the published project.
+CLAUDE.md
