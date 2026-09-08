@@ -1,5 +1,7 @@
 {
-  "name": "Tommy De Leon - Network & Security Engineer",
+  "name": "Tommy De Leon - Networks, Security & Software",
+  "id": "/",
+  "scope": "/",
   "short_name": "Tommy De Leon",
   "start_url": "/",
   "display": "standalone",

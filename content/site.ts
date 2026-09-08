@@ -64,12 +64,6 @@ export const site = {
     },
   ],
 
-  /**
-   * Web3Forms access key for the contact form.
-   * TODO(tommy): create a free key at https://web3forms.com and paste it here.
-   * While null the form refuses to fake a success and points at the email link.
-   */
-  web3formsKey: null as string | null,
 } as const;
 
 export type Site = typeof site;

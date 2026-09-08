@@ -1,6 +1,5 @@
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { site } from "@/content/site";
-import ContactForm from "./contact-form";
 
 /**
  * Two paths, deliberately different destinations. Left is for people who want
@@ -19,7 +18,15 @@ export default function Contact() {
             I am the right person for it, including when I am not.
           </p>
 
-          <ContactForm />
+          <div className="mt-8">
+            <a href={`mailto:${site.email}?subject=Project%20enquiry`} className="button-primary">
+              Email me about a project
+              <ArrowUpRight size={18} aria-hidden />
+            </a>
+            <p className="mt-4 text-sm text-text-muted">
+              Opens your mail app. You can also copy the email address alongside.
+            </p>
+          </div>
         </div>
 
         <div className="lg:col-span-5 lg:col-start-8">
@@ -36,7 +43,7 @@ export default function Contact() {
                 href={`mailto:${site.email}`}
                 className="group flex items-center justify-between gap-4 py-4 text-text transition-colors hover:text-accent"
               >
-                <span>{site.email}</span>
+                <span className="min-w-0 break-all">{site.email}</span>
                 <ArrowUpRight
                   size={16}
                   aria-hidden
