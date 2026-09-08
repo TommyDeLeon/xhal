@@ -40,10 +40,10 @@ export type Project = {
    * from the project card; null means the project has no case study yet and
    * nothing extra is rendered anywhere.
    *
-   * The section order is the argument: why existing tools fail, what the
-   * competition actually is, how v1 broke and what replaced it, the engineering
-   * of the speed gate, the honest limits, and the lesson last. Sections are
-   * separate fields rather than one prose blob so the page can pace them
+   * The section order is the argument: the problem, how the problems were
+   * actually found, the goals and the constraints, three decisions in the order
+   * they were forced, the evidence, and the limits and the lesson last.
+   * Sections are separate fields rather than one prose blob so the page can pace them
    * independently -- that ordering IS part of the content model, and flattening
    * it to markdown would move layout decisions back into copy.
    */
@@ -51,8 +51,31 @@ export type Project = {
 };
 
 export type CaseStudySection = {
+  /**
+   * Two or three words naming this section's job in the argument -- "The
+   * problem", "Decision 2 - the speed gate", "Results and evidence".
+   *
+   * The headings on this page are sentences, which reads well and skims badly:
+   * someone deciding whether to spend ten minutes here scans the left column
+   * and gets narrative colour rather than a map. The kicker is the map. It
+   * carries no information the heading does not, so it is decoration for a
+   * reader and structure for a skimmer, and a section without one renders
+   * exactly as it did before.
+   */
+  kicker?: string;
   /** Short. Used as the section heading and as its in-page anchor. */
   heading: string;
+  /**
+   * Verified figures belonging to this section, pulled out of the prose and
+   * set large above it.
+   *
+   * `note` is not optional, and that is the whole point of the shape. A number
+   * on a portfolio page is worthless without its denominator and its source --
+   * "3 of 12" means nothing until you know twelve of what, established how.
+   * Requiring the note makes an unsourced callout impossible to add without
+   * noticing that you cannot source it.
+   */
+  results?: { value: string; label: string; note: string }[];
   /** Runs under the heading at display scale. One sentence, no wind-up. */
   standfirst: string;
   body: string[];
@@ -127,7 +150,7 @@ export const projects: Project[] = [
       "Docker",
     ],
     angle:
-      "Checks that run on the client are suggestions. The trust boundary belongs at the API, and the limits of the lock are written down honestly rather than overstated.",
+      "Checks that run on the client are suggestions. The trust boundary belongs at the API — and what the lock has actually been observed to survive is written down per route, including the rows that prove nothing.",
     repoUrl: "https://github.com/TommyDeLeon/codelock",
     liveUrl: "https://codelock.tommydeleon.com",
     mark: { src: "/images/codelock-mark.png", alt: "" },
@@ -162,7 +185,7 @@ export const projects: Project[] = [
         src: "/images/codelock-verdict.jpg",
         alt: "A CodeLock judge result reading Correct, but too slow. All three test cases pass, but the measured runtime is 249 milliseconds against a 47 millisecond budget, and the verdict explains the lock stays on because the answer is roughly 50.8 times slower than the reference solution.",
         caption:
-          "Why the lock is not simply a test runner. Every test passes, the submission takes 249ms against a 47ms budget — and it stays shut. Captured in the browser demo, which times a reference solution on the same machine moments earlier and applies the product's own arithmetic, best x 1.35 + 40ms, to whatever that machine reports. The 50.8x gap is larger than an installed judge shows, because a container's start-up cost is not being counted on both sides.",
+          "The case the speed gate exists for: a correct answer that is not good enough. All three tests pass, the submission takes 249ms against a 47ms budget, and the machine stays shut. Captured in the browser demo, which times a reference solution on the same machine moments earlier and applies the product's own arithmetic, best x 1.35 + 40ms, to whatever that machine reports. The 50.8x gap reads larger than an installed judge would show, because the demo is not counting a container's start-up cost on both sides.",
         width: 1600,
         height: 1000,
       },
@@ -170,7 +193,7 @@ export const projects: Project[] = [
         src: "/images/codelock-app-dashboard.jpg",
         alt: "The CodeLock desktop app's dashboard. A session panel offers 15, 30, 60 and 90 minute blocks with 60 selected, above counters reading five problems solved at three per cent of submissions accepted, five locks cleared, and a median unlock of 33 minutes. A sidebar shows the tier at Easy, a streak of nought of three fast solves needed to reach Medium, a ratio of 1.00x off the best known answer across six solves with six records held, and a list of personal bests in Python. A run log lists sessions marked solved, bypassed or abandoned.",
         caption:
-          "Where a focus block starts, and the state the lock reads when it picks a problem: the tier, the streak toward the next one, and how far off the best known answer the last six solves have run. The run log keeps bypassed and abandoned sessions in plain sight next to the solved ones, which is the point of keeping a log at all.",
+          "Where a focus block starts, and the state the lock reads when it picks a problem: the tier, the streak toward the next one, and how far off the best known answer the last six solves have run. The counters are my own, on my own machine during development — five locks is a development figure, not evidence that anyone uses this. The run log keeps bypassed and abandoned sessions in plain sight next to the solved ones, which is the point of keeping a log at all.",
         width: 1600,
         height: 1000,
       },
@@ -178,7 +201,7 @@ export const projects: Project[] = [
         src: "/images/codelock-limits.jpg",
         alt: "The desktop section of CodeLock's own limits page, headed Electron kiosk shell. Closing the window, minimising, the second monitor and sleeping the machine are marked prior tests. Switching virtual desktop and rebooting are marked untested. Killing the process, deleting the lock file and Ctrl+Alt+Del are marked defeated. Reopening after a kill and calling the unlock channel from DevTools are marked holds. Holding Escape for ten seconds is marked by design.",
         caption:
-          "What the lock survives and what beats it, written down rather than glossed over. The status column is the honest part: prior tests means the shell provably decides correctly, not that anyone watched Windows honour it, and untested says so outright rather than leaving the reader to assume.",
+          "The escape ledger the product publishes about itself, and the single strongest piece of evidence on this page. Twelve desktop rows: three defeated, two holds, one deliberate exit, and six that prove nothing. The status column is the honest part — prior tests means the shell provably decided correctly under a suite that has since been deleted, not that anyone watched Windows honour it, and untested says so outright rather than leaving the reader to assume.",
         width: 1600,
         height: 1000,
       },
@@ -193,118 +216,180 @@ export const projects: Project[] = [
     ],
     year: "2026",
     caseStudy: {
-      title: "CodeLock: putting the trust boundary in the right place",
+      title: "CodeLock: a focus lock built to survive its own author",
       description:
-        "How CodeLock moved from a client-side unlock check to a server-signed token, and why a fair speed gate needs per-language budgets and a 40ms floor.",
-      premise: "A lock is only as good as where it checks.",
+        "A desktop focus tool that only reopens when you solve a programming problem correctly and fast enough — and the honest record of every way I found around it.",
+      premise: "A focus timer whose only off switch is a solved problem.",
       intro: [
-        "CodeLock locks the machine when a timer runs out. The way back in is a programming problem that has to be correct and fast enough, and it is chosen at the moment the lock fires rather than when the timer is armed, so it cannot be fetched and solved in advance.",
-        "The idea was never the hard part. Deciding what fast enough means without being unfair to a language took most of the work, and making the lock impossible to simply tell that it is open moved the whole design onto the server.",
+        "CodeLock takes over the screen when a focus timer runs out. The way back in is a programming problem that has to pass every test and finish inside a time limit set per language, and it is chosen at the moment the lock fires rather than when the timer is armed — so it cannot be fetched and worked out while the clock is still running.",
+        "I built it for myself, and the problem is not unusual. The applications those hours go to are refined by full-time teams whose objective is that you do not stop, and every blocker I had tried could be switched off by the person it was blocking. It is still a personal tool, though — one machine, no accounts, no telemetry, no release tagged, and nobody using it but me — so the honest headline here is not adoption. It is the escape ledger: twelve documented ways out of the desktop lock, each carrying what actually happened when I tried it, including the three that beat it.",
+        "The idea was the easy part. Deciding what fast enough means without punishing a language took most of the engineering, and making the lock impossible to simply talk into opening moved the whole design onto the server — then a second time, after I found a way through my own fix.",
       ],
       overview: [
         {
           label: "Role",
           value:
-            "Solo build. The API, the judge service, the desktop shell, the web app and the mobile client are all mine.",
+            "Solo. The API, the sandboxed judge, the Electron desktop shell, the Next.js web app and the Expo mobile client are all mine.",
         },
         {
           label: "Timeline",
           value:
-            "2026. The escape audit — now the platform-limits section of the README — is the part I trust most about what this actually does; its most recent entries were exercised on 2 September 2026.",
+            "221 commits between 21 August and 8 September 2026, counted from the repository's own history.",
         },
         {
-          label: "Platforms",
+          label: "Status",
           value:
-            "Electron desktop, Next.js web, Expo mobile. Only the desktop shell enforces anything, and the reasons are below.",
+            "A personal tool, not a product. No release has been tagged, and there is no analytics, telemetry or error reporting anywhere in it — deliberately. Nothing on this page is a user-outcome number, because there are no users to measure.",
+        },
+        {
+          label: "What actually enforces",
+          value:
+            "The Windows desktop shell, and nothing else. A browser tab can always be closed; iOS gives no unrestricted way for one app to hold the device; the Android module is written but has never been compiled.",
         },
         {
           label: "Stack",
           value:
-            "TypeScript everywhere, for a compile-time contract between the API that signs a token and the desktop layer that verifies it. Express for its middleware chain. Prisma against Postgres because a per-language budget map wants to be a JSON column. Docker and Node 24 for reasons given further down.",
+            "TypeScript across all five apps, so the service that signs an unlock token and the process that verifies it share one compile-time contract. Express, Prisma and Postgres on the API. Docker for the judge, and Node 24 inside it, both for narrow reasons given below.",
         },
       ],
       sections: [
         {
+          kicker: "The problem",
           shot: "/images/codelock-app-dashboard.jpg",
-          heading: "Every timer I tried had a dismiss button",
-          standfirst:
-            "A blocker you can wave away is a suggestion, not a lock.",
+          heading: "Every blocker I tried had a dismiss button",
+          standfirst: "A tool you can wave away is a suggestion, not a lock.",
           body: [
-            "Staying focused is the thing I am worst at. I lose hours to whatever is one tab away without ever deciding to, and every tool I tried to fix it with had the same hole in it: the button that turned it off was always within reach, and I always reached for it.",
-            "So the cost of getting back in had to be doing the thing I was avoiding. When the timer runs out the machine locks, and the way through is a programming problem. That one constraint forced everything else, because the moment a lock has real value to the person it is locking, that person becomes its adversary. I am the adversary here. I know exactly where I would attack it, which turned out to be the most useful thing about building it for myself.",
+            "Staying focused is the thing I am worst at. I lose hours to whatever is one tab away without ever deciding to, and every tool I reached for had the same hole in it: the control that switched it off was always within reach, and I always reached for it.",
+            "The applications those hours go to are not accidentally hard to put down. They are refined by full-time teams whose objective is that you do not stop. A timer that politely asks you to is competing with that on willpower, and it is asking the user to supply the exact thing they went looking for a tool because they lack.",
+            "So the cost of getting back in had to be work I could not talk my way out of. When the timer expires the machine locks, and the way through is a programming problem — the same kind of work I was avoiding when I opened the tab. There was no user research here and there are no personas. This is one person's problem stated plainly, and the design follows from taking it seriously rather than from asking anybody.",
+            "That single constraint forced everything else. The moment a lock has real value to the person it is locking, that person becomes its adversary. I am the adversary, and that turned out to be the most useful thing about building it for myself: I know exactly where I would attack it.",
           ],
         },
         {
+          kicker: "How the problems were found",
+          heading: "By re-reading the code, not by using the app",
+          standfirst:
+            "Nobody reported anything, because there is nobody to report it — so it is worth being exact about what did the finding.",
+          body: [
+            "This is the part of a case study where a discovery process usually gets invented, so here is the unembellished version. There is no telemetry, no analytics and no error tracking in this project by design, and there are no users. Three things found the defects on this page instead, and none of them was a bug report.",
+            "Writing a path out end to end. Sitting down to describe how the unlock actually works, in prose, is what surfaced the replay flaw below. Using the application would never have shown it, because the bypass is indistinguishable from a legitimate unlock — the signature is real, the token is genuine, and the lock opens.",
+            "A measurement coming back wrong. A database migration dated 29 August 2026 records that C++ compiled with g++ -O2 and Go run through go run both failed inside a 256MB container and passed at 500MB; the judge's default was raised to 512MB. That is not a hunch about compiler memory. It is two languages failing, a number that fixed them, and a migration that says so.",
+            "Watching the machine after a run. A comment in the sandbox records two CPU-bound containers still alive twenty-four minutes after the run that started them had finished. Containers are now given a name at launch specifically so they can be found and killed rather than trusted to exit on their own.",
+            "The limitation in that list is the obvious one. A fourth category — somebody else using this and hitting something I never thought to look for — does not exist yet, and no amount of re-reading my own code is a substitute for it.",
+          ],
+        },
+        {
+          kicker: "Goals and constraints",
+          shot: "/images/codelock-demo.jpg",
           heading:
-            "The things I lose hours to are built by people whose full-time job is making them hard to put down",
+            "Three things it had to do, and several the platforms would not allow",
           standfirst:
-            "Competing with that on willpower is a losing position, so I stopped trying.",
+            "The boundaries here were mostly not mine to choose, and they shaped the product more than any preference of mine did.",
           body: [
-            "There was no user research here and there are no personas. What there is, is an honest reading of why the existing options do not work, and it is not that they are badly made. A timer that asks you to please stop is competing against products refined by full-time teams whose entire objective is that you do not stop. That is not a fair fight, and a tool that treats it as one is asking the user to supply the very thing they came to the tool because they lack.",
-            "The design follows from taking that seriously. CodeLock does not ask. It removes the option and puts a specific, checkable piece of work in the way, and the work is the same kind of work I was avoiding when I opened the tab.",
+            "Success meant three specific things. Getting back in had to be earned rather than dismissed. The speed rule had to be defensible in any of the six supported languages rather than being a preference dressed up as a gate. And no path reachable from the interface could be allowed to conclude that the machine was unlocked.",
+            "Against that sat the running costs. This had to cost nothing to operate, so grading runs on a judge bundled with the project rather than a metered service — and the API validates that address at boot, refusing any host but the local one, so a stale setting cannot quietly send code, and money, somewhere else. It also has no authentication at all, which is a deliberate scope decision for a single-machine tool and the reason every service is documented as belonging off the public internet.",
+            "The platform boundaries are harder and more interesting. A browser tab can always be closed, so the web app was never going to be a lock; it is the marketing site, the try-it demo, and the lock screen that the desktop shell loads. On iOS, holding the device requires Apple's Family Controls entitlement, which this project does not have and has not implemented, so the native module reports itself unsupported and every enforcement call returns false rather than pretending. On Android the overlay module is written but has never been compiled — no JDK, no Android SDK, no build produced — which makes mobile enforcement an intention rather than a claim.",
+            "Saying that plainly costs less than having somebody discover it for themselves, and the product's own limits page says the same thing in the same words.",
           ],
         },
         {
-          shot: "/images/codelock-app-lock.jpg",
+          kicker: "Decision 1 — the trust boundary",
           heading: "The first version let the client decide it was unlocked",
           standfirst:
             "v1 asked the interface a question only the server had any business answering.",
           body: [
-            "In the first version the app ran the tests, decided the answer was good enough, and released the lock. It fell over immediately, and it fell over in the dullest possible way: anything that could talk to the interface could tell it that it had passed. There was no attack to speak of. The check and the thing being protected were on the same side of the fence.",
-            "The second version moved the decision to the API. Nothing on the client is trusted to conclude anything. The judge runs the submission, the speed gate is evaluated separately, and only if both clear does the API sign an unlock token. The token is HS256, its payload carries the user id, the lock session id and a type marker, the issuer and audience are pinned, and it expires after five minutes.",
-            "Writing this page found a replay flaw in that binding. The payload named one user and one lock session, but the handler that released the lock never compared either one against the session it was holding, so inside its five minute window a validly signed token could release whichever lock happened to be live. It is closed now: the comparison is pulled out into a function and tested on its own. That was the same mistake as the first version in a smaller place, and I would not have noticed it if I had not sat down to write out how the unlock path works.",
-            "The desktop shell verifies that signature in the Electron main process, behind an IPC handler. The renderer runs with node integration off, context isolation on and the sandbox flag set, so the window that draws the interface never holds the verifying key and cannot set the locked state itself. A patched web app, an injected script, or the unlock channel called by hand with an empty string all take the same path, and none of them can produce a signature. I ran that path against a live lock: a forged token and an empty one were both rejected, and the escape matrix records it as holds.",
-            "There is a caveat I should state rather than let the paragraph above imply otherwise. The verifier accepts RS256 with a public key and HS256 with a shared secret. In the shared-secret mode the secret sits in the installed application's configuration, where the owner of the machine can read it. The documentation says that mode is acceptable when the only user is the person who installed it, and that is exactly the right way to describe it. It is not a defence against the machine's owner, and this lock has never claimed to be.",
+            "Those platform limits decided what could enforce a lock at all. This one is about who gets to decide the lock has been satisfied.",
+            "In the first version the application ran the tests, judged the answer good enough, and released the lock itself. It fell over in the dullest way available: anything that could talk to the interface could tell it that it had passed. There was no attack to describe. The check and the thing it was protecting were on the same side of the fence.",
+            "The obvious cheaper repair would have been to make the client harder to talk to — obfuscate the bundle, hide the channel, check a value in two places. That buys time against a bored attacker and nothing at all against a determined one, and the attacker here is the owner of the machine on a bad evening. Any amount of client hardening is still the client marking its own work, so the decision had to move rather than be defended where it was.",
+            "The second version moved the decision to the API. Nothing on the client concludes anything. The judge runs the submission, the speed gate is evaluated separately, and only when both clear does the API issue an unlock token — a short signed note saying this person earned this specific lock, valid for five minutes, carrying the user id, the lock session id and a type marker. Signing it needs a secret the interface does not hold.",
+            "The desktop shell checks that signature in Electron's main process, behind a message channel. The window that draws the interface is a sandboxed web page with no filesystem access and no way to reach the verifying key, so a patched web app, an injected script, or the unlock channel called by hand from developer tools all arrive at the same door, and none of them can produce a valid signature. That one is not a design claim: it was run against a live lock on 30 August 2026, where a forged token and an empty string were both rejected as malformed and the overlay stayed up.",
+            "Then writing this page found the mirror image of the attack I had defended against. A forged token was already refused. A real one was not. The token names the lock session it was earned for, and the handler that released the lock never read that claim — so inside its five-minute life, a token kept from one problem opened whichever lock happened to be live. The signature check passed precisely because the token was genuine. That was a working bypass until 2 September 2026, when a four-file commit pulled the comparison out into its own function and called it before release.",
+            "Two caveats belong here rather than in a footnote. The regression test that commit added no longer exists — the entire automated suite was deleted from this repository on 8 September 2026, so the comparison is still in the code but the test that proved it is not. And the verifier checks the token's type, audience and expiry but not its issuer, even though the API sets one: a gap I found while writing this section and have not yet closed.",
+            "The third caveat is about who this defends against, and it has never been otherwise. The verifier supports a public-key mode, but the documented default puts a shared secret in the installed application's own configuration, where the owner of the machine can read it. The documentation says that is acceptable when the only user is the person who installed it, and that is the correct way to describe it. This is a commitment device, not a defence against its owner.",
           ],
         },
         {
-          shot: "/images/codelock-demo.jpg",
+          kicker: "Decision 2 — the speed gate",
+          shot: "/images/codelock-verdict.jpg",
           heading:
             "One runtime budget for every language would be a language preference, not a gate",
           standfirst:
-            "Making the speed rule fair turned out to be most of the engineering.",
+            "Passing the tests is not enough — and making that rule fair turned out to be most of the engineering.",
           body: [
-            "Passing the tests is not enough on its own. The submission also has to land inside a runtime budget, so a correct answer that walks every pair is still a locked machine. That rule is easy to state and unpleasant to make fair, because runtime is not a property of the answer alone. It is a property of the answer, the language, and the machine that happened to run it.",
-            "Budgets are therefore stored per language, as a map on the problem itself rather than as a constant in the code. The six languages are JavaScript, TypeScript, Python, Java, C++ and Go, and they do not start up at the same speed. I have not measured that difference and I am not going to put a number on it here. A single global number would make the gate unreachable in one language and free in another, which is not a gate, it is a statement about which language I prefer.",
-            "There are 695 problems: 60 foundations, 55 build-the-data-structure, 150 core patterns, 325 variations and 95 breadth. Every one is judge-verified before it can be served: its reference solution in each of the six languages has passed that problem's own test cases in the sandbox. If one fails, the import marks the problem INACTIVE, so a broken problem cannot ship; the only thing that can be missing is a problem.",
-            "Grading takes the best of several timed runs, and best means the minimum. The judge measures wall clock time on shared hardware, and one unlucky sample should not lock somebody out of their own machine. The gate itself is the reference time multiplied by a tolerance and rounded up, with a fixed floor added on top. None of those three numbers is a constant: the run count, the tolerance and the floor are all environment variables, defaulting to two runs, 1.35 and 40 milliseconds, and a deployment can move any of them. The floor is the part I would defend hardest. On a fast problem, 35 percent of the reference time is a very small number of milliseconds, small enough that the run to run variation of the judge itself can cover it. The floor is what keeps the gate measuring the solution rather than that variation.",
-            "Correctness and speed are also separate steps. A wrong answer skips the extra timed runs and never reaches the gate, so a submission is never told it was too slow when the real problem was that it was wrong. The first batch is still timed and that figure is still stored, it simply never becomes a verdict. The comment sitting directly above that branch in the code says no timing happens there, which is wrong, and I found that out by having this page fact-checked rather than by reading my own comment again.",
-            "The judge runs each submission in its own throwaway Docker container with the network switched off, all capabilities dropped, a read-only filesystem, a process limit and an unprivileged user. That is container isolation and not a hardened virtual machine, and the code says so in a comment rather than leaving it to be assumed. Docker is there for a specific reason: the isolate sandbox that Judge0 normally uses requires cgroup v1, which does not exist on a cgroup v2 host, so driving containers directly was the option that actually ran on the machines I have. Node 24 is in the judge image for a similarly narrow reason, which is that it strips type annotations natively and lets TypeScript submissions run without a build step. That buys a constraint as well as a feature: submissions have to stay inside erasable syntax, so enums and decorators are out.",
+            "A correct answer that walks every pair still leaves the machine locked. The rule is easy to state and unpleasant to make fair, because runtime is not a property of the answer alone: it is a property of the answer, the language it is written in, and the machine that happened to run it.",
+            "So budgets are stored per language, as a map on the problem itself rather than as a constant in the code. The six languages are JavaScript, TypeScript, Python, Java, C++ and Go, and they do not start up or compile at the same speed. A single global number would make the gate unreachable in one language and free in another, which is not a gate — it is a statement about which language I prefer.",
+            "The gate is the target time multiplied by a tolerance, rounded up, with a fixed floor added underneath: by default 1.35 and 40 milliseconds, with the fastest of two timed runs counting. None of those three numbers is hardcoded; all are environment settings a deployment can move. The floor is the part worth defending. On a fast problem, 35 per cent of the reference time is a very small number of milliseconds — small enough that the judge's own run-to-run variation can cover it — and the floor is what keeps the gate measuring the solution rather than the noise.",
+            "The target itself ratchets. It is the faster of the problem's measured reference time and your own best accepted time in that language, so the budget tightens as you get better at a problem rather than staying where it started.",
+            "Correctness and speed are separate steps, which matters more than it sounds. A wrong answer never reaches the gate, and is never told it was too slow when the real problem was that it was wrong. One correction while I am here: a comment sitting directly above that branch says no timing happens, and that is misleading — the first batch is timed and the figure is stored, it simply never becomes a verdict.",
+            "Underneath all of it sits the corpus: 695 problems across five tiers, with a gate on the way in as well as the way out. A measured import runs every problem's own reference solution, in each of the six languages, against that problem's own test cases; a problem with any gap is written as inactive, and the selector only ever draws from active problems. A broken problem cannot be served — the worst case is a missing one.",
+            "Two implementation choices are worth a line each, because both were forced rather than preferred. The judge drives Docker containers itself rather than delegating to Judge0, the off-the-shelf code-execution service a project like this would normally sit on top of, because the sandbox Judge0 depends on needs a version of a Linux resource-limiting feature that the machines available no longer provide. And Node 24 is in the judge image because it runs TypeScript directly, with no compile step in front of it — at the price of a real constraint, since submissions have to stay inside the part of the language that is pure annotation, so the handful of features that need a compiler to emit actual code are out.",
+            "Every submission runs in its own throwaway container with networking off, all Linux capabilities dropped, a read-only filesystem, a capped scratch space, a process limit and an unprivileged user. That is container isolation rather than a hardened virtual machine, and the code says so in a comment rather than letting it be assumed.",
           ],
         },
         {
-          heading: "The second bypass was not an attack, it was two clicks",
+          kicker: "Decision 3 — the state machine",
+          heading: "The second bypass was two clicks, not an attack",
           standfirst:
-            "Every path that ended a lock read the state, decided, and then wrote — which is not one decision, it is two.",
+            "Every route that ended a lock read the state, decided, and then wrote — which is not one decision, it is two with a gap in the middle.",
           body: [
-            "The replay flaw was a missing comparison. This one was subtler and I found it the same way, by reading the code rather than by using the app. Every route that ended a lock session followed the same shape: read the session, check it was in the state that allowed the action, then write the new state. That reads like one decision. It is two, with a gap in the middle, and anything that arrives in the gap sees the same answer to the same question.",
-            "A race condition is not exotic here. Two requests, one gap. Skip was the reachable one: the handler counted the skips spent today, found the allowance had room, and wrote — so double-clicking the button spent two days of a one-per-day allowance, because both requests counted before either wrote. Resume was the one that actually weakened the lock, and it was mine from the same week. Resuming a paused timer pushes the deadline forward by however long it was paused. Two resumes reading the same paused-at stamp both push it forward, so a double click bought real time back.",
-            "Abandon was the worst of the three and the least interesting to trigger. It checked that the session belonged to you and nothing else — not what state it was in. Abandoning a session you had already solved overwrote the solve with abandoned, wrote an audit row contradicting the one already there, and recorded a failed session against the difficulty ladder. Repeat it and you walk your own ladder down on a problem you got right.",
-            "The fix is the same in all three places and it is not clever: stop making the decision in the application. `updateMany` with the expected state in its WHERE clause is a single statement, so the database decides who wins and the loser gets a row count of zero and stops before the audit row, the ladder move and the re-arm. The engage path had always worked this way, because assigning two problems to one lock is obviously wrong; the endings had simply never been held to the same standard. That is the pattern I keep relearning on this project — the mistake is rarely in the part you were being careful about.",
+            "I found this the same way as the last one, by reading the code rather than by using the application. Every handler that ended a lock session followed the same shape: read the session, check it was in a state that allowed the action, write the new state. That reads like a single decision. It is two, and anything arriving in the gap between them gets the same answer to the same question.",
+            "Two requests, one gap. Skip was the reachable one: the handler counted the skips spent today, found the daily allowance had room, and wrote — so double-clicking the button spent two days of a one-per-day allowance, because both requests counted before either wrote.",
+            "Resume was the one that actually weakened the lock. Resuming a paused timer pushes the deadline forward by however long it was paused, so two resumes reading the same paused-at stamp both push it, and a double click bought real time back.",
+            "Abandon was the worst, and the least interesting to trigger. It checked that the session belonged to you and not what state it was in, so abandoning a session you had already solved overwrote the solve, wrote an audit row contradicting the one already there, and walked your own difficulty ladder down on a problem you got right.",
+            "The fix is not clever: stop making the decision in the application. A single database write that names the expected state in its own condition is one statement, so the database decides who wins, and the loser changes nothing — no audit row, no ladder move, no re-arm. The alternative was a lock or a transaction around the read and the write, which would work; it just puts the correctness in a wrapper somebody can forget to add to the next handler, whereas a condition inside the write travels with the write.",
+            "All four ending paths are guarded that way now, and the shapes differ for reasons worth naming. Skip and engage each take one guarded write and stop when it loses. Resume matches the exact paused-at stamp it read, not merely any pause, because the value can be cleared and set again between the read and the write — matching the timestamp means the write applies to the pause it was computed from, or to nothing. Abandon needs two narrow guards and one retry, because the difficulty-ladder decision underneath depends on which state the database actually moved from, and a single guard accepting either state would reintroduce the gap it was added to close.",
+            "The one thing designed correctly from the start is bounded differently: a single active session per user is enforced by a uniqueness constraint in the database rather than by application code, and that is what makes the daily skip allowance bounded at all — the allowance is counted per user but spent per session, so two live sessions would have been two allowances.",
+            "That is the pattern I keep relearning on this project. The mistake is rarely in the part I was being careful about.",
           ],
         },
         {
+          kicker: "Results and evidence",
           shot: "/images/codelock-limits.jpg",
-          heading: "Only two rows in my own escape matrix say UNTESTED",
+          heading: "What I can show, and what I cannot",
           standfirst:
-            "The honest status of this lock is weaker than I would like it to be, and the document says so.",
+            "There are no users, so there are no user outcomes. What exists instead is a per-route record of what happened when I attacked my own lock.",
+          results: [
+            {
+              value: "0",
+              label: "Users, downloads, telemetry events",
+              note: "No release tagged, no analytics, no error tracking, no usage data of any kind — by design. Every other figure on this page is engineering validation, not user impact.",
+            },
+            {
+              value: "3 of 12",
+              label: "Documented desktop escapes that beat the lock",
+              note: "Killing the process; killing it and deleting the lock file; Ctrl+Alt+Del or a power-off. Each was run, and each worked. From the ledger the product publishes about itself.",
+            },
+            {
+              value: "2 of 12",
+              label: "Barriers verified by running the attack",
+              note: "Reopening after a kill restored the lock from disk. The unlock channel called from developer tools rejected both a forged and an empty token against a live lock, 30 August 2026.",
+            },
+            {
+              value: "695",
+              label: "Problems, each judged before it can be served",
+              note: "Across five tiers. A measured import runs every reference solution in all six languages against that problem's own tests; a problem with any gap is marked inactive and never selected.",
+            },
+          ],
           body: [
-            "There are no download numbers, no user counts and no conversion figures on this project, so there is nothing of that kind to report. What exists instead is a section of the repository's README that lists every way I could think of to get out of the lock, and marks each one with what actually happened when I tried it.",
-            "The result is less flattering than a summary would be. Deleting the lock file after killing the process defeats it. Ctrl+Alt+Del defeats it. Holding the power button defeats it, and so does booting another operating system. Those are recorded as defeated because they were run and they worked. Killing the process is defeated too, although reopening CodeLock after that holds. Switching virtual desktop and rebooting are the two untested rows. Calling the unlock channel from developer tools holds: against a live lock, a forged token and an empty one were both rejected.",
-            "The rows in between say prior tests, which is a status I added rather than one I was pleased to need. Cancelling the close, undoing a minimise, and re-asserting the overlay after a display change or a wake are covered by tests now, and each is checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the app impossible to quit. That is not the same as the barrier holding. It proves the shell decides correctly; it says nothing about whether Windows honours the decision, which is the only part that matters to someone hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page says why.",
-            "I am leaving that section exactly as the matrix has it. A tool that overstates what it enforces trains you to trust it in the one situation where it will not hold, and a focus tool that quietly fails is worse than no tool, because you stop watching for the failure. Unit-tested sits between untested and holds: the shell makes the right decision while locked and while unlocked, because a guard that fired every time would make the app impossible to quit, but I have not watched Windows honour it on hardware. The distance between what the code refuses and what I have personally verified is the most interesting thing on this project, and it is not a distance I can round down.",
-            "The parts I can point at without qualification are these. The judge and the problem set live in the repository, so the pieces that would normally cost money to run are the pieces anyone can host themselves rather than depend on mine. And the verdict screen in this write-up is a real capture rather than a mockup: every test passes, the submission takes 249 milliseconds against a 47 millisecond budget, and the machine stays locked. That capture comes from the browser demo, which times a reference solution on the same machine seconds earlier and feeds it the product's own arithmetic, so the budget is honest about the hardware it was measured on rather than borrowed from mine. That screenshot is the argument for the speed gate, because it is the case where a correct answer is not good enough and the interface has to say so without being vague about why.",
+            "The ledger is the result I would put first, and it is deliberately unflattering. Of twelve documented ways out of the desktop lock, three defeat it outright and are recorded as defeated because they were tried and they worked. Two hold, and holds is reserved for a barrier somebody has actually watched work. One — holding Escape for ten seconds — is a deliberate exit, and it records the session as failed.",
+            "That leaves six rows that prove nothing, and separating them out is the entire point of keeping a ledger. Four of them once had automated tests covering the shell's decision: cancelling the close, undoing a minimise, re-asserting the overlay after a display change or a wake. Each was checked while unlocked as well as while locked, because a guard with no condition passes every does-it-hold test and quietly makes the application impossible to quit. Those tests were deleted from the repository on 8 September 2026, so today those rows rest on a decision that was once tested and now is not. The remaining two — switching virtual desktop, and rebooting — were never tried at all, and say so.",
+            "None of that is the same as the barrier holding. A test proves the shell decides correctly. It says nothing about whether Windows honours the decision, which is the only part that matters to somebody hammering Alt+Tab at two in the morning. Folding those rows into holds would claim the one thing nobody has watched happen, so they sit in their own column and the page explains why.",
+            "The second result is the verdict screen above: every test passing, 249 milliseconds measured against a 47 millisecond budget, and the machine still shut. That is the case the speed gate exists for — a correct answer that is not good enough — and the interface has to say so without being vague about the margin. It is a real capture from the browser demo, which times a reference solution on your own machine moments earlier and applies the product's own arithmetic to whatever that machine reports — so the budget is honest about the hardware it was measured on, and the ratio is inflated for the reason the caption gives.",
+            "The third is the corpus gate. 695 problems is a count, not an outcome, and on its own it is exactly the kind of number this page should not lead with. What makes it evidence is the condition attached: a problem only becomes servable once its reference solution has passed its own test cases in all six languages under the real judge, and anything with a gap is written inactive. The failure mode that leaves is a missing problem, not a broken one.",
+            "And the honest floor under all of it: none of this has been verified on hardware by anybody but me, on one machine, and the automated tests that backed several of these claims no longer exist.",
           ],
         },
         {
+          kicker: "Limits and lessons",
           heading: "The boundary is wherever the signature is verified",
           standfirst:
-            "Everything on the far side of it is input I do not control.",
+            "Everything on the far side of it is input I do not control — and I did not learn that by reading about it.",
           body: [
-            "The lesson I actually took from this is small enough to write in one line. A check that runs on the client is a suggestion. It is worth having, because it makes the honest path fast and tells an honest user what went wrong, but it is not a boundary. The boundary is the place where a signature is verified, and everything on the other side of that place is input I have no authority over.",
-            "I did not learn that by reading it. I learned it by shipping a version that got it wrong and seeing how little effort it took to walk through. Reading about trust boundaries had never made the idea concrete, and one broken build did.",
-            "What I would do differently is start from the escape matrix instead of arriving at it. I wrote the enforcement first and the list of ways around it second, which is the wrong order. Had the matrix existed first, the reboot gap would have been a known limitation from the beginning rather than something I found later and had to write up after the fact.",
-            "The constraints are worth naming too, because they shaped the product more than any preference of mine did. A browser tab can always be closed, so the web app was never going to be a lock and is scoped to the marketing site and the demo instead. On iOS there is no public API that lets an application hold the device, so enforcement there is not a feature I have yet to build, it is a thing the platform does not permit. On Android the native module is written but has never been compiled and no build has been produced, which makes mobile enforcement an intention rather than a claim. The desktop shell is the only surface that enforces anything today, and saying that plainly costs me less than having someone find it out for themselves.",
+            "The lesson fits in a line. A check that runs on the client is a suggestion. It is worth having, because it makes the honest path fast and tells an honest user what went wrong, but it is not a boundary. The boundary is the place where a signature is verified, and everything on the other side of that place is input I have no authority over. Reading about trust boundaries had never made that concrete. One shipped version that got it wrong did.",
+            "What I would do differently is start from the escape ledger rather than arrive at it. I wrote the enforcement first and the list of ways around it second, which is the wrong order — had the ledger existed first, the reboot gap would have been a known limitation from the beginning instead of something found late and written up after the fact.",
+            "The most useful correction is about the tests. Removing the automated suite took the evidence for several of the claims above with it, and the ledger had to be reworded to match. That is the clearest thing this project has taught me about writing down what you have verified: a claim and the thing backing it have to move together, or the document quietly becomes marketing.",
+            "What remains unproven is short enough to list, which is the point of listing it. Most escape routes have never been exercised on hardware. A real reboot has never been sat through. Android has never been compiled, let alone run on a device. macOS and Linux are unverified throughout. Signing and auto-update have not been taken end to end. Nobody but me has used this.",
+            "The most relevant next step is not a feature. It is putting regression tests back around the unlock path — the token-to-session comparison, the speed-gate arithmetic, and the guarded state transitions — and adding the issuer check the verifier is currently missing. Those are precisely the paths where a silent defect is a bypass rather than a bug, and right now nothing is watching them.",
           ],
         },
       ],

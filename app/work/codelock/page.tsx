@@ -228,7 +228,7 @@ export default function CodelockCaseStudy() {
           ) : null}
 
           {/* ── The prose ────────────────────────────────────────────── */}
-          {study.sections.map((section, i) => (
+          {study.sections.map((section) => (
             <section
               key={section.heading}
               id={section.heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}
@@ -236,9 +236,28 @@ export default function CodelockCaseStudy() {
             >
               <div className="shell grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
                 <div className="lg:col-span-4">
-                  <h2 className="text-h3 font-medium text-text-muted lg:sticky lg:top-28">
-                    {section.heading}
-                  </h2>
+                  <div className="lg:sticky lg:top-28">
+                    {/*
+                      The wayfinding label. The headings on this page are
+                      sentences -- good to read, useless to skim -- so the
+                      kicker names the section's job in the argument while the
+                      heading keeps its voice.
+
+                      Deliberately not a heading element. It duplicates the
+                      section the h2 already names, so promoting it into the
+                      document outline would give a screen reader two entries
+                      for one section and make the outline worse, not better.
+                    */}
+                    {section.kicker ? (
+                      <p className="text-mono-sm mb-3 uppercase text-text-faint">
+                        {section.kicker}
+                      </p>
+                    ) : null}
+
+                    <h2 className="text-h3 font-medium text-text-muted">
+                      {section.heading}
+                    </h2>
+                  </div>
                 </div>
 
                 <div data-reveal-group className="lg:col-span-7 lg:col-start-6">
@@ -250,6 +269,42 @@ export default function CodelockCaseStudy() {
                   >
                     {section.standfirst}
                   </p>
+
+                  {/*
+                    Verified figures, set above the prose that interprets them.
+
+                    dl/dt/dd because each entry is a label and its value. The
+                    note lives inside the same dd rather than in a column of its
+                    own, and that placement is the point: it carries the
+                    denominator and the source, and a figure on a portfolio page
+                    that can be skimmed without them is exactly the failure this
+                    block exists to avoid.
+
+                    Mono on the value, per the type scale's own rule -- mono is
+                    for measurements, not for decoration.
+                  */}
+                  {section.results?.length ? (
+                    <dl
+                      data-reveal
+                      className="mb-12 grid grid-cols-1 gap-x-10 gap-y-8 border-y border-hairline py-9 sm:grid-cols-2"
+                    >
+                      {section.results.map((result) => (
+                        <div key={result.label}>
+                          <dt className="text-mono-sm uppercase text-text-faint">
+                            {result.label}
+                          </dt>
+                          <dd className="mt-2.5">
+                            <span className="block font-mono text-[clamp(1.75rem,3.4vw,2.5rem)] leading-[1.1] text-text">
+                              {result.value}
+                            </span>
+                            <span className="mt-2.5 block text-sm leading-[1.65] text-text-muted">
+                              {result.note}
+                            </span>
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : null}
 
                   {section.body.map((para) => (
                     <p
