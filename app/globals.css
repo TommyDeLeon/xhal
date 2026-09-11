@@ -2,9 +2,9 @@
 
 /*
   Dual mode. Tailwind utilities point at --color-*, which point at the mode
-  variables below. Light is defined on bare :root so it is the fallback that
-  always exists; dark is layered on via prefers-color-scheme, and an explicit
-  [data-theme] wins over both so the toggle works in either direction.
+  variables below. Light is defined on bare :root and is what a visitor gets by
+  default, chosen for readability; dark arrives only on request, either
+  [data-theme="dark"] or [data-theme="system"] with the OS itself set to dark.
 */
 @theme {
   --color-bg: var(--bg);
@@ -127,7 +127,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root[data-theme="system"] {
     color-scheme: dark;
     --bg: #0a0b0d;
     --bg-raised: #121418;
@@ -557,8 +557,9 @@
 
   The selected option is decided here rather than in React so it is correct at
   first paint: the inline script in layout.tsx writes data-theme before paint,
-  well before hydration. System is the absence of the attribute, which is also
-  what keeps prefers-color-scheme live without a listener.
+  well before hydration. No attribute means Light, the default; System is an
+  attribute value of its own, which is what keeps prefers-color-scheme live
+  without a listener.
 
   No display property on .theme-switch on purpose. The component takes that
   from its className so a caller can pass `hidden md:inline-flex` without
@@ -591,8 +592,9 @@
   color: var(--text);
 }
 
-:root:not([data-theme]) .theme-opt-system,
+:root:not([data-theme]) .theme-opt-light,
 :root[data-theme="light"] .theme-opt-light,
+:root[data-theme="system"] .theme-opt-system,
 :root[data-theme="dark"] .theme-opt-dark {
   background-color: var(--bg-raised);
   color: var(--accent);

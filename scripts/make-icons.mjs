@@ -10,14 +10,22 @@ const ACCENT = "#f5a524";
 const TEXT = "#edeef0";
 const MUTED = "#9ba1ac";
 
+/*
+  The mark is drawn in the light palette, because light is the site's default
+  mode. These are the light-mode --bg and --accent from globals.css. The Open
+  Graph card below keeps the dark palette, which is what a social card wants.
+*/
+const MARK_BG = "#fafafb";
+const MARK_ACCENT = "#a35700";
+
 /** Mark: three nodes on a segmented link. A network, cut into zones. */
 const mark = (size) => `
 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="${BG}"/>
-  <path d="M16 32 H48" stroke="${ACCENT}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 6"/>
-  <circle cx="16" cy="32" r="6" fill="${ACCENT}"/>
-  <circle cx="32" cy="32" r="4.5" fill="${BG}" stroke="${ACCENT}" stroke-width="3"/>
-  <circle cx="48" cy="32" r="6" fill="${ACCENT}"/>
+  <rect width="64" height="64" rx="14" fill="${MARK_BG}"/>
+  <path d="M16 32 H48" stroke="${MARK_ACCENT}" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 6"/>
+  <circle cx="16" cy="32" r="6" fill="${MARK_ACCENT}"/>
+  <circle cx="32" cy="32" r="4.5" fill="${MARK_BG}" stroke="${MARK_ACCENT}" stroke-width="3"/>
+  <circle cx="48" cy="32" r="6" fill="${MARK_ACCENT}"/>
 </svg>`;
 
 const og = `

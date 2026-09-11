@@ -23,7 +23,9 @@ function subscribe(onStoreChange: () => void) {
 
 function getSnapshot(): Mode {
   const value = document.documentElement.dataset.theme;
-  return value === "light" || value === "dark" ? value : "system";
+  return value === "light" || value === "dark" || value === "system"
+    ? value
+    : "light";
 }
 
 /**
@@ -33,21 +35,20 @@ function getSnapshot(): Mode {
  * reading matchMedia during render would.
  */
 function getServerSnapshot(): Mode {
-  return "system";
+  return "light";
 }
 
 function apply(next: Mode) {
   const root = document.documentElement;
 
-  // System is the ABSENCE of the attribute. That is what lets the
-  // prefers-color-scheme media query stay live, with no listener and no
-  // reload, when the OS setting changes.
-  if (next === "system") delete root.dataset.theme;
-  else root.dataset.theme = next;
+  // All three modes are explicit attribute values, because the absence of the
+  // attribute now means Light -- the default. System still tracks the OS with
+  // no listener and no reload: its palette lives inside the
+  // prefers-color-scheme block, keyed on [data-theme="system"].
+  root.dataset.theme = next;
 
   try {
-    if (next === "system") localStorage.removeItem("theme");
-    else localStorage.setItem("theme", next);
+    localStorage.setItem("theme", next);
   } catch {
     // Private mode can refuse storage. The choice still holds for this visit.
   }

@@ -127,7 +127,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html:
               "if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('js-motion');" +
-              "try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}",
+              "try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'||t==='system')document.documentElement.dataset.theme=t}catch(e){}",
           }}
         />
       </head>
