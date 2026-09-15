@@ -21,7 +21,7 @@ export const skillGroups: SkillGroup[] = [
     title: "Network fundamentals",
     status: "learning",
     blurb:
-      "The layer I am spending most of my time on. Working through how traffic is actually addressed, routed, and separated rather than memorising acronyms.",
+      "How data finds its way from one machine to another, and how networks are kept apart. Most of my study time goes here.",
     items: [
       "TCP/IP & the OSI model",
       "Subnetting and VLSM",
@@ -35,7 +35,7 @@ export const skillGroups: SkillGroup[] = [
     title: "Security foundations",
     status: "learning",
     blurb:
-      "Starting from the question of who is allowed to do what, and how a system proves the answer.",
+      "Who is allowed to do what, and how a system proves it.",
     items: [
       "Authentication and authorization",
       "TLS and certificates",
@@ -49,12 +49,13 @@ export const skillGroups: SkillGroup[] = [
     title: "Software I build with",
     status: "building",
     blurb:
-      "This column is not aspirational. Everything here is in CodeLock, which runs an API, a database, a sandboxed execution service, and a desktop shell.",
+      "Everything here was used to build and run CodeLock. Ask me anything about it.",
     items: [
       "TypeScript",
       "Node and Express",
       "React and Next.js",
       "Postgres and Prisma",
+      "Electron",
       "Docker",
       "Git",
     ],
@@ -64,7 +65,7 @@ export const skillGroups: SkillGroup[] = [
     title: "Tools I am working with",
     status: "learning",
     blurb:
-      "Learning to read what is on the wire instead of guessing from symptoms, and to run the equipment rather than only read about it.",
+      "Seeing what is really happening on a network, in a lab, instead of guessing.",
     items: [
       "Wireshark",
       "nmap",

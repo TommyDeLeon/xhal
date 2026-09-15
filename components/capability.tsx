@@ -16,18 +16,20 @@ const statusLabel = {
  * label buried inside a tile.
  */
 export default function Capability() {
+  // No counts in the sentence. It once said "two of these" while only one row
+  // was marked Building with; naming the labels instead stays true however
+  // the rows are split.
   return (
     <section id="capability" className="relative section-y overflow-hidden">
       <div className="shell">
         <h2 className="text-h2 max-w-[16ch] overflow-hidden pb-[0.2em] font-medium">
           <span data-head className="block">
-            Where I actually am
+            What I work with
           </span>
         </h2>
         <p className="text-body-lg mt-8 max-w-[58ch] text-text-muted">
-          Two of these I can be asked about in an interview today. Two I am still
-          working through. Each row says which, because I would rather you know
-          up front than find out halfway through a conversation.
+          The row marked Building with went into CodeLock. The rows marked
+          Training on are what I am studying now.
         </p>
 
         <div

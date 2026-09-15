@@ -279,6 +279,7 @@ export default function MotionLayer() {
     // survives when pinning and parallax are switched off.
     mm.add(MQ.motionOK, () => {
       const groups = gsap.utils.toArray<HTMLElement>("[data-reveal-group]");
+      const reveals: gsap.core.Tween[] = [];
 
       groups.forEach((group) => {
         const items = gsap.utils.toArray<HTMLElement>(
@@ -287,7 +288,7 @@ export default function MotionLayer() {
         );
         if (!items.length) return;
 
-        gsap.fromTo(
+        reveals.push(gsap.fromTo(
           items,
           { autoAlpha: 0, y: 28 },
           {
@@ -302,7 +303,7 @@ export default function MotionLayer() {
               once: true,
             },
           },
-        );
+        ));
       });
 
       // Standalone reveals that are not inside a group.
@@ -310,7 +311,7 @@ export default function MotionLayer() {
         "[data-reveal]:not([data-reveal-group] [data-reveal])",
       );
       loose.forEach((el) => {
-        gsap.fromTo(
+        reveals.push(gsap.fromTo(
           el,
           { autoAlpha: 0, y: 28 },
           {
@@ -320,8 +321,28 @@ export default function MotionLayer() {
             ease: EASE_OUT,
             scrollTrigger: { trigger: el, start: "top 85%", once: true },
           },
-        );
+        ));
       });
+
+      // Keyboard users get everything at once.
+      //
+      // A reveal target is visibility:hidden until its trigger scrolls into
+      // view, and a hidden element cannot take focus, so Tab skipped the case
+      // study link, the repo and demo buttons and every lightbox trigger until
+      // the reader had scrolled there by some other means. Tab is the earliest
+      // reliable sign that the page is being driven from the keyboard; on the
+      // first one, finish every reveal and drop its trigger. Mouse and touch
+      // readers never send it, so they keep the animation.
+      const finishReveals = (event: KeyboardEvent) => {
+        if (event.key !== "Tab") return;
+        window.removeEventListener("keydown", finishReveals);
+        reveals.forEach((tween) => {
+          tween.scrollTrigger?.kill();
+          tween.progress(1);
+        });
+      };
+      window.addEventListener("keydown", finishReveals);
+      return () => window.removeEventListener("keydown", finishReveals);
     });
 
     // Hero entrance. Reading order: name, then claim, then the action.

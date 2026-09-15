@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     template: `%s - ${site.name}`,
   },
   description:
-    "Tommy De Leon designs defensible networks and builds the software that runs on them. Segmentation, packet analysis, hardening, and production web engineering.",
+    "Tommy De Leon builds practical software end to end — TypeScript from the API to the desktop shell — and is training toward network and security engineering. Open to junior software roles and freelance web work.",
   applicationName: site.name,
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: `${site.name} - ${site.role}`,
     description:
-      "Network and security engineering, with the software depth to build what runs on the network.",
+      "Practical software, thoughtfully executed. Full-stack TypeScript, a case study that says what was checked and what was not, and a path into network and security engineering.",
     images: [
       {
         url: "/og.png",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${site.name} - ${site.role}`,
     description:
-      "Network and security engineering, with the software depth to build what runs on the network.",
+      "Practical software, thoughtfully executed. Full-stack TypeScript, a case study that says what was checked and what was not, and a path into network and security engineering.",
     images: ["/og.png"],
   },
   icons: {

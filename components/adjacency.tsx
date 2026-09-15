@@ -20,7 +20,7 @@ export default function Adjacency() {
       <div className="shell relative z-[2] [transform-style:preserve-3d]">
         <p className="text-display max-w-[18ch] font-semibold">
           <span data-pin-lead className="block">
-            I am learning to defend networks
+            I build the software that runs on networks
           </span>
 
           <span
@@ -30,7 +30,7 @@ export default function Adjacency() {
           />
 
           <span data-pin-tail className="block text-text-muted">
-            and I already build what runs on them.
+            and I am training to defend them.
           </span>
         </p>
 
@@ -38,10 +38,10 @@ export default function Adjacency() {
           data-pin-body
           className="text-body-lg mt-14 max-w-[54ch] text-text-muted"
         >
-          Those point at the same question. Reading a packet capture and writing
-          the service that produced it both come down to one thing: what does
-          this system do when someone hands it something it did not expect.
-          Studying one keeps teaching me where the other is weak.
+          Both face the same question: what happens when something unexpected
+          hits the system? Building software taught me where the checks have
+          to go. Studying networks is teaching me what those checks are up
+          against.
         </p>
       </div>
 

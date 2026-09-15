@@ -25,6 +25,9 @@ export default function Story() {
       >
         <div className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
+            {/* Heading first, so the section is named before the picture and
+                the display type does not sit orphaned under it. */}
+            <h2 className="text-h2 mb-8 font-medium">{story.heading}</h2>
             {/*
                 The 144px cap is gone.
 
@@ -39,7 +42,7 @@ export default function Story() {
                 it still reads as a plate rather than as a cut-out.
             */}
             {portrait ? (
-              <div data-reveal className="mb-8 max-w-[22rem]">
+              <div data-reveal className="max-w-[22rem]">
                 <picture>
                   <source srcSet="/images/tommy.avif" type="image/avif" />
                   <source srcSet="/images/tommy.webp" type="image/webp" />
@@ -57,8 +60,6 @@ export default function Story() {
                 </picture>
               </div>
             ) : null}
-
-            <h2 className="text-h2 font-medium">{story.heading}</h2>
           </div>
         </div>
 

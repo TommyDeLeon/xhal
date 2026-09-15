@@ -1,8 +1,9 @@
 # tommydeleon.com
 
-Personal site for Tommy De Leon, an Electronics Engineering student training
-toward network and security engineering. Two pages: a single-scroll home page,
-and a long-form case study for the CodeLock project.
+Personal site for Tommy De Leon: a software developer (junior, open to roles
+and freelance web work) and Electronics Engineering student training toward
+network and security engineering. Two pages: a single-scroll home page, and a
+long-form case study for the CodeLock project.
 
 Live at <https://tommydeleon.com>. Source at
 <https://github.com/TommyDeLeon/xhal>.
@@ -62,7 +63,7 @@ leaving it null hides the button.
 
 | File | Holds |
 |---|---|
-| `content/site.ts` | Name, positioning, email, socials, portrait, availability |
+| `content/site.ts` | Name, positioning, what he is seeking, email, socials, portrait, availability, optional resume link |
 | `content/projects.ts` | One object per project, plus the case-study body |
 | `content/skills.ts` | Capability groups and their grid spans |
 | `content/story.ts` | The about narrative. Empty means the section does not render |

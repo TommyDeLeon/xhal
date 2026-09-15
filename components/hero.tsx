@@ -20,7 +20,13 @@ export default function Hero() {
   // Split for the per-line mask reveal. The accessible sentence is rendered
   // separately below, because three masked spans would otherwise be announced
   // as one run-on string.
-  const lines = ["Networks, security,", "and the software", "between."];
+  //
+  // The headline leads with software because that is what the evidence on
+  // this page supports today -- a shipped, documented project -- and the deck
+  // under it carries the networks-and-security direction as fact rather than
+  // as the claim. "Practical" and "thoughtful" are the two adjectives the case
+  // study earns: working code, and the record of what it was verified to do.
+  const lines = ["Practical software.", "Thoughtful", "execution."];
 
   return (
     <section
@@ -72,7 +78,7 @@ export default function Hero() {
       >
         <h1 className="text-display">
           <span className="sr-only">
-            Networks, security, and the software between.
+            Practical software. Thoughtful execution.
           </span>
 
           <span aria-hidden>
@@ -86,20 +92,17 @@ export default function Hero() {
               // ink with room left, and scales with the clamped display size.
               <span key={line} className="block overflow-hidden pb-[0.2em]">
                 <span data-hero-line className="block">
-                  {line === "and the software" ? (
+                  {line === "Practical software." ? (
                     <>
-                      and the{" "}
+                      Practical{" "}
                       {/*
-                        The one accented word on the page.
-
-                        The headline is Tommy's own and leads with networks,
-                        which is what he wants said -- but software is what he
-                        wants emphasised. Colour resolves that without rewriting
-                        the sentence: the claim is unchanged, the weight moves.
+                        The one accented word on the page. Software is the
+                        thing being sold; the colour puts the weight there
+                        without a second sentence.
                       */}
-                      <span className="text-accent">software</span>
+                      <span className="text-accent">software.</span>
                     </>
-                  ) : line === "between." ? (
+                  ) : line === "execution." ? (
                     /*
                       The last line goes italic, and it is the one real
                       typographic risk on the page.
@@ -108,14 +111,14 @@ export default function Hero() {
                       separately drawn, far more calligraphic alphabet, and
                       setting one line of a three-line headline in it turns a
                       statement into a cadence. The sentence lands on the word
-                      that carries its meaning: the work is what sits BETWEEN
-                      the two disciplines, and the italic is what makes you hear
-                      the emphasis rather than just read it.
+                      that carries its meaning: execution is the claim the case
+                      study backs, and the italic is what makes you hear the
+                      emphasis rather than just read it.
 
                       Only the final line. Two italic lines would be a style;
                       one is a decision.
                     */
-                    <span className="italic">between.</span>
+                    <span className="italic">execution.</span>
                   ) : (
                     line
                   )}
@@ -187,15 +190,23 @@ export default function Hero() {
               {site.positioning}
             </p>
 
+            {/*
+              Two actions. The filled button is the one the site exists for --
+              hiring and client enquiries -- and the contact section splits
+              those two. The work is a text link beneath it, and it is also the
+              very next thing on the page, so it loses nothing by being quiet
+              here. A resume link appears only when site.resumeUrl is set;
+              there is no approved one yet.
+            */}
             <div
               data-hero-cta
-              className="flex items-start md:col-span-3 md:justify-start"
+              className="flex flex-wrap items-center gap-x-6 gap-y-3 md:col-span-3 md:flex-col md:items-start md:gap-y-4"
             >
               <Link
                 href="#contact"
                 className="group inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px active:translate-y-0"
               >
-                Start a project
+                Hire me or start a project
                 <ArrowRight
                   size={16}
                   weight="bold"
@@ -203,6 +214,22 @@ export default function Hero() {
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 />
               </Link>
+              <Link
+                href="#work"
+                className="inline-flex items-center gap-2 text-sm text-text underline decoration-hairline underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+              >
+                See the work
+              </Link>
+              {site.resumeUrl ? (
+                <a
+                  href={site.resumeUrl}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center gap-2 text-sm text-text underline decoration-hairline underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                >
+                  Resume (PDF)
+                </a>
+              ) : null}
             </div>
 
             {/*
@@ -221,7 +248,9 @@ export default function Hero() {
             */}
             <ul className="flex flex-col gap-2 text-sm md:col-span-3 md:items-end md:text-right">
               {site.availableForWork ? (
-                <li className="text-text-faint">Open to freelance</li>
+                <li className="max-w-[24ch] text-text-faint md:max-w-none">
+                  Open to junior roles and freelance
+                </li>
               ) : null}
               {site.socials.map((social) => (
                 <li key={social.label} className="text-text-faint">
