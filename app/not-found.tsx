@@ -1,38 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import { site } from "@/content/site";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
-export const metadata: Metadata = {
-  title: "Page not found",
-  description: "That page does not exist on tommydeleon.com.",
-  robots: { index: false, follow: true },
-};
-
-export default function NotFound() {
-  return (
-    <main
-      id="main"
-      className="flex min-h-[100dvh] items-center justify-center px-5"
-    >
-      <div className="w-full max-w-[52ch]">
-        <p className="text-mono-sm text-accent">404</p>
-        <h1 className="text-h2 mt-4 font-medium">
-          No route to that page.
-        </h1>
-        <p className="mt-5 leading-[1.7] text-text-muted">
-          The address resolved but nothing is listening on the other end. It was
-          probably a broken link or a typo in the path.
-        </p>
-
-        <Link
-          href="/"
-          className="mt-9 inline-flex items-center gap-2.5 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-on-accent transition-transform duration-200 hover:-translate-y-px"
-        >
-          <ArrowLeft size={16} weight="bold" aria-hidden />
-          Back to {site.wordmark}
-        </Link>
-      </div>
-    </main>
-  );
-}
+export const metadata: Metadata = { title: "Page not found", robots: { index: false, follow: true } };
+export default function NotFound() { return <><SiteHeader/><main id="main" className="wrap notfound"><h1>That page isn&apos;t here.</h1><p>It may have moved, or the address has a typo.</p><p><a className="button" href="/">Go to the home page</a></p></main><SiteFooter/></>; }
