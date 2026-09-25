@@ -1,131 +1,63 @@
 /**
- * Builds the published image set from the originals in assets/.
- *
- * Sources live outside public/ so this can never re-process its own output,
- * and so the uncompressed originals are not shipped to visitors.
- *
- * Static export means there is no image optimizer at request time, so this is
- * where compression happens.
- *
+ * Build the published portrait and film posters from originals in assets/.
+ * Static export has no image optimizer at request time.
  * Run with: npm run images
  */
 import sharp from "sharp";
-import { readdir, mkdir } from "node:fs/promises";
-import { extname, join, basename } from "node:path";
+import { mkdir, readdir } from "node:fs/promises";
+import { join, parse } from "node:path";
 
-const SRC = "assets";
-const OUT = "public/images";
-const SOURCE_EXT = new Set([".jpg", ".jpeg", ".png"]);
+const outputDir = "public/images";
+const posterSourceDir = "assets/posters";
+const posterOutputDir = join(outputDir, "posters");
 
-/** Widest a portrait is displayed, times two for high-density screens. */
-const MAX_WIDTH = 1200;
+// The portrait can render around 600px wide. Avoid enlarging an already
+// adequate source; only small sources benefit from a single resampling pass.
+const portraitInput = "assets/tommy.jpg";
+const portraitMeta = await sharp(portraitInput).metadata();
+const portraitSourceWidth = portraitMeta.width;
+if (!portraitSourceWidth) {
+  throw new Error(`${portraitInput} has no readable width`);
+}
+const portraitWidth = portraitSourceWidth < 800
+  ? Math.min(Math.round(portraitSourceWidth * 2.5), 1200)
+  : Math.min(portraitSourceWidth, 1200);
 
-/** Screenshots run full width of the card, so they get more pixels. */
-const SHOT_WIDTH = 1600;
+await mkdir(outputDir, { recursive: true });
+let portrait = sharp(portraitInput)
+  .rotate()
+  .resize({ width: portraitWidth, kernel: "lanczos3" });
+if (portraitWidth > portraitSourceWidth) {
+  portrait = portrait.sharpen({ sigma: 0.8, m1: 0.5, m2: 2 });
+}
+await portrait.clone().avif({ quality: 64 }).toFile(join(outputDir, "tommy.avif"));
+await portrait.clone().webp({ quality: 80 }).toFile(join(outputDir, "tommy.webp"));
+await portrait.clone().jpeg({ quality: 84, mozjpeg: true }).toFile(join(outputDir, "tommy.jpg"));
+console.log(`tommy.jpg -> tommy.{avif,webp,jpg} (${portraitWidth}px wide)`);
 
-/** How far a small source may be enlarged before it stops being worth it. */
-const UPSCALE_LIMIT = 2.5;
-
-/*
-  Above this, a portrait source is already big enough and is never enlarged.
-
-  The upscaling rule below was written for a 294px headshot, where the choice
-  was between resampling once with lanczos3 or letting the browser scale a tiny
-  bitmap at paint time — and resampling won. It was never meant to apply to a
-  source already comfortably larger than the box it renders into.
-
-  The portrait renders at roughly 600px wide at its largest, so anything from
-  about 800px up is already past 2x on a high-density screen. Enlarging such a
-  source to reach an arbitrary 1200px ceiling invents no detail, costs bytes on
-  every visit, and re-creates exactly the softness the resample exists to avoid.
-*/
-const UPSCALE_FLOOR = 800;
-
-/** Square marks that only ever render small. Kept lossless and left alone. */
-const MARKS = new Set(["codelock-icon"]);
-
-let files;
+let posterFiles;
 try {
-  files = await readdir(SRC);
-} catch {
-  console.log(`No ${SRC} directory. Nothing to do.`);
-  process.exit(0);
+  posterFiles = (await readdir(posterSourceDir, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".png"))
+    .map((entry) => entry.name)
+    .sort();
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+  posterFiles = [];
 }
 
-await mkdir(OUT, { recursive: true });
-
-const sources = files.filter((f) => SOURCE_EXT.has(extname(f).toLowerCase()));
-
-if (!sources.length) {
-  console.log(`No source images in ${SRC}/. Drop a .jpg or .png in and re-run.`);
-  process.exit(0);
-}
-
-for (const file of sources) {
-  const input = join(SRC, file);
-  const stem = basename(file, extname(file));
-  const meta = await sharp(input).metadata();
-
-  if (MARKS.has(stem)) {
-    const name = stem.replace(/-icon$/, "-mark");
-    await sharp(input)
-      .resize(128, 128, { kernel: "lanczos3" })
-      .png({ compressionLevel: 9 })
-      .toFile(join(OUT, `${name}.png`));
-    console.log(`${file} -> ${name}.png (128x128)`);
-    continue;
+if (posterFiles.length === 0) {
+  console.log(`No poster PNGs in ${posterSourceDir}/; skipping posters.`);
+} else {
+  await mkdir(posterOutputDir, { recursive: true });
+  for (const file of posterFiles) {
+    const stem = parse(file).name;
+    const input = join(posterSourceDir, file);
+    // Film frames are 16:9. Cover keeps the output exact if a source differs.
+    const poster = sharp(input).rotate().resize(1280, 720, { fit: "cover" });
+    await poster.clone().avif({ quality: 55 }).toFile(join(posterOutputDir, `${stem}.avif`));
+    await poster.clone().webp({ quality: 80 }).toFile(join(posterOutputDir, `${stem}.webp`));
+    await poster.clone().jpeg({ quality: 82, progressive: true }).toFile(join(posterOutputDir, `${stem}.jpg`));
+    console.log(`${file} -> posters/${stem}.{avif,webp,jpg} (1280x720)`);
   }
-
-  // Landscape sources are screenshots: wider target, higher JPEG quality
-  // because flat UI text shows compression artefacts far more than a photo,
-  // and never upscaled.
-  const isShot = (meta.width ?? 0) > (meta.height ?? 0);
-  const cap = isShot ? SHOT_WIDTH : MAX_WIDTH;
-  const source = meta.width ?? cap;
-
-  /*
-   * Small sources are enlarged up to UPSCALE_LIMIT. This adds no real detail,
-   * but resampling once with lanczos3 and sharpening the result beats letting
-   * the browser scale the bitmap at paint time, which is what produces the
-   * mushy look. Anything already large is only ever shrunk.
-   */
-  const width = isShot
-    ? Math.min(source, cap)
-    : source < UPSCALE_FLOOR
-      ? Math.min(Math.round(source * UPSCALE_LIMIT), cap)
-      : Math.min(source, cap);
-
-  let base = sharp(input)
-    .rotate()
-    .resize({ width, kernel: "lanczos3", withoutEnlargement: false });
-
-  if (width > source) {
-    base = base.sharpen({ sigma: 0.8, m1: 0.5, m2: 2 });
-  }
-
-  await base
-    .clone()
-    .avif({ quality: isShot ? 72 : 64 })
-    .toFile(join(OUT, `${stem}.avif`));
-  await base
-    .clone()
-    .webp({ quality: isShot ? 88 : 80 })
-    .toFile(join(OUT, `${stem}.webp`));
-  await base
-    .clone()
-    .jpeg({ quality: isShot ? 92 : 84, mozjpeg: true })
-    .toFile(join(OUT, `${stem}.jpg`));
-
-  const out = await sharp(join(OUT, `${stem}.avif`)).metadata();
-
-  console.log(`\n${file}`);
-  console.log(`  source     ${meta.width}x${meta.height}`);
-  console.log(`  published  ${out.width}x${out.height}${width > source ? " (upscaled)" : ""}`);
-  console.log(`  paste into content/site.ts:`);
-  console.log(`    portrait: {`);
-  console.log(`      src: "/images/${stem}.jpg",`);
-  console.log(`      alt: "Tommy De Leon",`);
-  console.log(`      width: ${out.width},`);
-  console.log(`      height: ${out.height},`);
-  console.log(`    },`);
 }
