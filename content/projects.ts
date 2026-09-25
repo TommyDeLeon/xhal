@@ -204,7 +204,7 @@ export const projects: Project[] = [
       poster: "/images/posters/tenant101",
       descriptions: "/films/tenant101/tenant101-descriptions.vtt",
       seconds: 24,
-      note: "Demo data. Recorded on a local test copy; typing and waits are sped up.",
+      note: "Demo data. Recorded on a local test copy. Green rings mark real taps; typing and waits are sped up.",
       summary:
         "On a phone, a tenant sees a unit's balance, reports a ₱16,500 transfer with its reference and receipt, and the app marks it as waiting for review. The balance does not change yet. The landlord approves it on their phone, and the tenant's balance drops from ₱81,675 to ₱65,175.",
       credits: "Music: “Inspired” by Kevin MacLeod (incompetech.com), CC BY 4.0. Click: Kenney, CC0.",

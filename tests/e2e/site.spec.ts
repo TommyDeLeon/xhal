@@ -74,7 +74,9 @@ test("projects reveal once as they scroll into view", async ({ page }) => {
   }
 });
 
-test("films make no media request before click and choose the viewport source", async ({ page, isMobile }) => {
+// Playwright's WebKit on Windows cannot observe or intercept <video> media
+// requests, so WebKit checks the same behaviour through the DOM instead.
+test("films make no media request before click and choose the viewport source", async ({ page, isMobile, browserName }) => {
   needsFilms("codelock");
   const filmRequests: string[] = [];
   page.on("request", (request) => {
@@ -91,7 +93,12 @@ test("films make no media request before click and choose the viewport source", 
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute("controls", "");
   await expect(video).toHaveAttribute("src", `/films/codelock/codelock-${isMobile ? "portrait" : "landscape"}-720.mp4`);
-  await expect.poll(() => filmRequests.some((url) => url.includes("/films/codelock/"))).toBe(true);
+  if (browserName === "webkit") {
+    // The real file loads after the click (the route above does not apply to WebKit media).
+    await expect.poll(() => video.evaluate((v) => (v as HTMLVideoElement).readyState)).toBeGreaterThan(0);
+  } else {
+    await expect.poll(() => filmRequests.some((url) => url.includes("/films/codelock/"))).toBe(true);
+  }
 });
 
 test("starting another film pauses the first player", async ({ page }) => {
@@ -113,11 +120,15 @@ test("starting another film pauses the first player", async ({ page }) => {
   await expect.poll(() => first.evaluate((video) => (video as HTMLVideoElement & { pauseCalls: number }).pauseCalls)).toBeGreaterThan(0);
 });
 
-test("a failed film restores its poster and explains the failure", async ({ page }) => {
+test("a failed film restores its poster and explains the failure", async ({ page, browserName }) => {
   needsFilms("codelock");
   await page.route("**/films/**", (route) => route.fulfill({ status: 404, body: "Not found" }));
   await page.goto("/");
   await page.locator("#codelock .film__play").click();
+  if (browserName === "webkit") {
+    // WebKit media ignores the route: break the source in the page instead.
+    await page.locator("#codelock video").evaluate((v) => { (v as HTMLVideoElement).src = "/films/missing-for-test.mp4"; });
+  }
   await expect(page.locator("#codelock video")).toHaveCount(0);
   await expect(page.locator("#codelock .film__play")).toHaveCount(1);
   await expect(page.locator("#codelock .film__poster")).toBeVisible();
@@ -179,9 +190,16 @@ test("home and stories have no horizontal overflow across supported widths", asy
   }
 });
 
-test("keyboard navigation starts at the skip link and reaches every published film button", async ({ page }) => {
+test("keyboard navigation starts at the skip link and reaches every published film button", async ({ page, browserName }) => {
   await page.goto("/");
-  await page.keyboard.press("Tab");
+  if (browserName === "webkit") {
+    // Safari tabs to links only when the user enables it, and Playwright's WebKit
+    // cannot emulate that setting; check the skip link works once it has focus.
+    await page.locator(".skip-link").focus();
+    await expect(page.locator(".skip-link")).toBeVisible();
+  } else {
+    await page.keyboard.press("Tab");
+  }
   await expect(page.locator(".skip-link")).toBeFocused();
   for (const slug of filmSlugs) {
     const button = page.locator(`#${slug} .film__play`);

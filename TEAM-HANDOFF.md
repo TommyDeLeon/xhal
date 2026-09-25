@@ -8,6 +8,16 @@ Updated 25 September 2026 (third cloud session: UI/UX revision). Project: **xhal
 - **Instructions:** `planning/rebuild-prompt.md`, `planning/brand-and-rebuild-plan.md`, `planning/app-film-briefs.md`, `.impeccable/surfaces/app-page-tsx.md` (design direction, revised), `brand/README.md` (revised), `README.md` (media and motion sections).
 - **Site status:** revision done and verified in Chromium. It **builds and deploys without any film**: CodeLock and Tenant101 each keep a reserved 16:9 "Film coming soon" slot with no play button. A film replaces its slot automatically once its files exist (README → Media).
 
+## Films attached (desktop session, 26 September 2026)
+
+- **CodeLock film: published.** A real session on the Windows desktop app, recorded against the disposable local server: a real pointer clicks "15m", the real countdown runs out, the kiosk lock takes the screen, a typed attempt gets "Wrong answer, 2/5 passed", the typed fix passes and the lock releases. The lock scenes fill the frame edge to edge; the film settles back into the ivory frame on release. Waits cut and typing sped up, both labelled. Evidence, assets and render steps: `D:/Cowork/codelock-film`.
+- **Tenant101 film: published.** The real payment flow recorded on a phone viewport of the disposable local copy (typed amount and reference, receipt, submit, landlord approval), with a two-phone "handoff" design and a camera that moves into each real field. ₱81,675 holds while pending, then ₱65,175 after approval. Green rings mark real taps. `D:/Cowork/tenant101-film`.
+- **Mimir film: paused by the owner.** Mimir still shows its real screenshot. Details in `D:/Cowork/mimir-film/README.md` (Status).
+- **Site copy changed to match the footage:** CodeLock's film note, summary and credits; Tenant101's note and credits; Mimir's limits sentence. The test counts are verified: CodeLock API 420 and desktop 46 (`npm test` at `b63d53e`); Mimir backend 234 (`pytest` at `b3aebc5`). "26 September 2026" in Mimir's text is correct (today).
+- **Tests made engine-aware:** Playwright's WebKit on Windows cannot observe or intercept `<video>` requests, and cannot emulate Safari's "Tab to links" setting. WebKit now checks the same behaviour through the DOM.
+- **Checks:** `npx tsc --noEmit`, `npm run lint`, `npm run build`, `git diff --check` pass. `npm run test:e2e`: 48/48 pass in chromium-desktop, chromium-mobile, webkit-desktop and webkit-mobile. The CodeLock film played in the served static export (1280x720, readyState 4, time advancing).
+- **Found while filming (product bugs, not fixed here):** CodeLock briefly shows "The shell did not take the screen. Open it manually." for about 1.5 s before the kiosk takes over. Mimir's spoken replies read URLs character by character.
+
 ## This revision (owner feedback: messy drop caps, too long, generic, not alive)
 
 - **Typography:** drop caps and heavy 6px rules removed. Smaller name (one line on phones), a Source Serif 4 italic tagline, and hairline dividers.
@@ -56,10 +66,10 @@ The one-third target was not reached. The remaining length is mostly the story t
 ## Open issues, in order
 
 1. **Tenant101 phone captures:** add the three PNGs (above). Check that they show demo data only.
-2. **Films:** when finished, add the files listed in `README.md` → Media. Check each film's `note`, `summary` and `credits` in `content/projects.ts` against the actual film.
-3. **Claims to recheck:** CodeLock "420 API tests" (the source has 221 declarations; parameterised tests may explain the gap). Mimir "234 passing tests", and its "checked live on 26 September 2026" date, which is later than this session's date and may be a typo.
+2. **Mimir film:** paused; see `D:/Cowork/mimir-film/README.md`.
+3. **Claims:** rechecked on 26 September 2026 (see above).
 4. **Tenant101 `d121122` isn't on GitHub** (latest there is `00e4bdf`).
-5. **WebKit/Safari not run here.** Run `npm run test:e2e` on the desktop, including WebKit, especially after films are added.
+5. **Real Safari and a real phone** are still untested (Playwright WebKit on Windows passed).
 6. **Not yet done:** 200% text and 400% zoom by hand; real-device touch check; a Lighthouse run on the deployed preview.
 
 ## Next steps on the desktop

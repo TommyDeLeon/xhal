@@ -1,0 +1,25 @@
+WEBVTT
+
+00:00.000 --> 00:02.500
+The CodeLock dashboard on Windows. A pointer clicks "15m" and a real countdown starts at 15:00. Caption: Earn your next break.
+
+00:02.500 --> 00:04.667
+Fifteen minutes later, labelled on screen. The countdown shows its last seconds, 0:03 to 0:01.
+
+00:04.667 --> 00:06.500
+The lock takes over the whole screen and the film fills the frame. The problem is Two Sum. Caption: Meet CodeLock.
+
+00:06.500 --> 00:09.000
+A first attempt is typed into the editor, sped up six times. Caption: Solve it. Then test it.
+
+00:09.000 --> 00:13.500
+The pointer clicks Submit. The real verdict: Wrong answer, 2 of 5 tests passed. The screen stays locked.
+
+00:13.500 --> 00:17.500
+A fix is typed, sped up six times, and submitted. The tests run. Caption: Fix it. Try again.
+
+00:17.500 --> 00:20.000
+The lock lets go and the film settles back into its frame. The app says: You solved Two Sum without a hint. Caption: All tests pass. Unlocked.
+
+00:20.000 --> 00:24.000
+CodeLock, tommydeleon.com. Solo project, Windows desktop app, not released.
