@@ -70,7 +70,7 @@ Run `python brand/build-mark.py` from the repository root (needs `pip install sh
 
 Run `npm run icons` from the repository root. It writes the SVG masters, transparent PNG exports, favicon and app icons, and `public/og.png`. The social card is 1200×630, with the site name, line, role, and URL. The generator needs the local WOFF2 files in `brand/fonts/`, Sharp, and Playwright's Chromium. It fails with a clear error if Chromium cannot launch; regenerate the assets in an environment where it can.
 
-The favicon, app icons and `public/icon.svg` use the **reverse lion** (ivory on a green square), so the tab icon stands out on light and dark browser themes. Their URLs carry a `?v=` tag in `app/layout.tsx` and `public/site.webmanifest`. Change that tag whenever the icons change: browsers cache favicons by URL, often for weeks.
+The **tab icon** (`public/icon.svg`, `favicon.ico`, `icon-32.png`) is the lion alone on a transparent background, edge to edge so it stays legible at 16px. The SVG follows the browser's theme: green on light tab bars, white on dark ones. **Home-screen icons** (`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) need a solid tile, so they use the reverse lion on green. Their URLs carry a `?v=` tag in `app/layout.tsx` and `public/site.webmanifest`. Change that tag whenever the icons change: browsers cache favicons by URL, often for weeks.
 
 ## Video framing
 

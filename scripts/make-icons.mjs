@@ -56,21 +56,27 @@ for (const [name, svg] of [
   ["wordmark.svg", wordmark],
   ["lockup.svg", lockup],
 ]) await writeFile(path.join("brand", name), svg);
-// Site icons use the reverse lion: ivory on a green square, matching
-// brand/monogram-reverse.svg, so the tab icon stands out on any browser theme.
+// Tab icon: the lion itself on a transparent background, edge to edge so it
+// is as large as possible at 16px. The SVG follows the browser's theme: green
+// on light tab bars, white on dark ones. Home-screen icons (apple-touch, the
+// manifest icons) need a solid tile, so they keep the reverse lion on green.
+const tabIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <style>path{fill:${green}}@media (prefers-color-scheme:dark){path{fill:#FFFFFF}}</style>
+  <path fill-rule="evenodd" d="${markPath}"/>
+</svg>`;
+await writeFile("public/icon.svg", tabIcon);
+const tabRaster = mark(green, "", "0 0 64 64");
 const appMark = mark(ivory, green, "-8 -8 80 80");
-await writeFile("public/icon.svg", appMark);
-
-for (const [file, size] of [
-  ["icon-32.png", 32],
-  ["icon-192.png", 192],
-  ["icon-512.png", 512],
-  ["apple-touch-icon.png", 180],
+for (const [file, size, source] of [
+  ["icon-32.png", 32, tabRaster],
+  ["icon-192.png", 192, appMark],
+  ["icon-512.png", 512, appMark],
+  ["apple-touch-icon.png", 180, appMark],
 ]) {
-  await writeFile(path.join("public", file), await sharp(Buffer.from(appMark)).resize(size, size).png().toBuffer());
+  await writeFile(path.join("public", file), await sharp(Buffer.from(source)).resize(size, size).png().toBuffer());
 }
 // Legacy favicon consumers accept a 32px PNG payload under the .ico name.
-await writeFile("public/favicon.ico", await sharp(Buffer.from(appMark)).resize(32, 32).png().toBuffer());
+await writeFile("public/favicon.ico", await sharp(Buffer.from(tabRaster)).resize(32, 32).png().toBuffer());
 
 const fontCss = `
 @font-face{font-family:Serif;src:url('${pathToFileURL(serifFile).href}') format('woff2');font-weight:200 900}
