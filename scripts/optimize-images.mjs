@@ -4,7 +4,7 @@
  * Run with: npm run images
  */
 import sharp from "sharp";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { join, parse } from "node:path";
 
 const outputDir = "public/images";
@@ -60,4 +60,42 @@ if (posterFiles.length === 0) {
     await poster.clone().jpeg({ quality: 82, progressive: true }).toFile(join(posterOutputDir, `${stem}.jpg`));
     console.log(`${file} -> posters/${stem}.{avif,webp,jpg} (1280x720)`);
   }
+}
+
+// Product captures: assets/work/<name>.{png,jpg} -> public/images/work/<name>-<w>.{avif,webp,jpg}
+// at a large width and half of it. Landscape captures publish at up to 1440px,
+// phone captures at up to 720px. Real sizes go to a manifest the pages read,
+// so each image reserves exactly its own space.
+const workSourceDir = "assets/work";
+const workOutputDir = join(outputDir, "work");
+let workFiles = [];
+try {
+  workFiles = (await readdir(workSourceDir, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && /\.(png|jpe?g)$/i.test(entry.name))
+    .map((entry) => entry.name)
+    .sort();
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
+}
+if (workFiles.length > 0) {
+  await mkdir(workOutputDir, { recursive: true });
+  const manifest = {};
+  for (const file of workFiles) {
+    const stem = parse(file).name;
+    const input = join(workSourceDir, file);
+    const meta = await sharp(input).rotate().metadata();
+    const phone = meta.height > meta.width;
+    const large = Math.min(meta.width, phone ? 720 : 1440);
+    let largeHeight = 0;
+    for (const width of [large, Math.round(large / 2)]) {
+      const image = sharp(input).rotate().resize({ width, kernel: "lanczos3" });
+      await image.clone().avif({ quality: 58 }).toFile(join(workOutputDir, `${stem}-${width}.avif`));
+      await image.clone().webp({ quality: 80 }).toFile(join(workOutputDir, `${stem}-${width}.webp`));
+      const info = await image.clone().jpeg({ quality: 82, progressive: true, mozjpeg: true }).toFile(join(workOutputDir, `${stem}-${width}.jpg`));
+      if (width === large) largeHeight = info.height;
+    }
+    manifest[`/images/work/${stem}`] = { width: large, height: largeHeight };
+    console.log(`${file} -> work/${stem}-{${large},${Math.round(large / 2)}}.{avif,webp,jpg}`);
+  }
+  await writeFile("content/work-images.json", `${JSON.stringify(manifest, null, 2)}\n`);
 }

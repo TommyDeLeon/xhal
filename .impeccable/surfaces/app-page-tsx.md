@@ -9,14 +9,16 @@ Scope: home (`/`) plus project stories (`/work/<slug>/`). Visitor mode: Experien
 
 ## Direction contract
 
-THESIS: The site is one issue of a magazine identity program: masthead, strict grid, three features each opened by a drop initial under a heavy rule. It refuses the hero-plus-project-card-grid portfolio.
+Revised 25 September 2026 after owner feedback. The drop initials looked messy, the pages ran too long, and the site felt plain and static.
 
-OWN-WORLD: Ivory stock #F8F7F2, ink #1D2924; deep green #174C3C is the issue's only spot colour, on heavy 6px rules, drop initials and links. Source Serif 4 for masthead, initials and feature titles; Geist for text and labels. Real posters are the only full-bleed art. No cards, shadows, gradients or icon tiles. A small td mark appears once per view as a found landmark.
+THESIS: A compact, curated collection. The products carry the page: real captures dealt onto the opening, one lead feature, and a staggered pair. It refuses both the card-grid portfolio and the long magazine scroll.
 
-STORY: Know who Tommy is in one line, meet CodeLock at the fold, read each feature's purpose, credit and status, watch its film, reach About with résumé, then email.
+OWN-WORLD: Ivory stock #F8F7F2, ink #1D2924, deep green #174C3C as the only accent. Source Serif 4 for the name, titles and one italic line; Geist for reading and controls. Separation by hairlines and space, depth by soft green-tinted shadows. No drop initials, heavy rules, icon tiles or decorative particles.
 
-FIRST VIEWPORT: Phone 390: small nav row; "Tommy De Leon" masthead full measure; line and one sentence; green "Explore my work"; heavy rule; 01 CodeLock drop initial by the fold. Desktop: masthead across 12 columns, intro in 5, CodeLock poster in 7. Signature: poster becomes its player in place with one cross-fade.
+STORY: Know who Tommy is in one line, and see all three products at once. Meet CodeLock at the fold, and read each project's purpose, part and status. Open a story for contribution and limits first, with engineering notes on request. Then About with résumé, and email.
 
-FORM: Magazine identity program (brand-identity-canon-art-paul-magazine-program), challenger chosen from bolder re-roll 1; seed 7c2e89f5.
+FIRST VIEWPORT: Phone 390: nav row, role, name on one line, italic line, one sentence, "Explore my work", then the dealt collection. Desktop: copy in 5 columns, collection in 7, with CodeLock's frame showing at the fold.
 
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+MOTION: The opening deal, then one meaningful reveal per project (lock lifts, Mimir slides in beside the work, payment goes from reported to approved), crisp link and button feedback, and pointer depth on the hero for mouse users only. Everything is visible without script, and at rest under reduced motion.
+
+FINISH: Checked with before/after page heights, walkthrough recordings and the Playwright suite; see TEAM-HANDOFF.md.

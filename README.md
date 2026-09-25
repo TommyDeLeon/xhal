@@ -11,11 +11,14 @@ Next.js 16 App Router, React 19, TypeScript, Tailwind CSS 4 import, and semantic
 | `app/layout.tsx` | Fonts, metadata, light browser color scheme, skip link |
 | `app/page.tsx` | Home page sections, rendered from committed content |
 | `app/work/[slug]/page.tsx` | All three static project stories and page metadata |
-| `app/globals.css` | Light palette and semantic page styles |
+| `app/globals.css` | Light palette, layout and the motion system (documented at the top of the file) |
 | `components/site-header.tsx`, `site-footer.tsx`, `monogram.tsx` | Shared server-rendered site chrome |
-| `components/film.tsx` | Only client component; loads a video after a play click |
+| `components/work-media.tsx`, `shot.tsx`, `payment-flow.tsx` | Project media: film, reserved film slot, real captures, Tenant101 illustration |
+| `lib/media.ts` | Build-time check of which films and captures are published |
+| `components/film.tsx` | Client component; loads a video only after a play click |
+| `components/motion.tsx` | Client component; scroll reveals and hero depth, progressive only |
 | `app/sitemap.ts`, `app/robots.ts`, `app/not-found.tsx` | Static discovery and error pages |
-| `scripts/check-assets.mjs` | Checks referenced images, film files, and descriptions before `npm run build` |
+| `scripts/check-assets.mjs` | Checks published images and that each film is complete or absent, before `npm run build` |
 
 ### Editing content
 
@@ -41,13 +44,32 @@ npm run dev
 | `npm run lint` | ESLint |
 | `node scripts/check-assets.mjs` | List missing publication assets |
 | `npm run build` | Asset check, then static export to `out/` |
-| `npx next build` | Static export without the prebuild asset check, useful while film media is pending |
+| `npm run images` | Rebuild posters, product captures and the portrait from `assets/` |
 
-The posters, film encodes, and WebVTT description tracks under `public/images/posters/` and `public/films/` are still pending. `npm run build` will fail until they arrive. No placeholder media should be published. The visible film summary and note remain readable without JavaScript; the video loads only after a visitor clicks Play film.
+The site builds today without any film. Film tests skip themselves until film files are published.
 
-### Film media
+### Media
 
-The films and their poster frames come from the three film repositories: `codelock-film`, `tenant101-film`, and `mimir-film`. Export a 1920x1080 still from each film as `assets/posters/<slug>.png` (using the matching project slug), then run `npm run images`. The script writes 1280x720 AVIF, WebP, and JPEG posters to `public/images/posters/` and also refreshes the portrait from `assets/tommy.jpg`. Publish the film encodes and WebVTT description tracks separately under `public/films/`.
+**Captures.** Real product screenshots live in `assets/work/` (PNG or JPEG). `npm run images` writes AVIF, WebP and JPEG at two widths to `public/images/work/` and records their sizes in `content/work-images.json`. Landscape captures publish at up to 1440px wide, phone captures at up to 720px. CodeLock's captures come from its public repository (`codelock-marketing/public/images`, made by its `scripts/capture-surfaces.mjs` from the running app). Mimir's is a real screenshot.
+
+**Tenant101 phone screens.** `content/projects.ts` lists three optional captures: `tenant101-home`, `tenant101-overview` and `tenant101-support`. Add them to `assets/work/` as PNGs, then run `npm run images`, and they appear automatically. Until then Tenant101 shows a labelled illustration of its payment flow, never presented as a screenshot.
+
+**Films.** CodeLock and Tenant101 each have a reserved 16:9 "Film coming soon" slot with no play button. A film replaces its slot automatically once all of these exist:
+
+- `public/films/<slug>/<slug>-landscape-720.mp4`
+- `public/films/<slug>/<slug>-portrait-720.mp4`
+- `public/films/<slug>/<slug>-descriptions.vtt`
+- a 1920x1080 still from the film, saved as `assets/posters/<slug>.png` (then run `npm run images` to write `public/images/posters/<slug>.{avif,webp,jpg}`)
+
+A partly copied film fails `npm run build`. Check the film's `note`, `summary` and `credits` in `content/projects.ts` against the finished film before publishing.
+
+### Motion
+
+- **Opening:** the name rises, then the three projects are dealt onto the page and Tenant101's balance settles. This takes about 2 seconds and never blocks reading or controls.
+- **Reveals:** each project enters in its own way. CodeLock's green cover lifts off, like the lock releasing. Mimir's window slides in beside the notebook. Tenant101's payment goes from reported to approved.
+- **Feedback:** links sweep, arrows nudge, buttons press, and posters hand over to their player.
+- **Only with a mouse:** the hero cards follow the pointer by a few pixels, and frames lift on hover.
+- **Robustness:** all content is visible in the HTML. Reveals start only after `components/motion.tsx` runs, via the `motion` class on `<html>`. With reduced motion, nothing moves and that class is never added.
 
 There is no `next start` script because this is a static export. Serve `out/` with a static file host to inspect the production output. Build-time fonts are self-hosted by Next.js.
 

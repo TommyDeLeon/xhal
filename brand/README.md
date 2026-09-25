@@ -54,13 +54,13 @@ Ratios use WCAG 2.x sRGB relative luminance; run `node brand/contrast.mjs` to re
 
 ## Typography
 
-**Geist** serves body text and controls: 17px on phones, 18px on larger screens, line-height 1.6, and about 38rem maximum reading measure. **Source Serif 4** serves the masthead, drop initials, and titles; use weight 600 and negative tracking for display text.
+**Geist** serves body text and controls: 17px on phones, 18px on larger screens, line-height 1.6, and about 38rem maximum reading measure. **Source Serif 4** serves the name, section and project titles (weight 600, slight negative tracking), and in italic the one-line tagline. No drop initials: display type is used sparingly.
 
-The site scale in `app/globals.css`: masthead `clamp(3rem, 12.4vw, 9.25rem)` at 0.92 line-height and −0.035em tracking; section titles `clamp(2rem, 5.5vw, 3.25rem)` at −0.02em; feature titles `clamp(2.25rem, 7vw, 4rem)` at −0.03em; story headings `clamp(1.5rem, 3.6vw, 2rem)`; drop text `clamp(1.1875rem, 2.4vw, 1.375rem)`.
+The site scale in `app/globals.css`: name `clamp(2.75rem, 8vw, 5.25rem)` at −0.03em; project page titles `clamp(2.5rem, 6.5vw, 4.25rem)`; section and feature titles `clamp(1.75rem, 3.4vw, 2.375rem)`; story headings `clamp(1.375rem, 2.4vw, 1.625rem)`. Sections are separated by 1px hairlines (`--rule`), not heavy rules.
 
 ## Imagery and motion
 
-Use the real portrait and real product captures only. Keep each product's own colours in footage; never recolour screenshots. Label synthetic demo data. For new motion, use 150–250ms for control feedback and 300–500ms for entrances. Keep one scroll-driven plate unmask and honour reduced motion. No scroll hijacking, custom cursor, particles, or looping background video.
+Use the real portrait and real product captures only. Keep each product's own colours in footage; never recolour screenshots. Label synthetic demo data. Motion has a beginning and an end: one opening sequence (about 2s) and one reveal per section when it first enters view, each with its own meaning (see the Motion notes in `README.md`). Controls respond in 150–300ms. Reveals depend on script and never on browser-only scroll-timeline features, and reduced motion shows everything at rest. No scroll hijacking, custom cursor, particles, or looping background video.
 
 ## Favicon and social preview
 

@@ -59,8 +59,8 @@ export function Film({
   }, [fail]);
 
   return (
-    <figure className="film">
-      <div className="film__frame" data-orientation={portrait ? "portrait" : "landscape"}>
+    <figure className="film media">
+      <div className={`film__frame${source ? " film__frame--live" : ""}`} data-orientation={portrait ? "portrait" : "landscape"}>
         <picture>
           <source type="image/avif" srcSet={`${film.poster}.avif`} />
           <source type="image/webp" srcSet={`${film.poster}.webp`} />
@@ -105,7 +105,7 @@ export function Film({
           </button>
         )}
       </div>
-      <figcaption className="film__note">{film.note}</figcaption>
+      <figcaption className="media-note">{film.note}</figcaption>
       {failed && <p className="film__error" role="status">The film couldn&apos;t load. {failureHint}</p>}
     </figure>
   );

@@ -1,8 +1,15 @@
+import { existsSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 
 const slugs = ["codelock", "tenant101", "mimir"] as const;
-// Projects with a finished film. Mimir shows a real still until its film is ready.
-const filmSlugs = ["codelock", "tenant101"] as const;
+// Projects that will have a film. A film appears only once its files are
+// published; until then its slot says "Film coming soon" and has no play control.
+const plannedFilms = ["codelock", "tenant101"] as const;
+const published = (slug: string) => existsSync(`out/films/${slug}/${slug}-landscape-720.mp4`);
+const filmSlugs = plannedFilms.filter(published);
+const pendingSlugs = plannedFilms.filter((slug) => !published(slug));
+const needsFilms = (...needed: string[]) =>
+  test.skip(!needed.every(published), `Needs published films: ${needed.join(", ")}`);
 
 test("navigation and feature links point to rendered sections and stories", async ({ page }) => {
   await page.goto("/");
@@ -18,12 +25,57 @@ test("navigation and feature links point to rendered sections and stories", asyn
     const feature = features.filter({ has: page.locator(`#${slug}-title`) });
     await expect(feature).toHaveCount(1);
     await expect(feature.locator(".film__play")).toHaveCount((filmSlugs as readonly string[]).includes(slug) ? 1 : 0);
-    await expect(feature.locator(".film__poster")).toHaveCount(1);
+    await expect(feature.locator(".media__frame, .film__frame")).toHaveCount(1);
     await expect(feature.locator(`a[href="/work/${slug}/"]`)).toHaveCount(1);
   }
 });
 
+test("a film not yet published keeps its slot, says so, and offers no play control", async ({ page }) => {
+  await page.goto("/");
+  for (const slug of pendingSlugs) {
+    const slot = page.locator(`#${slug} .media__frame--slot`);
+    await expect(slot).toHaveCount(1);
+    await expect(slot).toContainText("Film coming soon");
+    await expect(page.locator(`#${slug} .film__play`)).toHaveCount(0);
+    const box = await slot.boundingBox();
+    expect(box && box.width > 0 && box.height > 0).toBe(true);
+  }
+  // Every shown image has loaded: no empty frames.
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 400) {
+      window.scrollTo(0, y);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  });
+  await expect.poll(() => page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLImageElement>("main img")).filter((img) => !img.complete || img.naturalWidth === 0).length,
+  )).toBe(0);
+});
+
+test("without JavaScript every section and project is visible", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/");
+  for (const slug of slugs) {
+    await expect(page.locator(`#${slug} .feature__title`)).toBeVisible();
+    await expect(page.locator(`#${slug} .feature__body > *`).first()).toHaveCSS("opacity", "1");
+  }
+  await expect(page.locator(".about__text p").first()).toHaveCSS("opacity", "1");
+  await context.close();
+});
+
+test("projects reveal once as they scroll into view", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/\bmotion\b/);
+  for (const id of [...slugs, "about", "contact"]) {
+    const section = page.locator(`#${id}`);
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toHaveClass(/\bis-in\b/);
+  }
+});
+
 test("films make no media request before click and choose the viewport source", async ({ page, isMobile }) => {
+  needsFilms("codelock");
   const filmRequests: string[] = [];
   page.on("request", (request) => {
     if (new URL(request.url()).pathname.startsWith("/films/")) filmRequests.push(request.url());
@@ -43,6 +95,7 @@ test("films make no media request before click and choose the viewport source", 
 });
 
 test("starting another film pauses the first player", async ({ page }) => {
+  needsFilms("codelock", "tenant101");
   await page.route("**/films/**", () => new Promise<void>(() => {}));
   await page.goto("/");
   await page.locator("#codelock .film__play").click();
@@ -61,6 +114,7 @@ test("starting another film pauses the first player", async ({ page }) => {
 });
 
 test("a failed film restores its poster and explains the failure", async ({ page }) => {
+  needsFilms("codelock");
   await page.route("**/films/**", (route) => route.fulfill({ status: 404, body: "Not found" }));
   await page.goto("/");
   await page.locator("#codelock .film__play").click();
@@ -105,10 +159,13 @@ test("saved dark preference does not change the light design", async ({ page }) 
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(248, 247, 242)");
 });
 
-test("reduced motion keeps the masthead visible", async ({ page }) => {
+test("reduced motion shows everything at rest and adds no motion hooks", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator(".masthead__name")).toHaveCSS("opacity", "1");
+  await expect(page.locator(".hero__name")).toHaveCSS("opacity", "1");
+  await expect(page.locator("html")).not.toHaveClass(/\bmotion\b/);
+  await page.locator("#mimir").scrollIntoViewIfNeeded();
+  await expect(page.locator("#mimir .feature__body > *").first()).toHaveCSS("opacity", "1");
 });
 
 test("home and stories have no horizontal overflow across supported widths", async ({ page }) => {
@@ -122,7 +179,7 @@ test("home and stories have no horizontal overflow across supported widths", asy
   }
 });
 
-test("keyboard navigation starts at the skip link and reaches every film button", async ({ page }) => {
+test("keyboard navigation starts at the skip link and reaches every published film button", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");
   await expect(page.locator(".skip-link")).toBeFocused();
