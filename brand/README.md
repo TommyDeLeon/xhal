@@ -32,8 +32,10 @@ Avoid **revolutionary, seamless, enterprise-grade, game-changing**. Place limits
 ## Logo system
 
 - `wordmark.svg`: full name, best when space allows.
-- `monogram.svg`: compact mark for icons and small placements. `monogram-ink.svg` and `monogram-reverse.svg` are approved variants.
-- `lockup.svg`: green monogram followed by ink wordmark.
+- `monogram.svg`: **the lion mark**, for icons and small placements. `monogram-ink.svg` and `monogram-reverse.svg` are approved variants.
+- `lockup.svg`: green lion mark followed by ink wordmark.
+
+**The lion mark.** De Leon means "of the lion". The mark is a lion's head, drawn calm and watchful rather than roaring: steady and considered, the way the work is built, tested and improved. A broad face with a level brow, a wide nose and a split muzzle sits inside a mane of seven flat planes, cut like a gem, which gives it a precise, engineered feel. It is one colour and reads as a lion-shaped badge down to 16px. Use it as drawn: don't add a roar, teeth or a crown, don't round the planes, and don't fill the gaps.
 
 Keep clear space on every side equal to at least **25% of the mark height**. Minimum display sizes: monogram **16px**, wordmark **120px wide**. Do not recolour off palette, add effects, stretch, or place on busy photos. The reverse mark belongs on its green square.
 
@@ -64,13 +66,13 @@ Use the real portrait and real product captures only. Keep each product's own co
 
 ## Favicon and social preview
 
-Run `python brand/build-monogram.py` from the repository root to rebuild the Source Serif 4 mark path at weight 600 and optical size 20. Copy the resulting path from `brand/monogram.path.txt` into `components/monogram.tsx` before exporting assets. The smaller optical size keeps the serifs and hairlines sturdy at 16px.
+Run `python brand/build-mark.py` from the repository root (needs `pip install shapely`, a build-time tool only) to rebuild the lion path on its 64-unit grid. Copy the path from `brand/mark.path.txt` into `components/monogram.tsx`, then run `npm run icons`. If the pinned Playwright browser is missing, point it at another Chromium with `CHROMIUM_PATH=/path/to/chrome npm run icons`.
 
 Run `npm run icons` from the repository root. It writes the SVG masters, transparent PNG exports, favicon and app icons, and `public/og.png`. The social card is 1200×630, with the site name, line, role, and URL. The generator needs the local WOFF2 files in `brand/fonts/`, Sharp, and Playwright's Chromium. It fails with a clear error if Chromium cannot launch; regenerate the assets in an environment where it can.
 
 ## Video framing
 
-Make 1920×1080 and 1080×1920 masters at 30fps. Use an ivory frame with a green 6px rule, Source Serif 4 titles, and Geist labels. Keep on-screen text to 3–7 words. Hold labels at least 0.8s and sentences for 0.3s per word with a 1.2s minimum. Keep product UI in its real palette inside a plain frame. End with “{Product} · tommydeleon.com” and the monogram. Put “Demo data” and staging labels in Geist 600 on a `#E8EFE6` chip.
+Make 1920×1080 and 1080×1920 masters at 30fps. Use an ivory frame with a 1px hairline, Source Serif 4 titles, and Geist labels. Keep on-screen text to 3–7 words. Hold labels at least 0.8s and sentences for 0.3s per word with a 1.2s minimum. Keep product UI in its real palette inside a plain frame. End with “{Product} · tommydeleon.com” and the lion mark. Put “Demo data” and staging labels in Geist 600 on a `#E8EFE6` chip.
 
 ## Licences
 

@@ -19,6 +19,12 @@ Updated 25 September 2026 (third cloud session: UI/UX revision). Project: **xhal
 - **Motion:** the opening deal, one reveal per project with its own meaning, link/button/poster feedback, and hover depth for mouse users. It is progressive: `components/motion.tsx` adds `html.motion`, and without it everything is visible. Reduced motion shows everything at rest.
 - **Tests:** film tests skip themselves until films are published. New tests cover the "coming soon" slot (no play control, no broken images), no-JavaScript visibility, reveal-on-scroll and reduced motion.
 
+## Follow-up: lion mark and project sequence
+
+- **New brand mark:** a calm lion's head inside a mane of seven flat planes. De Leon means "of the lion". The owner chose it after four rounds of concepts; it replaces the "td" monogram everywhere: header, contact, favicons, app icons, social image and brand exports. Source: `brand/build-mark.py` → `brand/mark.path.txt` → `components/monogram.tsx` → `npm run icons`. Meaning and usage rules are in `brand/README.md`.
+- **Project pages no longer loop:** CodeLock → Tenant101 → Mimir, then "Back to all work" (`/#work`). A new e2e test covers the order.
+- **Checks:** tsc, lint and build pass. Playwright Chromium: 20 pass, 6 film tests skipped (no films yet).
+
 ## Verified in this session
 
 Linux cloud container, Node 22.22.2 (`package.json` asks for 24.x), Chromium 1194 via a temporary Playwright config (the pinned Playwright wants a newer browser build than the container has).

@@ -40,7 +40,8 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const project = findProject(slug);
   if (!project) notFound();
   const index = projects.findIndex((item) => item.slug === slug);
-  const next = projects[(index + 1) % projects.length];
+  // The sequence ends at the last project and returns to the collection; it does not loop.
+  const next = projects[index + 1];
   const media = mediaFor(project);
   const section = (key: StoryKey) => project.story.find((item) => item.key === key);
   const part = section("part");
@@ -134,11 +135,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <nav className="wrap pager" aria-label="More projects">
-          <Link href={`/work/${next.slug}/`}>
-            <span className="eyebrow">Next project</span>
-            <strong>{next.name}</strong>
-            <span className="pager__purpose">{next.purpose}</span>
-          </Link>
+          {next ? (
+            <Link href={`/work/${next.slug}/`}>
+              <span className="eyebrow">Next project</span>
+              <strong>{next.name}</strong>
+              <span className="pager__purpose">{next.purpose}</span>
+            </Link>
+          ) : (
+            <Link href="/#work">
+              <span className="eyebrow">You&apos;ve seen all three</span>
+              <strong>Back to all work</strong>
+              <span className="pager__purpose">See the projects side by side, then say hello.</span>
+            </Link>
+          )}
         </nav>
       </main>
       <SiteFooter />

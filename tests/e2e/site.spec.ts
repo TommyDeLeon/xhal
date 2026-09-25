@@ -189,3 +189,13 @@ test("keyboard navigation starts at the skip link and reaches every published fi
     await expect(button).toHaveJSProperty("tabIndex", 0);
   }
 });
+
+test("project pages lead forward in order and end back at the collection", async ({ page }) => {
+  const expected = [...slugs.slice(1).map((slug) => `/work/${slug}/`), "/#work"];
+  for (let i = 0; i < slugs.length; i += 1) {
+    await page.goto(`/work/${slugs[i]}/`);
+    const links = page.getByRole("navigation", { name: "More projects" }).getByRole("link");
+    await expect(links).toHaveCount(1);
+    await expect(links).toHaveAttribute("href", expected[i]);
+  }
+});

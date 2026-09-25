@@ -15,7 +15,8 @@ const markPath = source.match(/d="([^"]+)"/)?.[1];
 if (!markPath) throw new Error("Monogram path missing from components/monogram.tsx");
 let browser;
 try {
-  browser = await chromium.launch();
+  // CHROMIUM_PATH lets a machine with a different browser build run this.
+  browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 } catch (error) {
   throw new Error("Playwright Chromium could not launch; icons were not generated. Run `npx playwright install chromium` in an authorized environment if the browser is missing.", { cause: error });
 }
@@ -27,7 +28,7 @@ function mark(color, background = "", viewBox = "0 0 64 64") {
     : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="64" height="64">
   ${ground}
-  <path d="${markPath}" fill="${color}"/>
+  <path fill-rule="evenodd" d="${markPath}" fill="${color}"/>
 </svg>`;
 }
 
@@ -41,7 +42,7 @@ const wordmark = `<svg xmlns="http://www.w3.org/2000/svg" width="650" height="10
 const lockup = `<svg xmlns="http://www.w3.org/2000/svg" width="750" height="100" viewBox="0 0 750 100">
   <style>${embeddedFont}</style>
   <g transform="translate(7 18)">
-    <path d="${markPath}" fill="${green}"/>
+    <path fill-rule="evenodd" d="${markPath}" fill="${green}"/>
   </g>
   <g transform="translate(91 0)">${word}</g>
 </svg>`;
@@ -103,7 +104,7 @@ try {
     }
 
     const ogMark = mark(green).replace('width="64" height="64"', 'width="88" height="88"');
-    const og = `<div style="width:1200px;height:630px;background:${ivory};border-top:6px solid ${green};position:relative;padding:112px 80px 68px">
+    const og = `<div style="width:1200px;height:630px;background:${ivory};position:relative;padding:112px 80px 68px">
       <div style="font:600 120px/1.08 Serif;letter-spacing:-0.035em;color:${ink}">Tommy De Leon</div>
       <div style="font:400 48px/1.2 Serif;color:${green};margin-top:27px">Useful software. Thoughtfully made.</div>
       <div style="font:500 28px/1.3 Geist;color:${ink};position:absolute;left:80px;bottom:75px">Software developer · tommydeleon.com</div>
