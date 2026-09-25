@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 const slugs = ["codelock", "tenant101", "mimir"] as const;
+// Projects with a finished film. Mimir shows a real still until its film is ready.
+const filmSlugs = ["codelock", "tenant101"] as const;
 
 test("navigation and feature links point to rendered sections and stories", async ({ page }) => {
   await page.goto("/");
@@ -15,7 +17,8 @@ test("navigation and feature links point to rendered sections and stories", asyn
   for (const slug of slugs) {
     const feature = features.filter({ has: page.locator(`#${slug}-title`) });
     await expect(feature).toHaveCount(1);
-    await expect(feature.locator(".film__play")).toHaveCount(1);
+    await expect(feature.locator(".film__play")).toHaveCount((filmSlugs as readonly string[]).includes(slug) ? 1 : 0);
+    await expect(feature.locator(".film__poster")).toHaveCount(1);
     await expect(feature.locator(`a[href="/work/${slug}/"]`)).toHaveCount(1);
   }
 });
@@ -123,7 +126,7 @@ test("keyboard navigation starts at the skip link and reaches every film button"
   await page.goto("/");
   await page.keyboard.press("Tab");
   await expect(page.locator(".skip-link")).toBeFocused();
-  for (const slug of slugs) {
+  for (const slug of filmSlugs) {
     const button = page.locator(`#${slug} .film__play`);
     await expect(button).toHaveCount(1);
     await expect(button).toHaveJSProperty("tabIndex", 0);

@@ -22,6 +22,15 @@ export type Film = {
   credits: string | null;
 };
 
+/** A real still for a project whose film is not finished: no play control, no film claims. */
+export type Still = {
+  poster: string;
+  /** Describes the still for screen readers. */
+  alt: string;
+  /** Shown under the still: what it is and what is synthetic. */
+  note: string;
+};
+
 export type StorySection = { heading: string; body: string[] };
 
 export type Project = {
@@ -36,7 +45,9 @@ export type Project = {
   /** Page <title> and meta description for /work/<slug>/. */
   title: string;
   description: string;
-  film: Film;
+  /** A finished film, or a still while the film is not ready. Exactly one is set. */
+  film?: Film;
+  still?: Still;
   /** Main story: problem, what it does, contribution, one decision, limits. */
   story: StorySection[];
   /** Optional deeper engineering notes, below the main story. */
@@ -62,10 +73,10 @@ export const projects: Project[] = [
       poster: "/images/posters/codelock",
       descriptions: "/films/codelock/codelock-descriptions.vtt",
       seconds: 24,
-      note: "Recorded in a browser against a local test server. The desktop app is what locks Windows.",
+      note: "Recorded on the Windows desktop app against a local test server. The 15-minute wait is cut and typing is sped up.",
       summary:
-        "A focus timer reaches zero and the lock screen takes over with a programming problem. A first attempt passes its tests but runs too slowly, so the lock stays. A faster attempt passes, and the session is released.",
-      credits: "Music: “Envision” by Kevin MacLeod (incompetech.com), CC BY 4.0.",
+        "A 15-minute focus block starts from the dashboard. When the timer reaches zero, the desktop app takes over the whole screen with a programming problem, Two Sum. The first attempt is typed and submitted; it fails three of five tests, so the lock stays. The fix passes every test, and the screen is released.",
+      credits: "Music: “Envision” by Kevin MacLeod (incompetech.com), CC BY 4.0. Click: Kenney, CC0.",
     },
     story: [
       {
@@ -142,10 +153,10 @@ export const projects: Project[] = [
       poster: "/images/posters/tenant101",
       descriptions: "/films/tenant101/tenant101-descriptions.vtt",
       seconds: 24,
-      note: "Demo data. Real screens from a local test copy; waits between steps are shortened.",
+      note: "Demo data. Recorded on a local test copy; typing and waits are sped up.",
       summary:
         "On a phone, a tenant sees a unit's balance, reports a ₱16,500 transfer with its reference and receipt, and the app marks it as waiting for review. The balance does not change yet. The landlord approves it on their phone, and the tenant's balance drops from ₱81,675 to ₱65,175.",
-      credits: "Music: “Inspired” by Kevin MacLeod (incompetech.com), CC BY 4.0.",
+      credits: "Music: “Inspired” by Kevin MacLeod (incompetech.com), CC BY 4.0. Click: Kenney, CC0.",
     },
     story: [
       {
@@ -198,16 +209,10 @@ export const projects: Project[] = [
     title: "Mimir: a little help, right beside the work",
     description:
       "A private Windows assistant and tutor that answers from sources it actually read, keeps private material on the laptop, and says so when it can't find support.",
-    film: {
-      landscape: "/films/mimir/mimir-landscape-720.mp4",
-      portrait: "/films/mimir/mimir-portrait-720.mp4",
+    still: {
       poster: "/images/posters/mimir",
-      descriptions: "/films/mimir/mimir-descriptions.vtt",
-      seconds: 24,
-      note: "Real app on my laptop with a synthetic example. The wait for the answer is shortened.",
-      summary:
-        "Mimir opens beside a piece of work, a question is typed into it, and it answers with a short explanation while the work stays in view.",
-      credits: "Music: “Touching Moments One - Pulse” by Kevin MacLeod (incompetech.com), CC BY 4.0.",
+      alt: "Mimir's window open beside a practice notebook, with one line of Python selected.",
+      note: "A real screenshot of Mimir on my laptop, beside a synthetic practice page. A film is still to come.",
     },
     story: [
       {
@@ -237,7 +242,7 @@ export const projects: Project[] = [
       {
         heading: "What works today, and its limits",
         body: [
-          "The backend has 93 passing tests, and hosted answers were checked live on 24 September 2026. Voice, computer-audio listening and the screen companion are wired up but not yet tested on real hardware. It isn't fully offline, answers can still be wrong, and it isn't available to download.",
+          "The backend has 234 passing tests, and hosted answers were checked live on 26 September 2026. Voice questions and the screen companion run on my laptop but aren't reliable yet, and computer-audio listening is untested. It isn't fully offline, answers can still be wrong, and it isn't available to download.",
         ],
       },
     ],

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { projects, findProject } from "@/content/projects";
 import { Film } from "@/components/film";
+import { Still } from "@/components/still";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -54,15 +55,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             ))}
           </dl>
         </div>
-        <section className="wrap project-film" aria-label={`${project.name} film`}>
-          <Film
-            film={project.film}
-            name={project.name}
-            priority
-            failureHint="The summary below describes what it shows."
-          />
-          <p className="summary"><strong>What the film shows:</strong> {project.film.summary}</p>
-          {project.film.credits && <p className="film__note">{project.film.credits}</p>}
+        <section className="wrap project-film" aria-label={`${project.name} ${project.film ? "film" : "screenshot"}`}>
+          {project.film ? (
+            <>
+              <Film
+                film={project.film}
+                name={project.name}
+                priority
+                failureHint="The summary below describes what it shows."
+              />
+              <p className="summary"><strong>What the film shows:</strong> {project.film.summary}</p>
+              {project.film.credits && <p className="film__note">{project.film.credits}</p>}
+            </>
+          ) : project.still ? (
+            <Still still={project.still} priority />
+          ) : null}
         </section>
         <div className="wrap story">
           {project.story.map((section, i) => (

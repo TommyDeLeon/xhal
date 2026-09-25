@@ -2,6 +2,7 @@ import { site } from "@/content/site";
 import Link from "next/link";
 import { projects } from "@/content/projects";
 import { Film } from "@/components/film";
+import { Still } from "@/components/still";
 import { Monogram } from "@/components/monogram";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -43,12 +44,16 @@ export default function Home() {
                 <div><dt>My part</dt><dd>{project.credit}</dd></div>
                 <div><dt>Status</dt><dd>{project.status}</dd></div>
               </dl>
-              <Film
-                film={project.film}
-                name={project.name}
-                priority={i === 0}
-                failureHint="The project story describes what it shows."
-              />
+              {project.film ? (
+                <Film
+                  film={project.film}
+                  name={project.name}
+                  priority={i === 0}
+                  failureHint="The project story describes what it shows."
+                />
+              ) : project.still ? (
+                <Still still={project.still} priority={i === 0} />
+              ) : null}
               <Link className="more-link" href={`/work/${project.slug}/`}>
                 Read the {project.name} story
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
