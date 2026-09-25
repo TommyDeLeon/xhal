@@ -9,6 +9,7 @@
     "dev": "next dev",
     "prebuild": "node scripts/check-assets.mjs",
     "build": "next build",
+    "test:e2e": "playwright test",
     "lint": "eslint .",
     "images": "node scripts/optimize-images.mjs",
     "icons": "node scripts/make-icons.mjs"
