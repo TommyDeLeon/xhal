@@ -45,6 +45,10 @@ npm run dev
 
 The posters, film encodes, and WebVTT description tracks under `public/images/posters/` and `public/films/` are still pending. `npm run build` will fail until they arrive. No placeholder media should be published. The visible film summary and note remain readable without JavaScript; the video loads only after a visitor clicks Play film.
 
+### Film media
+
+The films and their poster frames come from the three film repositories: `codelock-film`, `tenant101-film`, and `mimir-film`. Export a 1920x1080 still from each film as `assets/posters/<slug>.png` (using the matching project slug), then run `npm run images`. The script writes 1280x720 AVIF, WebP, and JPEG posters to `public/images/posters/` and also refreshes the portrait from `assets/tommy.jpg`. Publish the film encodes and WebVTT description tracks separately under `public/films/`.
+
 There is no `next start` script because this is a static export. Serve `out/` with a static file host to inspect the production output. Build-time fonts are self-hosted by Next.js.
 
 ## Security and privacy
