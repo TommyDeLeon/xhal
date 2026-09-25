@@ -59,14 +59,16 @@ export const metadata: Metadata = {
     description: site.line,
     images: ["/og.png"],
   },
+  // ?v= changes whenever the icons change: browsers cache favicons by URL,
+  // often for weeks, and would keep showing the old mark otherwise.
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico?v=lion", sizes: "any" },
+      { url: "/icon.svg?v=lion", type: "image/svg+xml" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [{ url: "/apple-touch-icon.png?v=lion", sizes: "180x180" }],
   },
-  manifest: "/site.webmanifest",
+  manifest: "/site.webmanifest?v=lion",
   robots: { index: true, follow: true },
 };
 

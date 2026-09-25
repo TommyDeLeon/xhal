@@ -56,10 +56,11 @@ for (const [name, svg] of [
   ["wordmark.svg", wordmark],
   ["lockup.svg", lockup],
 ]) await writeFile(path.join("brand", name), svg);
-await writeFile("public/icon.svg", mark(green));
+// Site icons use the reverse lion: ivory on a green square, matching
+// brand/monogram-reverse.svg, so the tab icon stands out on any browser theme.
+const appMark = mark(ivory, green, "-8 -8 80 80");
+await writeFile("public/icon.svg", appMark);
 
-// Raster app icons keep the same paths, with space around the mark.
-const appMark = mark(green, ivory, "-12 -12 88 88");
 for (const [file, size] of [
   ["icon-32.png", 32],
   ["icon-192.png", 192],

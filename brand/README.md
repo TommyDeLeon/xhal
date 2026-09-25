@@ -70,6 +70,8 @@ Run `python brand/build-mark.py` from the repository root (needs `pip install sh
 
 Run `npm run icons` from the repository root. It writes the SVG masters, transparent PNG exports, favicon and app icons, and `public/og.png`. The social card is 1200×630, with the site name, line, role, and URL. The generator needs the local WOFF2 files in `brand/fonts/`, Sharp, and Playwright's Chromium. It fails with a clear error if Chromium cannot launch; regenerate the assets in an environment where it can.
 
+The favicon, app icons and `public/icon.svg` use the **reverse lion** (ivory on a green square), so the tab icon stands out on light and dark browser themes. Their URLs carry a `?v=` tag in `app/layout.tsx` and `public/site.webmanifest`. Change that tag whenever the icons change: browsers cache favicons by URL, often for weeks.
+
 ## Video framing
 
 Make 1920×1080 and 1080×1920 masters at 30fps. Use an ivory frame with a 1px hairline, Source Serif 4 titles, and Geist labels. Keep on-screen text to 3–7 words. Hold labels at least 0.8s and sentences for 0.3s per word with a 1.2s minimum. Keep product UI in its real palette inside a plain frame. End with “{Product} · tommydeleon.com” and the lion mark. Put “Demo data” and staging labels in Geist 600 on a `#E8EFE6` chip.
