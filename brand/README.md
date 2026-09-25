@@ -64,7 +64,9 @@ Use the real portrait and real product captures only. Keep each product's own co
 
 ## Favicon and social preview
 
-Run `npm run icons` from the repository root. It writes the SVG masters, transparent PNG exports, favicon and app icons, and `public/og.png`. The social card is 1200×630, with the site name, line, role, and URL. The generator needs the local WOFF2 files in `brand/fonts/`, Sharp, and Playwright's Chromium. If Chromium cannot launch, it makes provisional text rasters from the fonts' default outlines and prints a warning; rerun where Chromium works for the specified weights.
+Run `python brand/build-monogram.py` from the repository root to rebuild the Source Serif 4 mark path at weight 600 and optical size 20. Copy the resulting path from `brand/monogram.path.txt` into `components/monogram.tsx` before exporting assets. The smaller optical size keeps the serifs and hairlines sturdy at 16px.
+
+Run `npm run icons` from the repository root. It writes the SVG masters, transparent PNG exports, favicon and app icons, and `public/og.png`. The social card is 1200×630, with the site name, line, role, and URL. The generator needs the local WOFF2 files in `brand/fonts/`, Sharp, and Playwright's Chromium. It fails with a clear error if Chromium cannot launch; regenerate the assets in an environment where it can.
 
 ## Video framing
 

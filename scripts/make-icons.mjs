@@ -13,6 +13,12 @@ const geistFile = path.resolve("brand/fonts/geist-latin.woff2");
 const source = await readFile("components/monogram.tsx", "utf8");
 const markPath = source.match(/d="([^"]+)"/)?.[1];
 if (!markPath) throw new Error("Monogram path missing from components/monogram.tsx");
+let browser;
+try {
+  browser = await chromium.launch();
+} catch (error) {
+  throw new Error("Playwright Chromium could not launch; icons were not generated. Run `npx playwright install chromium` in an authorized environment if the browser is missing.", { cause: error });
+}
 
 function mark(color, background = "", viewBox = "0 0 64 64") {
   const [x, y, width, height] = viewBox.split(" ");
@@ -21,8 +27,7 @@ function mark(color, background = "", viewBox = "0 0 64 64") {
     : "";
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="64" height="64">
   ${ground}
-  <path d="${markPath}" fill="none" stroke="${color}" stroke-width="5"
-    stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${markPath}" fill="${color}"/>
 </svg>`;
 }
 
@@ -36,8 +41,7 @@ const wordmark = `<svg xmlns="http://www.w3.org/2000/svg" width="650" height="10
 const lockup = `<svg xmlns="http://www.w3.org/2000/svg" width="750" height="100" viewBox="0 0 750 100">
   <style>${embeddedFont}</style>
   <g transform="translate(7 18)">
-    <path d="${markPath}" fill="none" stroke="${green}" stroke-width="5"
-      stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${markPath}" fill="${green}"/>
   </g>
   <g transform="translate(91 0)">${word}</g>
 </svg>`;
@@ -71,15 +75,7 @@ const fontCss = `
 @font-face{font-family:Geist;src:url('${pathToFileURL(geistFile).href}') format('woff2');font-weight:100 900}
 *{box-sizing:border-box}html,body{margin:0}body{background:transparent}`;
 const tempHtml = path.resolve("brand/.render.html");
-let browser;
 try {
-  browser = await chromium.launch();
-} catch (error) {
-  if (error?.code !== "EPERM" && !String(error).includes("spawn EPERM")) throw error;
-  await import("./render-icons-fallback.mjs");
-}
-if (browser) {
-  try {
     // A file page lets Chromium load the actual self-hosted font files.
     await writeFile(tempHtml, `<html><style>${fontCss}</style><body></body></html>`);
     const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
@@ -115,10 +111,9 @@ if (browser) {
     </div>`;
     await capture(og, 1200, 630, "public/og.png");
     await page.close();
-  } finally {
-    await browser.close();
-    await rm(tempHtml, { force: true });
-  }
+} finally {
+  await browser.close();
+  await rm(tempHtml, { force: true });
 }
 
 console.log("brand exports and public icons written");
