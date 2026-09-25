@@ -46,3 +46,6 @@ AGENTS.md
 # Playwright output
 /test-results/
 /playwright-report/
+
+# Locally installed agent skills (reinstall from skills-lock.json)
+/.agents/

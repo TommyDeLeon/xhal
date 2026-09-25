@@ -18,6 +18,14 @@ Updated 25 September 2026 (third cloud session: UI/UX revision). Project: **xhal
 - **Checks:** `npx tsc --noEmit`, `npm run lint`, `npm run build`, `git diff --check` pass. `npm run test:e2e`: 48/48 pass in chromium-desktop, chromium-mobile, webkit-desktop and webkit-mobile. The CodeLock film played in the served static export (1280x720, readyState 4, time advancing).
 - **Found while filming (product bugs, not fixed here):** CodeLock briefly shows "The shell did not take the screen. Open it manually." for about 1.5 s before the kiosk takes over. Mimir's spoken replies read URLs character by character.
 
+## Film masters folded in (cloud session, 25 September 2026)
+
+- The desktop's uncommitted work arrived as a WIP commit. It is now a normal commit, and the WIP commit was not pushed.
+- `brag-output/` holds the 1080p masters, landscape and portrait (CodeLock 23.15 s, Tenant101 20.39 s), plus thumbnails, share copy and the brag plan. Their durations match the published 720p cuts in `public/films/`. The plan now says where the final cut differs from the planned 18.4 s CodeLock timing.
+- The WIP deleted `.impeccable/surfaces/app-page-tsx.md`, the design direction this handoff points to. That was probably accidental, so the file is restored.
+- `.agents/` (the locally installed brag-slim skill) is now gitignored. `skills-lock.json` is committed, so the skill can be reinstalled.
+- Checks run (Linux, Node 22.22.2): `npx tsc --noEmit`, `npm run lint`, `npm run build` and `git diff --check` pass. Playwright Chromium desktop and mobile pass 26/26 with the films live. WebKit did not run in this container.
+
 ## This revision (owner feedback: messy drop caps, too long, generic, not alive)
 
 - **Typography:** drop caps and heavy 6px rules removed. Smaller name (one line on phones), a Source Serif 4 italic tagline, and hairline dividers.
