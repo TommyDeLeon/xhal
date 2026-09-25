@@ -1,28 +1,31 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:03.000
-“Who's paid. What's next.” A tenant phone scrolls toward Unit 101. The large balance reads ₱81,675, matching the app's Unit 101 card as it comes into view. Demo data.
+00:00.000 --> 00:02.800
+Text on an ivory background: "A screenshot isn't a rent record."
 
-00:00:03.000 --> 00:00:04.900
-“Report the payment.” The tenant taps Pay this rental (green rings mark real taps), and the real payment form opens. Demo data.
+00:02.800 --> 00:04.700
+Tenant101 on a phone with demo data. The tenant's home shows Unit 101 with a balance of ₱81,675; an arrow marks it as still owed. Caption: Every balance, on the tenant's phone.
 
-00:00:04.900 --> 00:00:08.000
-The tenant selects a method, enters ₱16,500 and a reference, then attaches a synthetic receipt. Demo data. Sped up 2x.
+00:04.700 --> 00:05.833
+The tenant taps Pay this rental and the payment form opens. Caption: Report the payment.
 
-00:00:08.000 --> 00:00:09.500
-The tenant taps Submit. The app confirms the report. Demo data.
+00:05.833 --> 00:07.633
+Sped up four times: the amount 16,500 and the reference DEMO-0925-4471 are typed, and a receipt is attached. Caption: Amount, reference and receipt.
 
-00:00:09.500 --> 00:00:10.500
-“Submitted. Awaiting review.” Back home, Unit 101 still shows ₱81,675, unchanged until checked. Demo data.
+00:07.633 --> 00:08.733
+The tenant taps Submit; the app confirms "Payment submitted".
 
-00:00:10.500 --> 00:00:12.000
-“The landlord checks it.” A second phone slides in; the tenant's pending screen holds while the landlord opens the payment review. Demo data. Landlord footage sped up 2x.
+00:08.733 --> 00:11.133
+Back home, Unit 101 still shows ₱81,675. Caption: It doesn't count until it's checked.
 
-00:00:12.000 --> 00:00:16.000
-The landlord reviews the ₱16,500 report and matching charges, then taps Approve. The app says “Payment recorded” and “Receipt #152 issued.” The tenant phone still shows the pending ₱81,675 balance. Demo data.
+00:11.133 --> 00:13.133
+On the landlord's phone, sped up twice, the report shows ₱16,500 with its reference. Caption: The landlord checks it.
 
-00:00:16.000 --> 00:00:20.000
-“Checked. Recorded.” The tenant phone changes to its approved home view. Unit 101 and the large balance both read ₱65,175. A soft bell sounds as the approved state appears; the balance holds. Demo data.
+00:13.133 --> 00:14.833
+The landlord approves: "Payment recorded. Receipt #152 issued."
 
-00:00:20.000 --> 00:00:24.000
-Tenant101 · tommydeleon.com. Team project · Not launched · Demo data. A closing card shows the approved tenant screen.
+00:14.833 --> 00:17.333
+The tenant's Unit 101 balance now reads ₱65,175. Caption: Only then does the balance change.
+
+00:17.333 --> 00:20.333
+The lion mark. Tenant101. Who's paid. What's next. See how it works at tommydeleon.com. Team project, not launched, demo data.
