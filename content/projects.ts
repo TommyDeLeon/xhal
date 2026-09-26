@@ -203,7 +203,7 @@ export const projects: Project[] = [
       portrait: "/films/tenant101/tenant101-portrait-720.mp4",
       poster: "/images/posters/tenant101",
       descriptions: "/films/tenant101/tenant101-descriptions.vtt",
-      seconds: 31,
+      seconds: 36,
       note: "Demo data. Recorded on a local test copy. Green rings mark real taps; typing and waits are sped up. The narration is a synthetic voice.",
       summary:
         "On a phone, a tenant sees a unit's balance, reports a ₱16,500 transfer with its reference and receipt, and the app marks it as waiting for review. The balance does not change yet. The landlord approves it on their phone, and the tenant's balance drops from ₱81,675 to ₱65,175.",
