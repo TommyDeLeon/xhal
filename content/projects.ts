@@ -92,7 +92,7 @@ export const projects: Project[] = [
       portrait: "/films/codelock/codelock-portrait-720.mp4",
       poster: "/images/posters/codelock",
       descriptions: "/films/codelock/codelock-descriptions.vtt",
-      seconds: 33,
+      seconds: 34,
       note: "The real desktop app, on a local test server. The wait is cut, typing is sped up, and the voice is synthetic.",
       summary:
         "A 15-minute focus block starts from the dashboard. When the timer reaches zero, the desktop app takes over the whole screen with a programming problem, Two Sum. The first attempt is typed and submitted; it fails three of five tests, so the lock stays. The fix passes every test within the 162 ms speed budget, and the screen is released.",
