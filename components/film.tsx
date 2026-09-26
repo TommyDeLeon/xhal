@@ -12,11 +12,13 @@ export function Film({
   film,
   name,
   priority = false,
+  showNote = true,
   failureHint,
 }: {
   film: FilmData;
   name: string;
   priority?: boolean;
+  showNote?: boolean;
   failureHint: string;
 }) {
   const id = useId();
@@ -105,7 +107,7 @@ export function Film({
           </button>
         )}
       </div>
-      <figcaption className="media-note">{film.note}</figcaption>
+      {showNote && <figcaption className="media-note">{film.note}</figcaption>}
       {failed && <p className="film__error" role="status">The film couldn&apos;t load. {failureHint}</p>}
     </figure>
   );

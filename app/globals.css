@@ -2,7 +2,7 @@
 
 /*
   Tommy De Leon: light only. Ivory stock, deep green accent, ink text.
-  Source Serif 4 for names and titles; Geist for reading and controls.
+  Newsreader for names and titles; Inter for reading and controls.
   Separation comes from hairlines, space and soft depth, never heavy rules.
 
   Motion (see "Motion" at the end):
@@ -28,9 +28,9 @@
   --rule: #dfe4dc;
   --soft: #e8efe6;
   --serif: var(--font-serif),Georgia,serif;
-  --sans: var(--font-geist),ui-sans-serif,system-ui,sans-serif;
+  --sans: var(--font-sans),ui-sans-serif,system-ui,sans-serif;
   --gutter: clamp(16px,5vw,56px);
-  --measure: 38rem;
+  --measure: 36rem;
   --radius: 10px;
   --ease-out: cubic-bezier(.16,1,.3,1);
   --ease-soft: cubic-bezier(.22,.61,.36,1);
@@ -46,7 +46,8 @@ html {
 body {
   background: var(--ivory);
   color: var(--ink);
-  font: 400 17px/1.6 var(--sans);
+  font: 400 17px/1.65 var(--sans);
+  letter-spacing: -.006em;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -146,7 +147,7 @@ img {
 }
 
 .section-title {
-  font: 600 clamp(1.75rem,3.4vw,2.375rem)/1.1 var(--serif);
+  font: 500 clamp(1.875rem,3.6vw,2.625rem)/1.1 var(--serif);
   letter-spacing: -.02em;
 }
 
@@ -298,8 +299,8 @@ img {
 }
 
 .hero__name {
-  font: 600 clamp(2.75rem,8vw,5.25rem)/1 var(--serif);
-  letter-spacing: -.03em;
+  font: 500 clamp(3rem,8.5vw,5.75rem)/1 var(--serif);
+  letter-spacing: -.025em;
 }
 
 .hero__word {
@@ -321,8 +322,8 @@ img {
 }
 
 .hero__intro {
-  max-width: 30rem;
-  margin-block: 1rem 1.5rem;
+  max-width: 26rem;
+  margin-block: 1.25rem 1.75rem;
   color: var(--muted);
 }
 
@@ -410,7 +411,7 @@ img {
 /* Collection */
 
 .work,.about,.contact {
-  padding-block: clamp(2.5rem,6vw,4rem);
+  padding-block: clamp(4rem,10vw,7rem);
   border-top: 1px solid var(--rule);
 }
 
@@ -420,29 +421,38 @@ img {
 
 .collection {
   display: grid;
-  gap: 2.75rem;
+  gap: clamp(4rem,10vw,6rem);
 }
 
 .feature {
   display: grid;
-  gap: .9rem;
+  gap: 1.4rem;
   align-content: start;
   scroll-margin-top: 1rem;
 }
 
 .feature__body {
   display: grid;
-  gap: .45rem;
+  gap: .6rem;
   align-content: start;
 }
 
 .feature__title {
-  font: 600 clamp(1.75rem,3.2vw,2.375rem)/1.05 var(--serif);
+  font: 500 clamp(2rem,3.4vw,2.625rem)/1.05 var(--serif);
   letter-spacing: -.02em;
 }
 
 .feature__purpose {
-  max-width: 34rem;
+  max-width: 30rem;
+  color: var(--muted);
+}
+
+/* One quiet line: who built it, and what state it is in. */
+.feature__meta {
+  color: var(--ink);
+  font-size: .875rem;
+  font-weight: 500;
+  letter-spacing: .01em;
 }
 
 .facts-line {
@@ -801,48 +811,52 @@ img {
 
 /* About */
 
-/* Phones: a small portrait sits beside the opening lines; text wraps around it. */
+/* Phones: the portrait is its own block above the text, never wrapped by it. */
+.about {
+  display: grid;
+  gap: 2rem;
+}
+
 .about__portrait {
-  float: left;
-  width: 6.5rem;
-  margin: .3rem 1.1rem .4rem 0;
+  width: min(100%,20rem);
+  margin: 0;
   overflow: hidden;
-  border-radius: var(--radius);
+  border-radius: 14px;
+  box-shadow: var(--lift);
 }
 
 .about__portrait img {
   width: 100%;
   aspect-ratio: 4/5;
   object-fit: cover;
-  object-position: 55% 24%;
+  object-position: 55% 30%;
   transition: transform 1.2s var(--ease-out);
 }
 
 .about__text>*+* {
-  margin-top: .9rem;
+  margin-top: 1.25rem;
 }
 
 .about__text p {
-  max-width: var(--measure);
-}
-
-.about__text .section-title {
-  margin-bottom: .5rem;
+  max-width: 32rem;
 }
 
 .about__lead {
-  font-size: 1.125rem;
+  font-size: 1.1875rem;
+  line-height: 1.6;
 }
 
 .offer {
   display: grid;
-  gap: .9rem;
-  clear: both;
-  padding-top: .25rem;
+  gap: .5rem;
+  margin: 1.75rem 0 0;
 }
 
 .offer div {
-  padding-top: .75rem;
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 1rem;
+  padding-block: .9rem;
   border-top: 1px solid var(--rule);
 }
 
@@ -851,15 +865,16 @@ img {
   font-size: .8125rem;
   font-weight: 600;
   letter-spacing: .08em;
+  line-height: 1.9;
   text-transform: uppercase;
 }
 
 .offer dd {
-  margin: .2rem 0 0;
+  margin: 0;
 }
 
 .about__text .button {
-  margin-top: 1.25rem;
+  margin-top: 1.75rem;
 }
 
 /* Contact */
@@ -878,7 +893,7 @@ img {
 
 .contact__email {
   justify-self: start;
-  font: 600 clamp(1.4rem,5.2vw,2.75rem)/1.15 var(--serif);
+  font: 500 clamp(1.4rem,5.2vw,2.75rem)/1.15 var(--serif);
   letter-spacing: -.01em;
   overflow-wrap: anywhere;
   text-decoration: none;
@@ -944,7 +959,7 @@ img {
 }
 
 .phead h1 {
-  font: 600 clamp(2.5rem,6.5vw,4.25rem)/1 var(--serif);
+  font: 500 clamp(2.75rem,7vw,4.75rem)/1 var(--serif);
   letter-spacing: -.03em;
 }
 
@@ -964,9 +979,17 @@ img {
 
 .pmedia__text {
   display: grid;
-  gap: .5rem;
+  gap: .6rem;
   max-width: var(--measure);
-  margin-top: 1rem;
+  margin-top: 1.25rem;
+  font-size: .9375rem;
+}
+
+.pmedia__text summary {
+  width: fit-content;
+  color: var(--green);
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .pbody {
@@ -1041,7 +1064,7 @@ img {
 
 .story {
   display: grid;
-  gap: 2rem;
+  gap: 2.75rem;
   align-content: start;
 }
 
@@ -1051,11 +1074,11 @@ img {
 }
 
 .story h2 {
-  font: 600 clamp(1.375rem,2.4vw,1.625rem)/1.2 var(--serif);
+  font: 500 clamp(1.5rem,2.6vw,1.75rem)/1.2 var(--serif);
 }
 
 .story h3 {
-  font: 600 1.25rem/1.25 var(--serif);
+  font: 500 1.3rem/1.25 var(--serif);
 }
 
 .story p {
@@ -1187,14 +1210,7 @@ img {
   }
 
   .about__portrait {
-    float: none;
     width: 100%;
-    margin: 0;
-  }
-
-  .about__portrait img {
-    aspect-ratio: 1;
-    object-position: 55% 26%;
   }
 
   .contact {

@@ -38,11 +38,14 @@ export function WorkMedia({
   media,
   sizes,
   priority = false,
+  brief = false,
 }: {
   project: Project;
   media: ProjectMedia;
   sizes: string;
   priority?: boolean;
+  /** On the home page: no caption under the film; its project page carries the note. */
+  brief?: boolean;
 }) {
   if (media.film) {
     return (
@@ -50,6 +53,7 @@ export function WorkMedia({
         film={media.film}
         name={project.name}
         priority={priority}
+        showNote={!brief}
         failureHint="The project story describes what it shows."
       />
     );

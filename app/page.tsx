@@ -64,6 +64,7 @@ export default function Home() {
                     project={project}
                     media={media}
                     priority={i === 0}
+                    brief
                     sizes={i === 0 ? "(min-width: 1024px) 56vw, 100vw" : "(min-width: 1024px) 46vw, (min-width: 768px) 50vw, 100vw"}
                   />
                 </div>
@@ -71,10 +72,7 @@ export default function Home() {
                   <p className="eyebrow"><span className="feature__index">0{i + 1}</span> {project.kind}</p>
                   <h3 id={`${project.slug}-title`} className="feature__title">{project.name}</h3>
                   <p className="feature__purpose">{project.purpose}</p>
-                  <dl className="facts-line">
-                    <div><dt>My part</dt><dd>{project.creditShort}</dd></div>
-                    <div><dt>Status</dt><dd>{project.statusShort}</dd></div>
-                  </dl>
+                  <p className="feature__meta">{project.creditShort} · {project.statusShort}</p>
                   <Link className="more-link" href={`/work/${project.slug}/`}>
                     Read the {project.name} story {arrow}
                   </Link>
@@ -102,18 +100,17 @@ export default function Home() {
           <div className="about__text">
             <h2 id="about-title" className="section-title">About</h2>
             <p className="about__lead">
-              I&apos;m a software developer and an Electronics Engineering student, also learning
-              networks and security. I turn the small frustrations that interrupt everyday work into
-              software, test the parts that matter, and keep improving what people actually use.
+              Software developer and Electronics Engineering student, also learning networks and
+              security. I build tools that take the friction out of everyday work.
             </p>
             <dl className="offer">
               <div>
-                <dt>For teams hiring</dt>
-                <dd>I&apos;m open to junior software and web roles.</dd>
+                <dt>Hiring</dt>
+                <dd>Open to junior software and web roles.</dd>
               </div>
               <div>
-                <dt>For clients</dt>
-                <dd>Freelance web apps and dashboards, internal tools, websites and desktop utilities.</dd>
+                <dt>Freelance</dt>
+                <dd>Web apps, dashboards, internal tools and websites.</dd>
               </div>
             </dl>
             <a className="button button--quiet" href={site.resumeUrl}>
@@ -125,7 +122,7 @@ export default function Home() {
         <section id="contact" className="wrap contact" aria-labelledby="contact-title" data-reveal>
           <h2 id="contact-title" className="section-title">Contact</h2>
           <p className="contact__line">
-            Have a role, a project or a problem worth solving? Email me and I&apos;ll reply personally.
+            A role, a project, or a problem worth solving? I reply personally.
           </p>
           <a className="contact__email" href={`mailto:${site.email}`}>{site.email}</a>
           <ul className="contact__links">

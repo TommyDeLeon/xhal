@@ -14,7 +14,7 @@ export const site = {
   role: "Software developer",
 
   intro:
-    "I'm Tommy, a software developer building practical tools for everyday problems, and showing what I've actually checked.",
+    "I build practical software for everyday problems, and show what I've actually tested.",
 
   description:
     "Tommy De Leon is a software developer building practical tools for everyday problems: a focus lock, a rent-records app and a desktop study assistant, each with what has and hasn't been checked.",

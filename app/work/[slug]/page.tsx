@@ -44,7 +44,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const next = projects[index + 1];
   const media = mediaFor(project);
   const section = (key: StoryKey) => project.story.find((item) => item.key === key);
-  const part = section("part");
   const limits = section("limits");
   const story = (["problem", "does", "decision"] as const).map(section).filter((item) => item !== undefined);
 
@@ -61,10 +60,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         <section className="wrap pmedia" aria-label={`${project.name} media`}>
           <WorkMedia project={project} media={media} priority sizes="(min-width: 1280px) 1180px, 100vw" />
           {media.film && (
-            <div className="pmedia__text">
-              <p><strong>What the film shows:</strong> {media.film.summary}</p>
+            <details className="pmedia__text">
+              <summary>What happens in the film</summary>
+              <p>{media.film.summary}</p>
               {media.film.credits && <p className="media-note">{media.film.credits}</p>}
-            </div>
+            </details>
           )}
         </section>
 
@@ -75,7 +75,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               <div>
                 <dt>My part</dt>
                 <dd>{project.credit}</dd>
-                {part && <dd className="glance__more">{part.body.join(" ")}</dd>}
               </div>
               <div>
                 <dt>Status</dt>

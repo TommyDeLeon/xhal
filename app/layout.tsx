@@ -1,30 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Source_Serif_4 } from "next/font/google";
+import { Inter, Newsreader } from "next/font/google";
 import { site } from "@/content/site";
 import { Motion } from "@/components/motion";
 import "./globals.css";
 
 /*
   Two families, self-hosted by next/font at build time (no request reaches
-  Google from a visitor's browser). Geist carries reading and controls; Source
-  Serif 4 carries the name, section and project titles, and the italic line. Its optical
-  size axis keeps it sturdy at display sizes, where the old Didone thinned out.
+  Google from a visitor's browser). Inter carries reading and controls;
+  Newsreader, made for reading on screens, carries the name, titles and the
+  italic line. latin-ext is loaded too: it holds the peso sign (U+20B1), and
+  the browser fetches it only on pages that show one.
 */
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
+const sans = Inter({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-sans",
   display: "swap",
 });
 
-const serif = Source_Serif_4({
-  subsets: ["latin"],
+const serif = Newsreader({
+  subsets: ["latin", "latin-ext"],
   variable: "--font-serif",
   display: "swap",
   axes: ["opsz"],
 });
 
-// Only the tagline is italic, so it is not preloaded and skips the optical-size axis.
-const serifItalic = Source_Serif_4({
+// Only the tagline is italic, so it is not preloaded.
+const serifItalic = Newsreader({
   subsets: ["latin"],
   variable: "--font-serif-italic",
   display: "swap",
@@ -84,7 +85,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} ${serif.variable} ${serifItalic.variable}`}>
+    <html lang="en" className={`${sans.variable} ${serif.variable} ${serifItalic.variable}`}>
       <body>
         <a className="skip-link" href="#main">
           Skip to content
