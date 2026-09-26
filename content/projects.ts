@@ -195,18 +195,18 @@ export const projects: Project[] = [
     status: "In development. Not yet launched; shown here with demo data only.",
     creditShort: "Team project: I built most of it; my mentor owns the product",
     statusShort: "In development, demo data only",
-    title: "Tenant101: clearer rent records, from payment to review",
+    title: "Tenant101: rent that records itself",
     description:
-      "A property and tenant management app where a tenant reports a payment from their phone, a landlord reviews it, and the balance changes only when it's approved.",
+      "A property and tenant management app where a tenant pays rent from their phone with GCash, Maya or a card, and the balance updates on its own once PayMongo confirms the payment.",
     film: {
       landscape: "/films/tenant101/tenant101-landscape-720.mp4",
       portrait: "/films/tenant101/tenant101-portrait-720.mp4",
       poster: "/images/posters/tenant101",
       descriptions: "/films/tenant101/tenant101-descriptions.vtt",
-      seconds: 36,
-      note: "Demo data. Recorded on a local test copy. Green rings mark real taps; typing and waits are sped up. The narration is a synthetic voice.",
+      seconds: 33,
+      note: "Demo data. Recorded on a local test copy against PayMongo's test mode, so no real money moved. Green rings mark real taps; typing is sped up. The narration is a synthetic voice.",
       summary:
-        "On a phone, a tenant sees a unit's balance, reports a ₱16,500 transfer with its reference and receipt, and the app marks it as waiting for review. The balance does not change yet. The landlord approves it on their phone, and the tenant's balance drops from ₱81,675 to ₱65,175.",
+        "On a phone, a tenant sees ₱81,675 owed on a unit, taps Pay and picks GCash. They finish on PayMongo's checkout and its GCash test page, then return to the app, where the unit already reads Paid up, ₱0.00. PayMongo's signed notice recorded the payment; nobody approved it by hand.",
       credits: "Music: “Inspired” by Kevin MacLeod (incompetech.com), CC BY 4.0. Click: Kenney, CC0.",
     },
     // Real phone screens from the owner's local test copy. Until these files are
@@ -249,7 +249,7 @@ export const projects: Project[] = [
         key: "does",
         heading: "What it does",
         body: [
-          "Tenants see each rental's balance and what is due next, on the phone they already use. They report a payment with its reference and receipt. The landlord reviews it and approves or rejects it. Only an approval changes the balance, and a partial payment leaves the exact remainder.",
+          "Tenants see each rental's balance and what is due next, on the phone they already use. They pay with GCash, Maya or a card through PayMongo, on the landlord's own PayMongo account, and the balance updates by itself once PayMongo confirms the payment. There is no receipt to upload and nothing for the landlord to approve. Cash and other transfers can still be reported, and those wait for the landlord's review.",
           "Around that sit properties, leases, monthly charges, late fees, deposits, receipts, repairs and reports.",
         ],
       },
@@ -264,7 +264,7 @@ export const projects: Project[] = [
         key: "decision",
         heading: "One decision",
         body: [
-          "A reported payment is a claim, not money. So a tenant's report is stored separately and never touches the balance. Approval is the only thing that creates a payment, and balances are always worked out from recorded payments rather than a stored total that could drift. Amounts are kept in whole centavos, never floating-point pesos.",
+          "Returning from the checkout proves nothing, so the app never trusts it. A payment is recorded only when PayMongo's signed notice arrives and checks out, so a tenant who closes the tab is still credited and a forged return is not. A tenant's own report is only a claim until the landlord approves it. Balances are always worked out from recorded payments rather than a stored total that could drift, and amounts are kept in whole centavos, never floating-point pesos.",
         ],
       },
       {

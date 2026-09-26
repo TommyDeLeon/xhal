@@ -1,25 +1,31 @@
 WEBVTT
 
 00:00.000 --> 00:03.200
-Text on an ivory background, read aloud: "A screenshot isn't a rent record."
+Text on an ivory background, read aloud: "Rent shouldn't need a screenshot."
 
-00:03.200 --> 00:08.400
-Tenant101 on a phone with demo data. The tenant's home shows Unit 101 with a balance of ₱81,675, marked as still owed. "With Tenant101, every tenant sees their balance, right on their phone."
+00:03.200 --> 00:05.867
+Tenant101 on a phone with demo data. The tenant's home shows Unit 101 with ₱81,675 owed, and the tenant taps Pay this rental. "With Tenant101, every tenant sees what they owe, right on their phone."
 
-00:08.400 --> 00:15.000
-The tenant taps Pay this rental. Sped up twice, the amount 16,500 and the reference DEMO-0925-4471 are typed and a receipt is attached. "To pay, they report the transfer, with its reference and receipt."
+00:05.867 --> 00:08.367
+The pay screen offers GCash, Maya and Card, marked "Confirmed automatically, no receipt to upload and nothing for your landlord to approve by hand." The tenant taps GCash.
 
-00:15.000 --> 00:17.667
-The tenant taps Submit; the app confirms "Payment submitted".
+00:08.367 --> 00:12.467
+PayMongo's checkout, in test mode, shows ₱81,675.00 for Sunrise Apartments 101. The tenant chooses GCash and taps Continue. "They pay with GCash, Maya, or a card, through PayMongo."
 
-00:17.667 --> 00:21.667
-Back home, Unit 101 still shows ₱81,675. "It doesn't count yet. The balance waits for the landlord."
+00:12.467 --> 00:16.067
+Sped up three times, the tenant types their name and email and taps Pay ₱81,675.00.
 
-00:21.667 --> 00:28.467
-On the landlord's phone, the report shows ₱16,500 with its reference; the landlord approves: "Payment recorded. Receipt #152 issued." "The landlord checks the report, and approves it."
+00:16.067 --> 00:18.867
+PayMongo's GCash test payment page. The tenant taps Authorize Test Payment. "A few taps, and the payment goes through."
 
-00:28.467 --> 00:31.967
-The tenant's Unit 101 balance now reads ₱65,175. "Only then does the balance change."
+00:18.867 --> 00:22.200
+PayMongo shows "GCash Payment Received!" and the tenant taps Return to Merchant.
 
-00:31.967 --> 00:35.967
+00:22.200 --> 00:25.200
+Back in Tenant101, Unit 101 reads Paid up, balance ₱0.00. "Back in the app, it's already paid."
+
+00:25.200 --> 00:28.700
+Recent payments lists ₱81,675.00 on 26 September 2026, recorded on its own. "No receipt to upload. Nobody approving it by hand."
+
+00:28.700 --> 00:32.533
 The lion mark. "Tenant101. Who's paid, and what's next." See how it works at tommydeleon.com. Team project, not launched, demo data.
