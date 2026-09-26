@@ -1,31 +1,25 @@
 WEBVTT
 
-00:00.000 --> 00:02.800
-Text on an ivory background: "A screenshot isn't a rent record."
+00:00.000 --> 00:03.200
+Text on an ivory background, read aloud: "A screenshot isn't a rent record."
 
-00:02.800 --> 00:04.700
-Tenant101 on a phone with demo data. The tenant's home shows Unit 101 with a balance of ₱81,675; an arrow marks it as still owed. Caption: Every balance, on the tenant's phone.
+00:03.200 --> 00:08.400
+Tenant101 on a phone with demo data. The tenant's home shows Unit 101 with a balance of ₱81,675, marked as still owed. "With Tenant101, every tenant sees their balance, right on their phone."
 
-00:04.700 --> 00:05.833
-The tenant taps Pay this rental and the payment form opens. Caption: Report the payment.
+00:08.400 --> 00:13.000
+The tenant taps Pay this rental. Sped up three times, the amount 16,500 and the reference DEMO-0925-4471 are typed and a receipt is attached. "To pay, they report the transfer, with its reference and receipt."
 
-00:05.833 --> 00:07.633
-Sped up four times: the amount 16,500 and the reference DEMO-0925-4471 are typed, and a receipt is attached. Caption: Amount, reference and receipt.
-
-00:07.633 --> 00:08.733
+00:13.000 --> 00:14.800
 The tenant taps Submit; the app confirms "Payment submitted".
 
-00:08.733 --> 00:11.133
-Back home, Unit 101 still shows ₱81,675. Caption: It doesn't count until it's checked.
+00:14.800 --> 00:18.800
+Back home, Unit 101 still shows ₱81,675. "It doesn't count yet. The balance waits for the landlord."
 
-00:11.133 --> 00:13.133
-On the landlord's phone, sped up twice, the report shows ₱16,500 with its reference. Caption: The landlord checks it.
+00:18.800 --> 00:24.200
+On the landlord's phone, the report shows ₱16,500 with its reference; the landlord approves: "Payment recorded. Receipt #152 issued." "The landlord checks the report, and approves it."
 
-00:13.133 --> 00:14.833
-The landlord approves: "Payment recorded. Receipt #152 issued."
+00:24.200 --> 00:27.400
+The tenant's Unit 101 balance now reads ₱65,175. "Only then does the balance change."
 
-00:14.833 --> 00:17.333
-The tenant's Unit 101 balance now reads ₱65,175. Caption: Only then does the balance change.
-
-00:17.333 --> 00:20.333
-The lion mark. Tenant101. Who's paid. What's next. See how it works at tommydeleon.com. Team project, not launched, demo data.
+00:27.400 --> 00:31.400
+The lion mark. "Tenant101. Who's paid, and what's next." See how it works at tommydeleon.com. Team project, not launched, demo data.

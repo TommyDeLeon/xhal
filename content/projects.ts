@@ -92,8 +92,8 @@ export const projects: Project[] = [
       portrait: "/films/codelock/codelock-portrait-720.mp4",
       poster: "/images/posters/codelock",
       descriptions: "/films/codelock/codelock-descriptions.vtt",
-      seconds: 23,
-      note: "Recorded on the Windows desktop app against a local test server. The 15-minute wait is cut, typing is sped up, and the pass is held as a still.",
+      seconds: 33,
+      note: "Recorded on the Windows desktop app against a local test server. The 15-minute wait is cut, typing is sped up, and the pass is held as a still. The narration is a synthetic voice.",
       summary:
         "A 15-minute focus block starts from the dashboard. When the timer reaches zero, the desktop app takes over the whole screen with a programming problem, Two Sum. The first attempt is typed and submitted; it fails three of five tests, so the lock stays. The fix passes every test within the 162 ms speed budget, and the screen is released.",
       credits: "Music: “Envision” by Kevin MacLeod (incompetech.com), CC BY 4.0. Click: Kenney, CC0.",
@@ -203,8 +203,8 @@ export const projects: Project[] = [
       portrait: "/films/tenant101/tenant101-portrait-720.mp4",
       poster: "/images/posters/tenant101",
       descriptions: "/films/tenant101/tenant101-descriptions.vtt",
-      seconds: 20,
-      note: "Demo data. Recorded on a local test copy. Green rings mark real taps; typing and waits are sped up.",
+      seconds: 31,
+      note: "Demo data. Recorded on a local test copy. Green rings mark real taps; typing and waits are sped up. The narration is a synthetic voice.",
       summary:
         "On a phone, a tenant sees a unit's balance, reports a ₱16,500 transfer with its reference and receipt, and the app marks it as waiting for review. The balance does not change yet. The landlord approves it on their phone, and the tenant's balance drops from ₱81,675 to ₱65,175.",
       credits: "Music: “Inspired” by Kevin MacLeod (incompetech.com), CC BY 4.0. Click: Kenney, CC0.",
