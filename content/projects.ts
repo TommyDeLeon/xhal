@@ -257,7 +257,7 @@ export const projects: Project[] = [
         key: "part",
         heading: "My part",
         body: [
-          "This is a team project owned by my mentor, who guides the product and has contributed code. I wrote most of the application, including the payment review flow, the balance calculations and the tenant's pay screen shown in the film.",
+          "This is a team project owned by my mentor, who guides the product and has contributed code. I wrote most of the application, including the PayMongo card and e-wallet payments, the payment review flow, the balance calculations and the tenant's pay screen shown in the film.",
         ],
       },
       {
